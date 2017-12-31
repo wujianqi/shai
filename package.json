@@ -1,0 +1,56 @@
+{
+  "name": "shai",
+  "version": "0.1.0",
+  "description": "前后台通用数据生成与验证工具库",
+  "main": "lib/shai.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "webpack --env build",
+    "dev": "webpack --progress --colors --watch --env dev",
+    "test": "mocha --require babel-core/register --colors ./test/*.spec.js",
+    "valid": "mocha --require babel-core/register --colors -w ./test/validate.spec.js",
+    "valid-items": "mocha --require babel-core/register --colors -w ./test/valid.items.spec.js",
+    "valid-data": "mocha --require babel-core/register --colors -w ./test/json.valid.spec.js",
+    "make": "mocha --require babel-core/register --colors -w ./test/make.spec.js",
+    "make-data": "mocha --require babel-core/register --colors -w ./test/json.make.spec.js"    
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-eslint": "^8.0.2",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "chai": "^4.1.2",
+    "eslint": "^4.12.1",
+    "eslint-loader": "^1.9.0",
+    "json-loader": "^0.5.7",
+    "mocha": "^4.1.0",
+    "webpack": "^3.10.0"
+  },
+  "dependencies": {
+    "gb2260": "^0.6.0",
+    "is-json": "^2.0.1",
+    "md5": "^2.2.1",
+    "object-path": "^0.11.4",
+    "randexp": "^0.4.6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wujianqi/shai.git"
+  },
+  "keywords": [
+    "data utils",
+    "validator",
+    "mock"
+  ],
+  "author": "wujianqi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wujianqi/shai/issues"
+  },
+  "homepage": "https://github.com/wujianqi/shai"
+}
