@@ -1,53 +1,34 @@
-const webpack = require('webpack');
-const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
-const path = require('path');
-const env = require('yargs').argv.env;
+const path = require("path"),
+    mode = require('yargs').argv.mode;
 
-let plugins = [], outputFile;
-
-if (env === 'build') {
-  plugins.push(new UglifyJsPlugin({ minimize: true }));
-  outputFile = '[name].min.js';
-} else {
-  outputFile = '[name].js';
+module.exports = {
+    mode: 'none',
+    watch: mode === 'development',
+	// devtool: 'source-map',
+    entry: {
+        'shai': './src/index.ts',
+        'validator': './src/validator.ts'
+    },
+    output: {
+        filename: '[name].js',
+        library: "[name]",
+        libraryTarget: "umd",
+        path: path.resolve(__dirname)
+    },
+    module: {
+        unknownContextCritical : false,
+        rules: [
+            {
+                test: /\.ts$/,
+                exclude: /node_modules/, 
+                loader: 'awesome-typescript-loader'
+            }
+        ]
+    },
+    resolve: {
+		modules: [
+          'node_modules', path.resolve(__dirname, '/src')
+        ],
+        extensions: ['.ts','.js','.json']
+    }
 }
-
-const config = {
-  entry: {
-    'shai': __dirname + '/src/index.js',
-    'validator': __dirname + '/src/datatype.js'
-  },
-  devtool: 'source-map',
-  output: {
-    path: __dirname + '/lib',
-    filename: outputFile,
-    library: '[name]',
-    libraryTarget: 'umd',
-    umdNamedDefine: true
-  },
-  module: {
-    loaders: [
-      {
-        test: /(\.jsx|\.js)$/,
-        loader: 'babel-loader',
-        exclude: /(node_modules|bower_components)/
-      },
-      {
-        test: /(\.jsx|\.js)$/,
-        loader: 'eslint-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
-      }
-    ]
-  },
-  resolve: {
-    modules: [path.resolve('./node_modules'), path.resolve('./src')],
-    extensions: ['.json', '.js']
-  },
-  plugins: plugins
-};
-
-module.exports = config;

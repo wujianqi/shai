@@ -1,42 +1,41 @@
 {
   "name": "shai",
-  "version": "0.1.0",
-  "description": "前后台通用数据生成与验证工具库",
-  "main": "lib/shai.js",
+  "version": "0.1.1",
+  "description": "前后台通用，数据验证、模拟、生成库",
+  "main": "shai.js",
+  "types": "types/index.d.ts",
   "files": [
-    "lib"
+    "shai.js",
+    "validator.js",
+    "src",
+    "types"
   ],
   "scripts": {
-    "build": "webpack --env build",
-    "dev": "webpack --progress --colors --watch --env dev",
-    "test": "mocha --require babel-core/register --colors ./test/*.spec.js",
-    "valid": "mocha --require babel-core/register --colors -w ./test/validate.spec.js",
-    "valid-items": "mocha --require babel-core/register --colors -w ./test/valid.items.spec.js",
-    "valid-data": "mocha --require babel-core/register --colors -w ./test/json.valid.spec.js",
-    "make": "mocha --require babel-core/register --colors -w ./test/make.spec.js",
-    "make-data": "mocha --require babel-core/register --colors -w ./test/json.make.spec.js"    
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development",
+    "test": "mocha --require espower-typescript/guess ./test/*.spec.ts",
+    "test:index": "mocha --require espower-typescript/guess ./test/index.spec.ts",
+    "test:make": "mocha --require espower-typescript/guess ./test/make.spec.ts",
+    "test:validate": "mocha --require espower-typescript/guess ./test/validate.spec.ts"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
-    "babel-eslint": "^8.0.2",
-    "babel-loader": "^7.1.2",
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-es2015": "^6.24.1",
-    "chai": "^4.1.2",
-    "eslint": "^4.12.1",
-    "eslint-loader": "^1.9.0",
-    "json-loader": "^0.5.7",
-    "mocha": "^4.1.0",
-    "webpack": "^3.10.0"
+    "@types/md5": "^2.1.32",
+    "@types/mocha": "^5.2.1",
+    "@types/node": "^10.3.3",
+    "@types/object-path": "^0.9.29",
+    "@types/power-assert": "^1.5.0",
+    "awesome-typescript-loader": "^5.0.0",
+    "espower-typescript": "^8.1.3",
+    "mocha": "^5.2.0",
+    "power-assert": "^1.5.0",
+    "typescript": "^2.9.1",
+    "webpack": "^4.10.2",
+    "webpack-cli": "^3.0.0"
   },
   "dependencies": {
-    "gb2260": "^0.6.0",
-    "is-json": "^2.0.1",
     "md5": "^2.2.1",
     "object-path": "^0.11.4",
-    "randexp": "^0.4.6"
+    "randexp": "^0.4.9"
   },
   "repository": {
     "type": "git",
@@ -44,8 +43,10 @@
   },
   "keywords": [
     "data utils",
+    "string utils",
     "validator",
-    "mock"
+    "mock",
+    "make"
   ],
   "author": "wujianqi",
   "license": "MIT",

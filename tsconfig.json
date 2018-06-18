@@ -1,0 +1,26 @@
+{
+   "compilerOptions": {
+        "module": "umd",
+        "target": "es5",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "baseUrl": ".",
+        "typeRoots" : [
+            "node_modules/@types",
+            "types"
+        ],
+        "declaration": true,
+        "declarationDir": "types",
+        "paths": {
+            "randexp": ["types/randexp.d.ts"]
+        }
+   },
+   "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}
