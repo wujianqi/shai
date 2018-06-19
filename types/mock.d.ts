@@ -14,6 +14,7 @@ export interface MockInterface extends MakerInterface {
 }
 export default class Mock extends Maker implements MockInterface {
     private config;
+    private is8bit;
     private level;
     private prefectures;
     private countys;

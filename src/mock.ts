@@ -30,6 +30,11 @@ export default class Mock extends Maker implements MockInterface {
         'beginTime': new Date('1970/01/01'),
         'endTime': new Date()
     };
+    private is8bit: string[] = [ // 电话号码 8位
+        '010','021','022','023','024','025','027','028','029','020','0311','0371','0377',
+        '0379','0411','0451','0512','0513','0516','0510','0531','0532','0571','0574','0577',
+        '0591','0595','0755','0757','0769','0898','0431'       
+    ];
 
     private level: number = 0;
     private prefectures: string[] = [];
@@ -200,7 +205,13 @@ export default class Mock extends Maker implements MockInterface {
                 this.getNewDivision();
                 return regions[this.division.county][0];
             },
-            'telphone': () => regions[this.division.county][1],
+            'telphone': () => {
+                let cd = regions[this.division.county][1] as string, ps;
+
+                if (this.is8bit.indexOf(cd) > -1) ps = cd + '-' + new RandExp(/[268]\d{7}/).gen();
+                else  ps = cd + '-' + new RandExp(/[268]\d{6}/).gen();
+                return ps;
+            },
             'zipcode': () => regions[this.division.county][2],
             'bodycard': () => {
                 const sn = this.division.county + util.formatDate(rd(), 'yyyyMMdd') + new RandExp(/\d{3}/).gen(),

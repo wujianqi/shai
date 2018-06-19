@@ -29,7 +29,7 @@ describe('数据验证测试 shai valid', function () {
   it('checkItem 链式', function () {
     assert(!v.checkItem({
       value: '23',
-      rule: v.t.age.int.lt(20),
+      rule: v.type.age.int.lt(20),
       callback: function(faults: string[]){
         console.log(faults);
       }
@@ -86,20 +86,20 @@ describe('数据验证测试 shai valid', function () {
     }`;
 
     var struct = {
-      name: v.t.chinese,
-      address: v.t.address ,
-      age: v.t.int,
-      hobby: v.t.string,
+      name: v.type.chinese,
+      address: v.type.address ,
+      age: v.type.int,
+      hobby: v.type.string,
       looks: {
         size: {
-          foot: v.t.int.eq(20)
+          foot: v.type.int.eq(20)
         }
       },
       notes: [
         { 
           log: [
             {
-              'local.time': v.t.date
+              'local.time': v.type.date
             }
           ]
         }

@@ -9,14 +9,19 @@ npm install shai
 简介：
 
 > 前后台通用，但不支持IE9及以下浏览器； <br>
-> 针对国人国情定制、使用简单、易扩展；改进了部分通用验证正则。  <br>
+> 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
 > 内置数据生成方法50多项，验证方法70多项； <br>
-> 0.1.1 版更新：全部改成Typescript编写 <br>
 > 区划数据采用最新来源，2018.4 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2018/)
 
 ------
 
 ## 数据生成与模拟
+
+模拟数据的特色：让数据看起来更真实
+
+* 以设定的区划，生成关联的电话号码、经纬度坐标、车牌号、身份证等；
+* 以行业统计热门、频次高的词汇，生成姓、名、公司名、国名、地址等；
+
 
 ```javascript
 import Shai from 'shai';
@@ -65,7 +70,8 @@ var m = new Shai().mock({
 ##### 用法例子：
 
 ```javascript
-    import Shai from 'shai';
+    import Shai from 'shai'; 
+    // ES5使用 var Shai = require('shai');
 
     var m = new Shai().maker;
 
@@ -87,7 +93,7 @@ var m = new Shai().mock({
       "log": ${m.make(`{
           "id_#increment#": #int,0,200#,
           "date": #date#,
-          "condition": "#range,开始,启用,停止#"
+          "condition": "#enum,开始,启用,停止#"
         }`,10)}
       }`);
 
@@ -112,12 +118,10 @@ var m = new Shai().mock({
 
 #### 数据生成方法类型：
 
-本库数据生成、模拟，仅限生成字符、数字、布尔。
-
 常用数据生成
 
-* **uuid**          UUID，以时间为因子。可选1个参数，true或false，是否去除-符号
-* **md5**           MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位
+* **uuid**          UUID，以时间为因子。可选1个参数，为指定分隔符号，默认为-符号
+* **md5**           MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位，默认32位
 * **now**           当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss')
 * **increment**     递增整数，可选2个参数，参数1为步长，参数2为左补位0的个数
 * **exp**           自定义正则，可选参数为字符串表达式（注意特殊字符转义）
@@ -153,7 +157,7 @@ var m = new Shai().mock({
 * **url**           网址
 * **mail**          邮箱
 * **mobile**        手机
-* **telphone**      固定电话（限定区划）
+* **telphone**      固定电话（限定区划，自动识别8位或7位）
 * **enName**        英文姓名
 * **enMaleName**    英文姓名 男
 * **enFemaleName**  英文姓名 女
@@ -177,6 +181,19 @@ var m = new Shai().mock({
 * **health**        健康状况
 * **bodycard**      身份证（限定区划，限定时间段）
 * **autocard**      车牌号码（限定区划）
+
+#### 补充说明
+
+* 本库仅生成单纯的基本类型数据（字符串、数字、布尔），对象需自主去封装；
+* 地址请求拦截、API模拟、二进制数据，可结合其它库来使用：
+
+* [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) 
+* [json-server](https://github.com/typicode/json-server)
+* [holder](https://github.com/imsky/holder)
+* [JsBarcode](https://github.com/lindell/JsBarcode)
+* [qrcode](https://github.com/PaulKinlan/qrcode)
+* [randomColor](https://github.com/davidmerfield/randomColor)
+
 
 ------
 
@@ -227,6 +244,7 @@ var v = new Shai().valitator;
 
 ```javascript
     import Shai from 'shai';
+    // ES5使用 var Shai = require('shai');
 
     var v = new Shai().validator;
     
@@ -326,6 +344,7 @@ var v = new Shai().valitator;
 
 ```javascript
     import Validator from 'shai/validator';
+    // ES5使用 var Validator = require('shai/validator');
 
     var v = new Validator();
 
@@ -335,7 +354,7 @@ var v = new Shai().valitator;
 
 #### 数据验证规则类型
 
-基本类型验证（建议仅在checkJSON使用）
+基本类型验证（建议配合checkJSON使用，仅测试文本数据）
 
 * **object** 
 * **array** 
@@ -346,7 +365,7 @@ var v = new Shai().valitator;
 
 格式验证
 
-* **require**      任意字符，必填项
+* **require**     任意字符，必填项
 * **english**     英文字母
 * **qq**          QQ号 5-11位
 * **age**         年龄 0-129岁
@@ -420,13 +439,13 @@ var v = new Shai().valitator;
 
 ------
 
-## Typescript 使用
+## TypeScript 使用
 
-使用Typescript的项目, 可考虑直接引用：
+使用TypeScript的项目, 可考虑直接引用ts原文件：
 
 ```typescript
 import Shai from 'shai/src';
 
-var v = new Shai().valitator;
+var v: = new Shai().valitator;
 // ……
 ```

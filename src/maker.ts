@@ -81,7 +81,7 @@ export default class Maker extends Base implements MakerInterface {
                 this.baseIncrement += arg1;
                 return arg2 ? (Array(arg2).join('0') + this.baseIncrement).slice(-arg2) : this.baseIncrement;
             },
-            md5(arg = new Date().getTime(), isshorter: boolean = true): string {
+            md5(arg = new Date().getTime(), isshorter: boolean = false): string {
                 const value = arg.toString();
                 return isshorter ? md5(value).substr(8, 16) : md5(value);
             },
