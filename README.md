@@ -10,14 +10,14 @@ npm install shai
 
 > 前后台通用，但不支持IE9及以下浏览器； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
-> 内置数据生成方法50多项，验证方法70多项； <br>
+> 内置数据生成方法60多项，验证方法70多项； <br>
 > 区划数据采用最新来源，2018.4 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2018/)
 
 ------
 
 ## 数据生成与模拟
 
-模拟数据的特色：让数据看起来更真实
+<span style="color:green;">模拟数据的特色：让数据看起来更真实</span>
 
 * 以设定的区划，生成关联的电话号码、经纬度坐标、车牌号、身份证等；
 * 以行业统计热门、频次高的词汇，生成姓、名、公司名、国名、地址等；
@@ -38,9 +38,9 @@ var m = new Shai().mock({
 ```
 配置选项(config)：
 
-> ***divisionCode***  设定全局的行政区划范围（行政区划代码） <br>
-> ***beginTime***  全局时间范围的开始时间  <br>
-> ***endTime***  全局时间范围的结束时间  <br>
+> ***divisionCode***  设定全局的行政区划范围（行政区划代码），默认全国（不含港澳台） <br>
+> ***beginTime***  全局时间范围的开始时间，默认1970-01-01<br>
+> ***endTime***  全局时间范围的结束时间，默认当前时间 <br>
 
 **m.get(method, ...args)** 生成数据，包括md5、uuid, 及模拟数据等。
 
@@ -58,9 +58,7 @@ var m = new Shai().mock({
 > 参数3 ***num2*** 可选，为数组长度的随机的参考上限值。 <br>
 > 注：模版内使用正则需转义且不含限定符#，也可先设定为扩展再来使用。
 
-**m.addRule(key, value)**  扩展生成数据的方法，正则或函数
-
-**m.addRules(rules)**   扩展生成数据的方法，正则或函数的对象集合
+**m.addRule(key|rules, value)**  扩展生成数据的方法，正则或函数；如果参数1为对象集合，则扩展该对象，参数2无效。
 
 **m.increment = 0**   重置自增长基数
 
@@ -71,12 +69,12 @@ var m = new Shai().mock({
 
 ```javascript
     import Shai from 'shai'; 
-    // ES5使用 var Shai = require('shai');
+    // ES5使用 const Shai = require('shai').default;
 
     var m = new Shai().maker;
 
     // 扩展数据生成方法
-    m.addRules({
+    m.addRule({
         'newrule': /abc/, 
         'mydata': test => test += 123
     });
@@ -124,25 +122,25 @@ var m = new Shai().mock({
 * **md5**           MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位，默认32位
 * **now**           当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss')
 * **increment**     递增整数，可选2个参数，参数1为步长，参数2为左补位0的个数
-* **exp**           自定义正则，可选参数为字符串表达式（注意特殊字符转义）
+* **exp**           自定义正则，可选参数为字符串表达式（特殊字符需转义）
 
 模拟数据生成
 
-* **int**           整数，可选2个参数，参数1为下限数，参数2位上限数
-* **number**        数字，可选3个参数，参数1为下限数，参数2位上限数，参数3为小数位数
-* **enum**         自定义范围随机取值，参数为枚举，如range('a','b','c'), 参数N个
+* **int**           整数，可选2个参数，参数1为下限值，参数2位上限值
+* **number**        数字，可选3个参数，参数1为下限值(整数)，参数2位上限值(整数)，参数3为小数位数(整数)
+* **enum**          自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个
 * **validcode**     验证随机数，可选1个参数，位数
 * **bool**          布尔，true或false
-* **date**          日期，如 2017-11-11 （限定时间段） 
-* **time**          时间，如 11:11:08（限定时间段） 
-* **year**          年 （限定时间段） 
-* **month**         月（限定时间段） 
-* **day**           日（限定时间段） 
+* **date**          日期，如 2017-11-11 （全局时间段内） 
+* **time**          时间，如 11:11:08（全局时间段内） 
+* **year**          年 （全局时间段内） 
+* **month**         月 
+* **day**           日
 * **hour**          时
 * **minute**        分
 * **second**        秒
-* **datetime**      时间，可选1个参数，为指定格式，如datetime('yyyy-MM-dd hh:mm:ss')
-* **zipcode**       邮编（限定区划）
+* **datetime**      时间，可选1个参数，为指定格式，如datetime('yyyy-MM-dd hh:mm:ss')，（全局时间段内）
+* **zipcode**       邮编（依据全局区划）
 * **bizcode**       统一信用编码
 * **english**       英文，可选2个参数，参数1为备选随机英文字串，参数2为长度
 * **chinese**       中文，可选2个参数，参数1为备选随机中文字串，参数2为长度
@@ -150,14 +148,14 @@ var m = new Shai().mock({
 * **bankcard**      银行卡号
 * **price**         价格，可选参数1为下限数，可选参数2为上限数，可选参数3为是否带分号, true或false
 * **mid**           商品、产品型号或编号
-* **company**       企业名称
+* **company**       企业名称（依据全局区划）
 * **account**       账号名
 * **password**      密码
 * **color**         颜色，如 #000FFF
 * **url**           网址
 * **mail**          邮箱
 * **mobile**        手机
-* **telphone**      固定电话（限定区划，自动识别8位或7位）
+* **telphone**      固定电话（依据全局区划，自动识别8位或7位）
 * **enName**        英文姓名
 * **enMaleName**    英文姓名 男
 * **enFemaleName**  英文姓名 女
@@ -166,33 +164,33 @@ var m = new Shai().mock({
 * **cnFemaleName**  中文姓名 女
 * **enState**       英文国名
 * **cnState**       中文国名
-* **citycode**      行政代码（限定区划）
-* **province**      省（限定区划）
-* **prefecture**    市州盟（限定区划），division为省级，可循环所属市名称
+* **citycode**      行政代码（依据全局区划）
+* **province**      省（依据全局区划）
+* **prefecture**    市州盟（依据全局区划），division为省级，可循环所属市名称
 * **county**        县区（限定地区），division为省或市级，可循环所属县区名称
-* **lon**           地理位置，经度，（限定区划）
-* **lat**           地理位置，纬度，（限定区划）
-* **address**       住址，当前县/区+路+号+...等 （限定区划）
+* **lon**           地理位置，经度，（依据全局区划）
+* **lat**           地理位置，纬度，（依据全局区划）
+* **address**       住址，当前县/区+路+号+...等 （依据全局区划）
 * **sex**           性别
 * **nation**        民族
 * **affiliate**     政治面貌
 * **edu**           学历
 * **mary**          婚姻状况
 * **health**        健康状况
-* **bodycard**      身份证（限定区划，限定时间段）
-* **autocard**      车牌号码（限定区划）
+* **bodycard**      身份证（依据全局区划、全局时间段）
+* **autocard**      车牌号码（依据全局区划）
 
 #### 补充说明
 
 * 本库仅生成单纯的基本类型数据（字符串、数字、布尔），对象需自主去封装；
 * 地址请求拦截、API模拟、二进制数据，可结合其它库来使用：
 
-* [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) 
-* [json-server](https://github.com/typicode/json-server)
-* [holder](https://github.com/imsky/holder)
-* [JsBarcode](https://github.com/lindell/JsBarcode)
-* [qrcode](https://github.com/PaulKinlan/qrcode)
-* [randomColor](https://github.com/davidmerfield/randomColor)
+* [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
+[json-server](https://github.com/typicode/json-server) <br>
+[holder](https://github.com/imsky/holder) <br>
+[JsBarcode](https://github.com/lindell/JsBarcode) <br>
+[qrcode](https://github.com/PaulKinlan/qrcode) <br>
+[randomColor](https://github.com/davidmerfield/randomColor)
 
 
 ------
@@ -235,21 +233,19 @@ var v = new Shai().valitator;
 
 **v.type**  链式验证对象
 
-**v.addRule(key, value)**  扩展验证数据的方法，正则或函数
-
-**v.addRules(rules)**   扩展验证数据的方法，正则或函数的对象集合
+**v.addRule(key|rules, value)**  扩展验证数据的方法，正则或函数；如果参数1为对象集合，则扩展该对象，参数2无效。
 
 
 ##### 用法例子：
 
 ```javascript
     import Shai from 'shai';
-    // ES5使用 var Shai = require('shai');
+    // ES5使用 const Shai = require('shai').default;
 
     var v = new Shai().validator;
     
     // 扩展验证规则，函数要求有返回值，最少一个引用数据的参数
-    v.addRules({
+    v.addRule({
         'newrule': /abc/,
         'myfnc': 'test':(val, n1, n2)=> val.length > n1 && val.length < n2
     });
@@ -344,7 +340,7 @@ var v = new Shai().valitator;
 
 ```javascript
     import Validator from 'shai/validator';
-    // ES5使用 var Validator = require('shai/validator');
+    // ES5使用 const Validator = require('shai/validator').default;
 
     var v = new Validator();
 

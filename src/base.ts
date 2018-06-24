@@ -7,8 +7,7 @@ export interface Rules {
 }
 
 export interface BaseInterface {
-    addRule(key: string, value: RegExp | RuleFunc): void;
-    addRules(option: Rules): void;
+    addRule(arg: string | Rules, value?: RegExp | RuleFunc): void;
     getRule(key: string): RegExp | RuleFunc;
 }
 
@@ -17,22 +16,19 @@ export interface BaseInterface {
  */
 export default class Base implements BaseInterface {
     protected ruleMap: Rules = {};
+    protected isObject = (value: any): value is object => {
+        return typeof value === 'object' && Object.prototype.toString.call(value) === '[object Object]';
+    };    
 
+ 
     /**
      * 扩展规则
-     * @param key 规则属性名
-     * @param value 规则值，正则或函数
+     * @param arg  参数字符串或规则集合对象
+     * @param value 值，第一个参数为键字符串时使用
      */
-    addRule(key: string, value: RegExp | RuleFunc): void {
-        this.ruleMap[key] = value;
-    }
-
-    /**
-     * 多规则扩展
-     * @param option 规则对象集合
-     */
-    addRules(option: Rules): void {
-        (<any>Object).assign(this.ruleMap, option);
+    addRule(arg: string | Rules, value?: RegExp | RuleFunc): void {
+        if(typeof arg === 'string' && value) this.ruleMap[arg] = value;
+        else if(this.isObject(arg))  (<any>Object).assign(this.ruleMap, arg);
     }
 
     /**
@@ -45,7 +41,6 @@ export default class Base implements BaseInterface {
 
     constructor() {
         this.addRule = this.addRule.bind(this);
-        this.addRules = this.addRules.bind(this);
         this.getRule = this.getRule.bind(this);
     }
 

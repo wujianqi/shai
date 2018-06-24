@@ -2,8 +2,9 @@ import Maker, { MakerInterface } from './maker';
 import { util } from './util';
 import { names } from './resource/names';
 import { feature } from './resource/feature';
+import { RuleFunc } from './base'
 import { regions } from './resource/regions';
-import * as RandExp from 'randexp';
+import RandExp  = require('randexp');
 
 export interface MockConfig {
     'divisionCode'?: string;
@@ -18,15 +19,17 @@ export interface Division {
 }
 
 export interface MockInterface extends MakerInterface {
-    readonly region: (string | number)[];
+    readonly region: (string | number | null)[];
 }
+
+const randCode = /(1[1-5]|2[1-3]|3[3-7]|4[1-6]|5[1-4]|6[1-5])/;
 
 /**
  * 数据模拟
  */
 export default class Mock extends Maker implements MockInterface {
     private config: MockConfig = {
-        'divisionCode': new RandExp(/(1[1-5]|2[1-3]|3[3-7]|4[1-6]|5[1-4]|6[1-5])/).gen() + '0000',
+        'divisionCode': new RandExp(randCode).gen() + '0000',
         'beginTime': new Date('1970/01/01'),
         'endTime': new Date()
     };
@@ -44,32 +47,33 @@ export default class Mock extends Maker implements MockInterface {
     private division: Division;
 
     private extract(): void {
-        let conf = this.config, hasFinded = false;
+        let conf = this.config, hasFinded = false,
+            code = conf.divisionCode ? conf.divisionCode : new RandExp(randCode).gen() + '0000';
 
-        if (!regions[conf.divisionCode]) throw Error(`区划编码“${conf.divisionCode}”不在有效支持范围内！`);
+        if (!regions[code]) throw Error(`区划编码“${conf.divisionCode}”不在有效支持范围内！`);
 
-        if (/0{4}$/.test(conf.divisionCode)) { // 当前为省级
+        if (/0{4}$/.test(code)) { // 当前为省级
             this.level = 0;
             // 查找市、县区集合
             for (const key in regions) {
                 if (regions.hasOwnProperty(key)) {
-                    if (new RegExp('^' + conf.divisionCode.slice(0, 2) + "\\d{2}0{2}").test(key) && !/0{4}$/.test(key)) {
+                    if (new RegExp('^' + code.slice(0, 2) + "\\d{2}0{2}").test(key) && !/0{4}$/.test(key)) {
                         hasFinded = true;
                         this.prefectures.push(key);
-                    } else if (new RegExp('^' + conf.divisionCode.slice(0, 2) + "\\d{4}").test(key) && !/0{2}$/.test(key)) {
+                    } else if (new RegExp('^' + code.slice(0, 2) + "\\d{4}").test(key) && !/0{2}$/.test(key)) {
                         hasFinded = true;
                         this.countys.push(key);
                     } else if (hasFinded) break;
                 }
             }
 
-        } else if (/0{2}$/.test(conf.divisionCode)) { // 当前为市级
+        } else if (/0{2}$/.test(code)) { // 当前为市级
             this.level = 1;
-            this.prefectures.push(conf.divisionCode);
+            this.prefectures.push(code);
 
             for (const key in regions) {
                 if (regions.hasOwnProperty(key)) {
-                    if (new RegExp('^' + conf.divisionCode.slice(0, 4) + "\\d{2}").test(key) && !/0{2}$/.test(key)) {
+                    if (new RegExp('^' + code.slice(0, 4) + "\\d{2}").test(key) && !/0{2}$/.test(key)) {
                         hasFinded = true;
                         this.countys.push(key);
                     } else if (hasFinded) break;
@@ -78,68 +82,78 @@ export default class Mock extends Maker implements MockInterface {
 
         } else { // 当前为县区级
             this.level = 2;
-            this.prefectures.push(conf.divisionCode.slice(0, 4) + '00');
-            this.countys.push(conf.divisionCode);
+            this.prefectures.push(code.slice(0, 4) + '00');
+            this.countys.push(code);
         }
     }
 
-    private getNewDivision(): void { // 取当前省、市、县
+    private getRndDivision(): Division { // 取当前省、市、县
         let province, prefecture, county,
-            phm = this.prefectureHistoryMap,
-            chm = this.countyHistoryMap;
+            code = this.config.divisionCode;
 
-        if (phm.length === 0) phm = [].concat(this.prefectures);
-        if (chm.length === 0) chm = [].concat(this.countys);
+        if(code){
+            let phm = this.prefectureHistoryMap,
+                chm = this.countyHistoryMap,
+                pi:string[] = [],
+                ci:string[] = []; 
 
-        switch (this.level) {
-            case 0:
-                province = this.config.divisionCode;
-                prefecture = util.getItem(phm);
-                county = util.getItem(chm);
-                phm.splice(phm.indexOf(prefecture), 1);
-                chm.splice(chm.indexOf(county), 1);
-                break;
-            case 1:
-                province = this.config.divisionCode.slice(0, 2) + '0000';
-                prefecture = this.config.divisionCode;
-                county = util.getItem(chm);
-                chm.splice(chm.indexOf(county), 1);
-                break;
-            case 2:
-                province = this.config.divisionCode.slice(0, 2) + '0000';
-                prefecture = this.config.divisionCode.slice(0, 4) + '00';
-                county = this.config.divisionCode;;
-                break;
+            if (phm.length === 0 ) phm = pi.concat(this.prefectures);
+            if (chm.length === 0) chm = ci.concat(this.countys);
+    
+            switch (this.level) {
+                case 0:
+                    province = code;
+                    prefecture = util.getItem(phm);
+                    county = util.getItem(chm);
+                    phm.splice(phm.indexOf(prefecture), 1);
+                    chm.splice(chm.indexOf(county), 1);
+                    break;
+                case 1:
+                    province = code.slice(0, 2) + '0000';
+                    prefecture = this.config.divisionCode;
+                    county = util.getItem(chm);
+                    chm.splice(chm.indexOf(county), 1);
+                    break;
+                case 2:
+                    province = code.slice(0, 2) + '0000';
+                    prefecture = code.slice(0, 4) + '00';
+                    county = code;
+                    break;
+            }            
         }
-        this.division = { province, prefecture, county };
+        return { province, prefecture, county } as Division;        
     }
 
-    // 获取区域对象
-    get region(): (string | number)[] {
-        return regions[this.config.divisionCode];
+    // 获取设定的区域对象
+    get region(): (string | number | null)[] {
+        return this.config.divisionCode ? regions[this.config.divisionCode] : [] ;
     }
 
     constructor(option?: MockConfig) {
         super();
         (<any>Object).assign(this.config, option);
 
-        let rd = () => new Date(util.getInt(this.config.beginTime.getTime(), this.config.endTime.getTime()));
+        let rd = () => {
+            let bt = this.config.beginTime ? this.config.beginTime: new Date('1970/01/01'), 
+                et = this.config.endTime ? this.config.endTime : new Date();
+            return new Date(util.getInt(bt.getTime(), et.getTime()));
+        }
 
         this.extract();
-        this.getNewDivision();
-        this.addRules({
-            'enum': <T>(...args: T[]): T => util.getItem(args),
-            'int': (arg1: number = 0, arg2: number = 100) => util.getInt(arg1, arg2),
-            'number': (arg1: number = 0, arg2: number = 10000, arg3: number = 2) => util.getNumber(arg1, arg2, arg3),
-            'bool': () => util.getItem([true, false]),
-            'datetime': (arg: string) => util.formatDate(rd(), (arg ? arg : 'yyyy-MM-dd hh:mm:ss')),
-            'date': () => util.formatDate(rd(), 'yyyy-MM-dd'),
-            'time': () => util.formatDate(rd(), 'hh:mm:ss'),
-            'year': () => +util.formatDate(rd(), 'yyyy'),
-            'month': () => util.getInt(1, 12),
-            'day': () => util.getInt(1, 31),
-            'hour': () => util.getInt(0, 23),
-            'minute': () => util.getInt(1, 59),
+        this.division = this.getRndDivision();
+        this.addRule({
+            'enum': <RuleFunc>(<T>(...args: T[]): T => util.getItem(args)),
+            'int': <RuleFunc>((arg1: number = 0, arg2: number = 100) => util.getInt(arg1, arg2)),
+            'number': <RuleFunc>((arg1: number = 0, arg2: number = 10000, arg3: number = 2) => util.getNumber(arg1, arg2, arg3)),
+            'bool': <RuleFunc>(() => util.getItem([true, false])),
+            'datetime': <RuleFunc>((arg: string) => util.formatDate(rd(), (arg ? arg : 'yyyy-MM-dd hh:mm:ss'))),
+            'date': <RuleFunc>(() => util.formatDate(rd(), 'yyyy-MM-dd')),
+            'time': <RuleFunc>(() => util.formatDate(rd(), 'hh:mm:ss')),
+            'year': <RuleFunc>(() => +util.formatDate(rd(), 'yyyy')),
+            'month': <RuleFunc>(() => util.getInt(1, 12)),
+            'day': <RuleFunc>(() => util.getInt(1, 31)),
+            'hour': <RuleFunc>(() => util.getInt(0, 23)),
+            'minute': <RuleFunc>(() => util.getInt(1, 59)),
             'mid': /[0-9A-Z]{1,8}(\-[0-9A-Z]{2,6}){0,2}/,
             'validcode': (arg = 4) => new RandExp(new RegExp('[A-Z0-9]{' + arg + '}')).gen(),
             'account': /[a-zA-Z]{1,3}[a-zA-Z0-9]{3,6}/,
@@ -153,67 +167,58 @@ export default class Mock extends Maker implements MockInterface {
             'bizcode': /91[1-4]\d{5}[0-9A-HJ-NPQRTUWXY]{10}/,
             'bankcard': /62(([0-3]\d)(4[0-5])|5([0-3]|5|8|9)|70|8[2-3])\d{12,15}/,
             'qq': /[1-9]\d{4,10}/,
-            'enName': () => util.getItem(names.eMaleName.concat(names.eFemaleName)) + ' ' + util.getItem(names.eSurname),
-            'enMaleName': () => util.getItem(names.eMaleName) + ' ' + util.getItem(names.eSurname),
-            'enFemaleName': () => util.getItem(names.eFemaleName) + ' ' + util.getItem(names.eSurname),
-            'cnName': () => util.getItem(names.cSurname) + util.getItem(names.cMaleName.concat(names.cFemaleName)),
-            'cnMaleName': () => util.getItem(names.cSurname) + util.getItem(names.cMaleName),
-            'cnFemaleName': () => util.getItem(names.cSurname) + util.getItem(names.cFemaleName),
-            'enState': () => util.getItem(names.eStates),
-            'cnState': () => util.getItem(names.cStates),
-            'sex': () => util.getItem(feature.sex),
-            'nation': () => util.getItem(feature.nation),
-            'affiliate': () => util.getItem(feature.affiliate),
-            'edu': () => util.getItem(feature.edu),
-            'mary': () => util.getItem(feature.mary),
-            'health': () => util.getItem(feature.health),
-            'english': (arg: string, num: number = 1): string => {
+            'enName': <RuleFunc>(() => util.getItem(names.eMaleName.concat(names.eFemaleName)) + ' ' + util.getItem(names.eSurname)),
+            'enMaleName': <RuleFunc>(() => util.getItem(names.eMaleName) + ' ' + util.getItem(names.eSurname)),
+            'enFemaleName': <RuleFunc>(() => util.getItem(names.eFemaleName) + ' ' + util.getItem(names.eSurname)),
+            'cnName': <RuleFunc>(() => util.getItem(names.cSurname) + util.getItem(names.cMaleName.concat(names.cFemaleName))),
+            'cnMaleName': <RuleFunc>(() => util.getItem(names.cSurname) + util.getItem(names.cMaleName)),
+            'cnFemaleName': <RuleFunc>(() => util.getItem(names.cSurname) + util.getItem(names.cFemaleName)),
+            'enState': <RuleFunc>(() => util.getItem(names.eStates)),
+            'cnState': <RuleFunc>(() => util.getItem(names.cStates)),
+            'sex': <RuleFunc>(() => util.getItem(feature.sex)),
+            'nation': <RuleFunc>(() => util.getItem(feature.nation)),
+            'affiliate': <RuleFunc>(() => util.getItem(feature.affiliate)),
+            'edu': <RuleFunc>(() => util.getItem(feature.edu)),
+            'mary': <RuleFunc>(() => util.getItem(feature.mary)),
+            'health': <RuleFunc>(() => util.getItem(feature.health)),
+            'english': <RuleFunc>((arg: string, num: number = 1): string => {
                 const d = arg ? arg : 'abcdefghijklmnopqrstuvwxyz';
 
                 return util.getItems(d.split(''), num).join('');
-            },
-            'chinese': (arg: string, num: number = 1): string => {
+            }),
+            'chinese': <RuleFunc>((arg: string, num: number = 1): string => {
                 const d = arg ? arg : String.fromCharCode(util.getInt(19968, 40869));
 
                 return util.getItems(d.split(''), num).join('');
-            },
-            'text': (arg: string = '填充文本样式', n1?: number, n2?: number): string => {
+            }),
+            'text': <RuleFunc>((arg: string = '填充文本样式', n1?: number, n2?: number): string => {
                 let d = 40;
 
                 if (typeof n1 === 'number' && typeof n2 === 'number') d = util.getInt(n1, n2);
                 else if (typeof n1 === 'number') d = n1;
                 return Array(d + 1).join(arg);
-            },
-            'price': (arg1: number = 0, arg2: number = 10000, arg3: boolean = true): string => {
-                let s, d = util.getNumber(arg1, arg2, 2);
+            }),
+            'price': <RuleFunc>((arg1: number = 0, arg2: number = 10000, arg3: boolean = true): string => {
+                let n, d = util.getNumber(arg1, arg2, 2);
                 const r1 = /\d{1,3}(?=(\d{3})+$)/g, r2 = /^(-?)(\d+)((\.\d+)?)$/;
 
-                if (arg3) s = (d + '').replace(r2, ((s, s1, s2, s3) => s1 + s2.replace(r1, '$&,') + s3));
-                else s = d + '';
-                return s;
-            },
-            'citycode': () => this.division.county,
-            'province': () => {
-                this.getNewDivision();
-                return regions[this.division.province][0];
-            },
-            'prefecture': () => {
-                this.getNewDivision();
-                return regions[this.division.prefecture][0];
-            },
-            'county': () => {
-                this.getNewDivision();
-                return regions[this.division.county][0];
-            },
-            'telphone': () => {
+                if (arg3) n = (d + '').replace(r2, ((s, s1, s2, s3) => s1 + s2.replace(r1, '$&,') + s3));
+                else n = d + '';
+                return n;
+            }),
+            'citycode': <RuleFunc>(() => this.division.county),
+            'province': <RuleFunc>(() => regions[this.getRndDivision().province][0]),
+            'prefecture': <RuleFunc>(() => regions[this.getRndDivision().prefecture][0]),
+            'county': <RuleFunc>(() => regions[this.getRndDivision().county][0]),
+            'telphone': <RuleFunc>(() => {
                 let cd = regions[this.division.county][1] as string, ps;
 
                 if (this.is8bit.indexOf(cd) > -1) ps = cd + '-' + new RandExp(/[268]\d{7}/).gen();
                 else  ps = cd + '-' + new RandExp(/[268]\d{6}/).gen();
                 return ps;
-            },
-            'zipcode': () => regions[this.division.county][2],
-            'bodycard': () => {
+            }),
+            'zipcode': <RuleFunc>(() => regions[this.division.county][2]),
+            'bodycard': <RuleFunc>(() => {
                 const sn = this.division.county + util.formatDate(rd(), 'yyyyMMdd') + new RandExp(/\d{3}/).gen(),
                     arr = sn.split(''),
                     factor = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
@@ -226,26 +231,26 @@ export default class Mock extends Maker implements MockInterface {
                     sum += ai * wi;
                 }
                 return sn + parity[sum % 11];
-            },
-            'autocard': () => {
+            }),
+            'autocard': <RuleFunc>(() => {
                 let card = regions[this.division.prefecture][5] as string,
                     pf = card.length === 1 ? card + util.getItem(['A', 'B', 'C']) : card;
                 return pf + new RandExp(/\d{3}[A-HJ-NP-UW-Z]{2}|[A-HJ-NP-UW-Z]\d{4}/).gen();
-            },
-            'address': () => {
+            }),
+            'address': <RuleFunc>(() => {
                 return (regions[this.division.county][0] as string).replace('县', '县城')
                     + util.getItem(names.road) + new RandExp(/(路|街)(1\d{3}|[1-9]\d{2})号/).gen()
                     + util.getItems(names.commonWord, 2).join('')
                     + util.getItem(names.buildNature)
                     + new RandExp(/[A-F]栋((一|二|三)单元)?[1-9]0[1-5]室/).gen();
-            },
-            'company': () => {
+            }),
+            'company': <RuleFunc>(() => {
                 return (regions[this.division.prefecture][0] as string)
                     + util.getItems(names.commonWord, 2).join('')
                     + util.getItem(names.companyNature) + '有限公司';
-            },
-            'lon': () => (regions[this.division.county][3] as string) + new RandExp(/\d{8}/).gen(),
-            'lat': () => (regions[this.division.county][4] as string) + new RandExp(/\d{8}/).gen()
+            }),
+            'lon': <RuleFunc>(() => (regions[this.division.county][3] as string) + new RandExp(/\d{8}/).gen()),
+            'lat': <RuleFunc>(() => (regions[this.division.county][4] as string) + new RandExp(/\d{8}/).gen())
         });
 
     }

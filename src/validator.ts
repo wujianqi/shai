@@ -1,9 +1,9 @@
-import ValidatorBase,{ ValidatorBaseInterface } from './validatorbase';
+import ValidatorBase, { ValidRuleFunc,ValidatorBaseInterface} from './validatorbase';
 
 export interface Item {
     value: string | number;
     callback? : (faults:string []) => void;
-    rule?: {[key:string]: any};
+    rule?: ValidChain;
     require?: boolean;
     english?: boolean;
     qq?: boolean;
@@ -76,6 +76,7 @@ export interface Item {
 };
 
 export interface ValidChain {
+    readonly __caches: any;
     require?: ValidChain;
     english?: ValidChain;
     qq?: ValidChain;
@@ -202,7 +203,7 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
         }
 
         if (opts.hasOwnProperty('rule')) { // 转换链式规则为动态属性
-            const caches: any[] = opts.rule.__caches;
+            const caches: any[] = opts.rule ? opts.rule.__caches : undefined;
             caches.forEach(t => {
                 if (t instanceof Object) (<any>Object).assign(opts, t);
                 else opts[t] = true;
@@ -301,20 +302,20 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
             'isbn': /^(978\-\d\-\d{3}\-\d{5}\-[a-z0-9]$)|(978\d{9}[a-z0-9])$/i,
             'upper': /[A-Z]/,
             'lower': /[a-z]/,
-            'even': (arg: string|number)  => ((+arg) & 1) === 0,
-            'odd': (arg: string|number)  => ((+arg) & 1) !== 0,
-            'ipv6': (arg:string) => {
+            'even': <ValidRuleFunc>((arg: string|number)  => ((+arg) & 1) === 0),
+            'odd': <ValidRuleFunc>((arg: string|number)  => ((+arg) & 1) !== 0),
+            'ipv6': <ValidRuleFunc>((arg:string) => {
                 const m = arg.match(/:/g),
                 t1 = m ? m.length < 8 : false,
                 t2 = /:/.test(arg),
                 t3 = /::/.test(arg),
-                t4 = m.length === 1,
+                t4 = m ? m.length === 1 : false,
                 t5 = /^::$|^(::)?([\da-f]{1,4}(:|::))*[\da-f]{1,4}(:|::)?$/i.test(arg),
                 t6 = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i.test(arg);
         
                 return t1 && t2 && (t3 ? (t4 && t5) : t6);
-            },            
-            'bodycard': (arg: string|number) => {
+            }),            
+            'bodycard': <ValidRuleFunc>((arg: string|number) => {
                 const val = arg + '', args = val.toUpperCase().split(''),
                 factor = [ 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2 ],
                 parity = [ 1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2 ],
@@ -327,30 +328,31 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
                     sum += ai * wi;
                 }
                 return reg.test(val) && parity[sum % 11] == args[17];
-            },
-            'autocard': (arg:string) => {
+            }),
+            'autocard': <ValidRuleFunc>((arg:string) => {
                 const sn = '京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼',
                 reg1 = new RegExp('(^[' + sn + '使领][A-HJ-NP-Z]([A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警]|[DF][A-HJ-NP-Z0-9]{5}|[A-HJ-NP-Z0-9]{5}[DF])$)|(粤Z[A-HJ-NP-Z0-9]{4}[港澳])'),
-                reg2 = new RegExp('(^WJ[' + sn + '](\\d{5}|[BDGHJSTX]\\d{4}|\\d{4}[BDGHJSTX])$)|(^[A-Z]{2}\\d{5}$)/');
+                reg2 = new RegExp('(^WJ[' + sn + '](\\d{5}|[BDGHJSTX]\\d{4}|\\d{4}[BDGHJSTX])$)|(^[A-Z]{2}\\d{5}$)/'),
+                matc = arg.match(/[A-Z]/g);
         
-                return reg1.test(arg) && arg.match(/[A-Z]/g).length < 4 || reg2.test(arg);
-            },
-            'not': <T>(arg1: T, arg2: T) => arg1 != arg2,
-            'eq': <T>(arg1: T, arg2: T) => arg1 == arg2,
-            'gt': (arg1: string|number, arg2: string|number) => (+arg1) > (+arg2),
-            'gte': (arg1: string|number, arg2: string|number) => (+arg1) >= (+arg2),
-            'lt': (arg1: string|number, arg2: string|number) => (+arg1) < (+arg2),
-            'lte': (arg1: string|number, arg2: string|number) => (+arg1) <= (+arg2),
-            'between': (arg1: string|number, arg2: string|number, arg3: string|number) => (+arg1) > (+arg2) && (+arg1) < (+arg3),
-            'min': (arg1: string|number, ...args: number[]) => (+arg1) === Math.min.apply(null, args),
-            'max': (arg1: string|number, ...args: number[]) => (+arg1) === Math.max.apply(null, args),
-            'in': (arg1: string|number, arg2: string|number) => (arg2 + '').indexOf(arg1 + '') > -1,
-            'length': (arg1: string|number, arg2: string|number) => (arg1+'').length == (+arg2),
-            'minlength': (arg1: string|number, arg2: string|number) => (arg1+'').length < (+arg2),
-            'maxlength': (arg1: string|number, arg2: string|number) => (arg1+'').length > (+arg2)
+                return reg1.test(arg) && matc && matc.length < 4 || reg2.test(arg);
+            }),
+            'not': <ValidRuleFunc>(<T>(arg1: T, arg2: T) => arg1 != arg2),
+            'eq': <ValidRuleFunc>(<T>(arg1: T, arg2: T) => arg1 == arg2),
+            'gt': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (+arg1) > (+arg2)),
+            'gte': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (+arg1) >= (+arg2)),
+            'lt': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (+arg1) < (+arg2)),
+            'lte': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (+arg1) <= (+arg2)),
+            'between':<ValidRuleFunc>((arg1: string|number, arg2: string|number, arg3: string|number) => (+arg1) > (+arg2) && (+arg1) < (+arg3)),
+            'min': <ValidRuleFunc>((arg1: string|number, ...args: number[]) => (+arg1) === Math.min.apply(null, args)),
+            'max': <ValidRuleFunc>((arg1: string|number, ...args: number[]) => (+arg1) === Math.max.apply(null, args)),
+            'in': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (arg2 + '').indexOf(arg1 + '') > -1),
+            'length': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (arg1+'').length == (+arg2)),
+            'minlength': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (arg1+'').length < (+arg2)),
+            'maxlength': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (arg1+'').length > (+arg2))
         }
 
-        this.addRules(rules);
+        this.addRule(rules);
         this.addRule('second', rules['minute']);
         
         this.check = this.check.bind(this);

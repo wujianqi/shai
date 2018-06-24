@@ -12,7 +12,7 @@ export const util = {
    * @param b 
    * @param c 
    */
-  getNumber(a: number, b: number, c?: number): number {
+  getNumber(a: number, b: number, c: number = 1): number {
     let p = c < 1 ? 1 : Math.pow(10, c);
 
     return this.getInt(Math.floor(a * p), Math.floor(b * p)) / p;

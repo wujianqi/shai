@@ -1,10 +1,11 @@
 {
    "compilerOptions": {
-        "module": "umd",
+        "module": "none",
         "target": "es5",
         "noImplicitAny": true,
         "removeComments": true,
-        "preserveConstEnums": true,
+        "strict": true,
+        "esModuleInterop": true,
         "baseUrl": ".",
         "typeRoots" : [
             "node_modules/@types",
@@ -12,6 +13,9 @@
         ],
         "declaration": true,
         "declarationDir": "types",
+        "types": [
+            "md5"
+        ],
         "paths": {
             "randexp": ["types/randexp.d.ts"]
         }

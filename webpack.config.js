@@ -1,34 +1,34 @@
-const path = require("path"),
-    mode = require('yargs').argv.mode;
+const webpack = require('webpack'),
+  path = require('path'),
+  CleanWebpackPlugin = require('clean-webpack-plugin');
+// const env = require('yargs').argv.env;
 
 module.exports = {
-    mode: 'none',
-    watch: mode === 'development',
-	// devtool: 'source-map',
-    entry: {
-        'shai': './src/index.ts',
-        'validator': './src/validator.ts'
-    },
-    output: {
-        filename: '[name].js',
-        library: "[name]",
-        libraryTarget: "umd",
-        path: path.resolve(__dirname)
-    },
-    module: {
-        unknownContextCritical : false,
-        rules: [
-            {
-                test: /\.ts$/,
-                exclude: /node_modules/, 
-                loader: 'awesome-typescript-loader'
-            }
-        ]
-    },
-    resolve: {
-		modules: [
-          'node_modules', path.resolve(__dirname, '/src')
-        ],
-        extensions: ['.ts','.js','.json']
-    }
-}
+  entry: {
+    'shai': __dirname + '/src/index.ts',
+    'validator': __dirname + '/src/validator.ts'
+  },
+  // devtool: 'source-map',
+  output: {
+    path: __dirname,
+    filename: '[name].js',
+    library: '[name]',
+    libraryTarget: 'umd',
+    umdNamedDefine: true
+  },
+  module: {
+    loaders: [
+      {
+        test: /.ts$/,
+        loader: 'awesome-typescript-loader'
+      }
+    ]
+  },
+  resolve: {
+    modules: [path.resolve('./node_modules'), path.resolve('./src')],
+    extensions: ['.ts', '.js']
+  },
+  plugins: [
+    new CleanWebpackPlugin(['types/resource'])
+  ]
+};

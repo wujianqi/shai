@@ -1,7 +1,7 @@
-import Base from './base';
+import Base, { RuleFunc} from './base';
 import { util } from './util';
-import * as RandExp from 'randexp';
-import * as md5 from 'md5';
+import RandExp = require('randexp');
+import md5 = require('md5');
 
 export interface MakerInterface {
     get(methodName: string, ...args: (string | number | boolean)[]): string | number | boolean;
@@ -76,16 +76,16 @@ export default class Maker extends Base implements MakerInterface {
     constructor() {
         super();
 
-        this.addRules({
-            increment(arg1 = 1, arg2?): string {
+        this.addRule({
+            'increment': <RuleFunc>((arg1:number = 1, arg2?:number): string  => {
                 this.baseIncrement += arg1;
-                return arg2 ? (Array(arg2).join('0') + this.baseIncrement).slice(-arg2) : this.baseIncrement;
-            },
-            md5(arg = new Date().getTime(), isshorter: boolean = false): string {
-                const value = arg.toString();
-                return isshorter ? md5(value).substr(8, 16) : md5(value);
-            },
-            uuid(arg: string = '-'): string {
+                return (arg2 ? (Array(arg2).join('0') + this.baseIncrement).slice(-arg2) : this.baseIncrement) +'';
+            }),
+            'md5': <RuleFunc>((arg:string = new Date().getTime()+'', isshorter: boolean = false): string => {
+                const value = md5(arg);
+                return isshorter ? value.substr(8, 16) : value;
+            }),
+            'uuid': <RuleFunc>((arg: string = '-'): string => {
                 let d = new Date().getTime();
                 const s = !arg ? arg : '',
                     str = 'xxxxxxxx' + s + 'xxxx' + s + '4xxx' + s + 'yxxx' + s + 'xxxxxxxxxxxx',
@@ -97,13 +97,13 @@ export default class Maker extends Base implements MakerInterface {
                     });
 
                 return uuid;
-            },
-            now(arg?: string): string {
+            }),
+            'now': <RuleFunc>((arg?: string): string => {
                 return util.formatDate(new Date(), (arg ? arg : 'yyyy-MM-dd hh:mm:ss'));
-            },
-            exp(arg?: string): string {
+            }),
+            'exp': <RuleFunc>((arg?: string): string => {
                 return new RandExp(typeof arg === 'string' ? new RegExp(arg) : /.+/).gen();
-            }
+            })
         });
 
         this.get = this.get.bind(this);

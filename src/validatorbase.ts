@@ -1,16 +1,15 @@
-import Base, { BaseInterface } from './base';
+import Base, { RuleFunc, Rules, BaseInterface } from './base';
 
-export interface ValidRuleFunc {
-    (value:string | number, ...values: (string | number)[]): boolean;
+export interface ValidRuleFunc extends RuleFunc{
+    (value:string | number, ...values: (string | number | boolean)[]): boolean;
 }
 
-export interface ValidRules {
+export interface ValidRules extends Rules {
     [key: string]: RegExp | ValidRuleFunc;
 }
 
 export interface ValidatorBaseInterface extends BaseInterface {
-    addRule(key: string, value: RegExp | ValidRuleFunc): void;
-    addRules(option: ValidRules): void;
+    addRule(arg: string | ValidRules, value?: RegExp | ValidRuleFunc): void;
     readonly type: any;
 }
 
@@ -49,21 +48,23 @@ export default class ValidatorBase extends Base implements ValidatorBaseInterfac
         return new this.chain();
     };
 
-    addRule(key: string, value: RegExp | ValidRuleFunc): void {
-        super.addRule(key, value);
-        this.addProp(key, <ValidRules>this.ruleMap);
-    }
+    addRule(arg: string | ValidRules, value?: RegExp | ValidRuleFunc): void {
+        super.addRule(arg, value);
+        if(typeof arg === 'string' && value) {
+            this.ruleMap[arg] = value;
+            this.addProp(arg, <ValidRules>this.ruleMap);
 
-    addRules(option: ValidRules): void {
-        super.addRules(option);
-        Object.keys(option).forEach(k => this.addProp(k, <ValidRules>this.ruleMap));
+        } else if(this.isObject(arg)) {
+            (<any>Object).assign(this.ruleMap, arg);
+            Object.keys(arg).forEach(k => this.addProp(k, <ValidRules>this.ruleMap));
+        }
+        
     }
 
     constructor() {
         super();
 
         this.addRule = this.addRule.bind(this);
-        this.addRules = this.addRules.bind(this);
     }
     
 }

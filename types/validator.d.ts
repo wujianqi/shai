@@ -2,9 +2,7 @@ import ValidatorBase, { ValidatorBaseInterface } from './validatorbase';
 export interface Item {
     value: string | number;
     callback?: (faults: string[]) => void;
-    rule?: {
-        [key: string]: any;
-    };
+    rule?: ValidChain;
     require?: boolean;
     english?: boolean;
     qq?: boolean;
@@ -76,6 +74,7 @@ export interface Item {
     [key: string]: any;
 }
 export interface ValidChain {
+    readonly __caches: any;
     require?: ValidChain;
     english?: ValidChain;
     qq?: ValidChain;

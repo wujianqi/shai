@@ -1,3 +1,4 @@
+import { ValidRuleFunc} from './validatorbase';
 import Validator, { Item, ValidChain, ValidatorInterface } from './validator';
 import * as objectPath from 'object-path';
 
@@ -24,10 +25,6 @@ export interface JsonValidatorInterface extends ValidatorInterface {
     checkItem(options: JSONItem): boolean;
     checkItems(items: JSONItem[]): boolean;
     checkJSON(JSONStr: string, struct: any, callback?: (faults: string[], path: (string | number)[]) => void): boolean;
-}
-
-function isPlainObject(value: any): value is object {
-    return typeof value === 'object' && Object.prototype.toString.call(value) === '[object Object]' && !value['length'];
 }
 
 /**
@@ -114,7 +111,7 @@ export default class JSONValidator extends Validator implements JsonValidatorInt
                     t = type
                 }
 
-                if (isPlainObject(t)) {
+                if (this.isObject(t)) {
                     if (t.hasOwnProperty('__caches')) findData(t, p);
                     else itemCheck(t, p);
                 }
@@ -129,11 +126,11 @@ export default class JSONValidator extends Validator implements JsonValidatorInt
     constructor() {
         super();
 
-        this.addRules({
+        this.addRule({
             'null': /null/,
             'boolean': /(?:true|false)/,
-            'string': arg => typeof arg === 'string',
-            'number': arg => typeof arg === 'number',
+            'string': <ValidRuleFunc>((arg:string) => typeof arg === 'string'),
+            'number': <ValidRuleFunc>((arg:string) => typeof arg === 'number'),
             'array': /^\[(.*?)\]$/,
             'object': /^\{(.*?)\}$/
         });
