@@ -1,4 +1,4 @@
-# 数据生成、模拟、验证工具库 SHAI library
+# 数据生成模拟、验证工具库 SHAI library
 
 安装：
 
@@ -17,10 +17,10 @@ npm install shai
 
 ## 数据生成与模拟
 
-<span style="color:green;">模拟数据的特色：让数据看起来更真实</span>
+模拟数据的特色：让数据看起来更真实
 
-* 以设定的区划，生成关联的电话号码、经纬度坐标、车牌号、身份证等；
-* 以行业统计热门、频次高的词汇，生成姓、名、公司名、国名、地址等；
+- [x] 以设定的区划，生成关联的电话号码、经纬度坐标、车牌号、身份证等；<br>
+- [x] 以行业统计热门、频次高的词汇，生成姓、名、公司名、国名、地址等；
 
 
 ```javascript
@@ -42,11 +42,11 @@ var m = new Shai().mock({
 > ***beginTime***  全局时间范围的开始时间，默认1970-01-01<br>
 > ***endTime***  全局时间范围的结束时间，默认当前时间 <br>
 
-**m.get(method, ...args)** 生成数据，包括md5、uuid, 及模拟数据等。
+**m.get(key, ...args)** 生成数据，包括md5、uuid, 及模拟数据等。
 
 ###### get 参数说明：
 
-> 参数1 ***method*** 为方法名； <br>
+> 参数1 ***key*** 为方法名； <br>
 > 参数2 ***args*** 为可选，方法中的更多参数。
 
 **m.make(content, num1, num2)** JSON模板，变量输出为#method, ...arguments#
@@ -58,11 +58,13 @@ var m = new Shai().mock({
 > 参数3 ***num2*** 可选，为数组长度的随机的参考上限值。 <br>
 > 注：模版内使用正则需转义且不含限定符#，也可先设定为扩展再来使用。
 
-**m.addRule(key|rules, value)**  扩展生成数据的方法，正则或函数；如果参数1为对象集合，则扩展该对象，参数2无效。
+**m.addRule(rules|key, value)**  扩展生成数据的方法，正则或函数；参数1为对象集合，或者是方法名（key），参数2为key的值。
+
+**m.getRule(key)** 按key名，获取规则方法 
 
 **m.increment = 0**   重置自增长基数
 
-**m.region**  取当前地区对象（数组）
+**m.region**  取当前地区对象。
 
 
 ##### 用法例子：
@@ -114,71 +116,95 @@ var m = new Shai().mock({
 
 ```
 
+
+#### 单独使用
+
+可不使用验证模块，仅使用数据生成与模拟模块。
+
+```javascript
+  import Mock from 'shai/mock';
+  // ES5使用 const Mock = require('shai/mock').default;
+
+  var m = new Mock();
+  console.log(m.get('cnName'));
+  // ……
+```
+
 #### 数据生成方法类型：
 
-常用数据生成
-
-* **uuid**          UUID，以时间为因子。可选1个参数，为指定分隔符号，默认为-符号
-* **md5**           MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位，默认32位
-* **now**           当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss')
-* **increment**     递增整数，可选2个参数，参数1为步长，参数2为左补位0的个数
-* **exp**           自定义正则，可选参数为字符串表达式（特殊字符需转义）
-
-模拟数据生成
-
-* **int**           整数，可选2个参数，参数1为下限值，参数2位上限值
-* **number**        数字，可选3个参数，参数1为下限值(整数)，参数2位上限值(整数)，参数3为小数位数(整数)
-* **enum**          自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个
-* **validcode**     验证随机数，可选1个参数，位数
-* **bool**          布尔，true或false
-* **date**          日期，如 2017-11-11 （全局时间段内） 
-* **time**          时间，如 11:11:08（全局时间段内） 
-* **year**          年 （全局时间段内） 
-* **month**         月 
-* **day**           日
-* **hour**          时
-* **minute**        分
-* **second**        秒
-* **datetime**      时间，可选1个参数，为指定格式，如datetime('yyyy-MM-dd hh:mm:ss')，（全局时间段内）
-* **zipcode**       邮编（依据全局区划）
-* **bizcode**       统一信用编码
-* **english**       英文，可选2个参数，参数1为备选随机英文字串，参数2为长度
-* **chinese**       中文，可选2个参数，参数1为备选随机中文字串，参数2为长度
-* **text**          文本填充，可选3个参数，参数1为文本，参数2为显示次数或为随机下限值，参数3为随机上限值。
-* **bankcard**      银行卡号
-* **price**         价格，可选参数1为下限数，可选参数2为上限数，可选参数3为是否带分号, true或false
-* **mid**           商品、产品型号或编号
-* **company**       企业名称（依据全局区划）
-* **account**       账号名
-* **password**      密码
-* **color**         颜色，如 #000FFF
-* **url**           网址
-* **mail**          邮箱
-* **mobile**        手机
-* **telphone**      固定电话（依据全局区划，自动识别8位或7位）
-* **enName**        英文姓名
-* **enMaleName**    英文姓名 男
-* **enFemaleName**  英文姓名 女
-* **cnName**        中文姓名
-* **cnMaleName**    中文姓名 男
-* **cnFemaleName**  中文姓名 女
-* **enState**       英文国名
-* **cnState**       中文国名
-* **citycode**      行政代码（依据全局区划）
-* **province**      省（依据全局区划）
-* **prefecture**    市州盟（依据全局区划），division为省级，可循环所属市名称
-* **county**        县区（限定地区），division为省或市级，可循环所属县区名称
-* **lon**           地理位置，经度，（依据全局区划）
-* **lat**           地理位置，纬度，（依据全局区划）
-* **address**       住址，当前县/区+路+号+...等 （依据全局区划）
-* **sex**           性别
-* **nation**        民族
-* **affiliate**     政治面貌
-* **edu**           学历
-* **mary**          婚姻状况
-* **health**        健康状况
-* **bodycard**      身份证（依据全局区划、全局时间段）
-* **autocard**      车牌号码（依据全局区划）
+| Key Name  | 说明  | 
+| --------------------- | --------------------- |
+| **常用数据生成**  |   | 
+| uuid                  | UUID，以时间为因子。可选1个参数，为指定分隔符号，默认为-符号 |
+| md5                   | MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位，默认32位 |
+| now                   | 当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss') |
+| increment             | 递增整数，可选2个参数，参数1为步长，参数2为左补位0的个数 |
+| exp                   | 自定义正则，可选参数为字符串表达式（特殊字符需转义） |
+| **模拟数据（数字）**|   | 
+| int                   | 整数，可选2个参数，参数1为下限值，参数2位上限值 |
+| number                | 数字，可选3个参数，参数1为下限值(整数)，参数2位上限值(整数)，参数3为小数位数(整数) |
+| **模拟数据（时间）** |   | 
+| date                  | 日期，如 2017-11-11 （全局时间段内） |
+| time                  | 时间，如 11:11:08（全局时间段内） |
+| datetime              | 时间，可选1个参数，为指定格式，如datetime('yyyy-MM-dd hh:mm:ss')，（全局时间段内） |
+| year                  | 年 （全局时间段内） |
+| month                 | 月 |
+| day                   | 日 |
+| hour                  | 时 |
+| minute                | 分 |
+| second                | 秒 |
+| **模拟数据（区域）** |   | 
+| enState               | 英文国名 |
+| cnState               | 中文国名 |
+| zipcode               | 邮编（依据全局区划） |
+| citycode              | 行政代码（依据全局区划） |
+| province              | 省（依据全局区划） |
+| prefecture            | 市州盟（依据全局区划），division为省级，可循环所属市名称 |
+| county                | 县区（限定地区），division为省或市级，可循环所属县区名称 |
+| lon                   | 地理位置，经度，（依据全局区划） |
+| lat                   | 地理位置，纬度，（依据全局区划） |
+| autocard              | 车牌号码（依据全局区划） |
+| **模拟数据（商业）** |   |
+| company               | 企业名称（依据全局区划） |
+| bizcode               | 统一信用编码 |
+| aeo                   | 海关AEO编码 |
+| bankcard              | 银行卡号 |
+| price                 | 价格，可选参数1为下限数，可选参数2为上限数，可选参数3为是否带分号, true或false |
+| mid                   | 商品产品编号，货号 |
+| size                  | 外观尺寸或包装尺寸 |
+| wearsize              | 衣鞋帽尺码 |
+| isbn                  | 书号 |
+| **模拟数据（人/账号/网络）**|   | 
+| enName                | 英文姓名 |
+| enMaleName            | 英文姓名 男 |
+| enFemaleName          | 英文姓名 女 |
+| cnName                | 中文姓名 |
+| cnMaleName            | 中文姓名 男 |
+| cnFemaleName          | 中文姓名 女 |
+| sex                   | 性别 |
+| nation                | 民族 |
+| affiliate             | 政治面貌 |
+| edu                   | 学历 |
+| mary                  | 婚姻状况 |
+| health                | 健康状况 |
+| bodycard              | 身份证（依据全局区划、全局时间段） |
+| account               | 账号名 |
+| password              | 密码 |
+| validcode             | 验证随机数，可选1个参数，位数 |
+| address               | 住址，当前县/区+路+号+...等 （依据全局区划） |
+| phone                 | 固定电话（依据全局区划，自动识别8位或7位） |
+| mobile                | 手机 |
+| url                   | 网址 |
+| mail                  | 邮箱 |
+| ip                    | 局域网IP |
+| port                  | 端口 |
+| **模拟数据（其它）** |   | 
+| enum                  | 自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个 |
+| bool                  | 布尔，true或false |
+| english               | 英文，可选2个参数，参数1为备选随机英文字串，参数2为长度 |
+| chinese               | 中文，可选2个参数，参数1为备选随机中文字串，参数2为长度 |
+| text                  | 文本填充，可选3个参数，参数1为文本，参数2为显示次数或为随机下限值，参数3为随机上限值 |
+| color                 | 颜色，如 #000FFF |
 
 #### 补充说明
 
@@ -188,10 +214,10 @@ var m = new Shai().mock({
 * [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
 [json-server](https://github.com/typicode/json-server) <br>
 [holder](https://github.com/imsky/holder) <br>
+[dummyimage](https://dummyimage.com/) <br>
 [JsBarcode](https://github.com/lindell/JsBarcode) <br>
 [qrcode](https://github.com/PaulKinlan/qrcode) <br>
 [randomColor](https://github.com/davidmerfield/randomColor)
-
 
 ------
 
@@ -225,16 +251,17 @@ var v = new Shai().valitator;
 
 **v.checkJSON(json, struct, callback)**  JSON数据验证，返回值为是否通过(boolean)
 
-###### checkJSOn 参数选项(option)说明：
+###### checkJSON 参数选项(json, struct, callback)说明：
 
 > 参数1为数据类型结构，参考代码示例，**必须** <br>
 > 参数2为数据，**必须** <br>
-> 参数3为回调方法，含2参数，未通过项的组、数据层级路径组。
+> 参数3为可选，回调方法，含2参数，未通过项的组、数据层级路径组。
 
 **v.type**  链式验证对象
 
-**v.addRule(key|rules, value)**  扩展验证数据的方法，正则或函数；如果参数1为对象集合，则扩展该对象，参数2无效。
+**v.addRule(rules|key, value)**  扩展验证数据的方法，正则或函数；参数1为对象集合，或者是方法名（key），参数2为key的值。
 
+**v.getRule(key)** 按key名，获取验证方法 
 
 ##### 用法例子：
 
@@ -251,7 +278,7 @@ var v = new Shai().valitator;
     });
 
     // 单项单规则验证
-    v.check('password1','==','password2'); // 返回false
+    v.check('password1','eq','password2'); // 返回false
     v.check('120101199901011693','bodycard'); // 返回true
 
     // 单项组合规则验证，动态属性方式
@@ -334,104 +361,145 @@ var v = new Shai().valitator;
 
 ```
 
-#### 独立使用
+#### 单独使用
 
-可独立使用数据验证模块（不含JSON验证），单独引用。
+可不使用生成模拟模块，仅使用数据验证模块。
 
 ```javascript
-    import Validator from 'shai/validator';
-    // ES5使用 const Validator = require('shai/validator').default;
+  import Validator from 'shai/validator';
+  // ES5使用 const Validator = require('shai/validator').default;
 
-    var v = new Validator();
-
-    v.addRules({'newrule': /abc/});
-    v.check('password1','==','password2');
+  var v = new Validator();
+  console.log(v.check('abc'));
+  // ……
 ```
 
 #### 数据验证规则类型
 
-基本类型验证（建议配合checkJSON使用，仅测试文本数据）
 
-* **object** 
-* **array** 
-* **number** 
-* **string**
-* **boolean**  
-* **null**      
+| Key Name  | 说明  | 
+| -------------------- | -------------------- |
+| **基本类型验证**  | （建议配合checkJSON使用，仅测试文本数据） | 
+| object               | 对象 |   
+| array                | 数组 | 
+| number               | 数字 | 
+| string               | 文本 | 
+| boolean              | 布尔 | 
+| null                 | 空值 |
+| **格式验证（数字）**|  | 
+| currency             | 货币，2小数，带分号|
+| float                | 数字 |
+| int                  | 整数 |
+| decimal              | 小数点1位及以上 |
+| percent              | 百分数，可两位小数点 |
+| even                 | 偶数 |
+| odd                  | 奇数 |
+| **格式验证（时间）** |  | 
+| date                 | 日期 2017-7-7或2017/7/7，0补位非必须，含大小月、闰月检测  |
+| time                 | 时间 12:12:12，分秒个位须0补位 |
+| datetime             | 日期 + 时间 如2017-07-07 12:02:02, 0补位非必须 |
+| year                 | 年份 1900-2099 |
+| month                | 月份 1-12，不带补位，下同 |
+| day                  | 日 1-31 |
+| hour                 | 小时 0-23 |
+| minute               | 分钟 0-59 |
+| second               | 秒钟 0-59 |
+| **格式验证（人/账号/网络）** |  | 
+| qq                   | QQ号 5-11位 | 
+| age                  | 年龄 0-129岁 | 
+| zipcode              | 邮编 | 
+| mail                 | 邮箱地址 |
+| url                  | 网址 |
+| account              | 账号名 |
+| password             | 密码 |
+| safe                 | 安全敏感字符 |
+| mobile               | 手机13700000000，融合2017新号规则, +86、86可选 |
+| telphone             | 电话手机混合 |
+| phone                | 固话，可带分机, +86、86可选 |
+| bodycard             | 身份证，含地区、生日、验证数等规则 |
+| address              | 住址 |
+| ip                   | IP地址 |
+| ipv6                 | IPV6地址 |
+| port                 | 端口 |
+| **格式验证（商业）** |  | 
+| bizcode              | 统一信用代码  |
+| invoice              | 增值税发票代码 |
+| aeo                  | 海关AEO编码   |
+| bankcard             | 银行卡号（仅限国内卡）|
+| isbn                 | 书号（仅限13位）|
+| approval             | 审批文号 政字〔2004〕18号 或 政字[2004]18号 |
+| **格式验证（区域）**|  | 
+| citycode             | 地区代码
+| autocard             | 车牌号码，支持新能源车牌号及港澳等 |
+| lon                  | 地理位置——经度，小数点1位及以上 |
+| lat                  | 地理位置——纬度，小数点1位及以上 |
+| **格式验证（编码）**|  | 
+| ascii                | ASCII码 |
+| base64               | BASE64码 |
+| md5                  | md5码 |
+| uuid                 | UUID码 |
+| dbc                  | 全角 |
+| hex                  | HEX码 |
+| color                | 颜色码，16进制 |
+| **格式验证（其它）**|  | 
+| require              | 非空任意字符 |  
+| english              | 英文字母 | 
+| chinese              | 中文|
+| file                 | 合法文件名 |
+| image                | 合法图像文件名 |
+| word                 | 合法文档文件名 |
+| upper                | 有大写 |
+| lower                | 有小写 |
+| **比较**  |  | 
+| not                  | 不等于 |
+| eq                   | 等于 |
+| gt                   | 大于 |
+| gte                  | 大于或等于 |
+| lt                   | 小于 |
+| lte                  | 小于或等于 |
+| between              | 之间，大于并小于 |
+| min                  | 最小 |
+| max                  | 最大 |
+| minlength            | 最小长度 |
+| maxlength            | 最大长度 |
+| length               | 等于长度 |
+| in                   | 是否包含，字符 |
 
-格式验证
+------
 
-* **require**     任意字符，必填项
-* **english**     英文字母
-* **qq**          QQ号 5-11位
-* **age**         年龄 0-129岁
-* **zipcode**     邮编
-* **ip**          IP地址
-* **ipv6**        IPV6地址
-* **port**        端口
-* **bizcode**     统一信用代码
-* **invoice**     增值税发票代码
-* **bankcard**    银行卡号（仅限国内卡）
-* **currency**    货币，2小数，带分号
-* **float**       数字
-* **int**         整数
-* **decimal**     小数点1位及以上
-* **percent**     百分数，可两位小数点
-* **even**        偶数
-* **odd**         奇数
-* **chinese**     中文
-* **mail**        邮箱地址
-* **url**         网址
-* **account**     账号名
-* **password**    密码
-* **safe**        安全敏感字符
-* **dbc**         全角
-* **hex**         HEX码
-* **color**       颜色码，16进制
-* **ascii**       ASCII码
-* **base64**      BASE64码
-* **md5**         md5码
-* **uuid**        UUID码
-* **mobile**      手机13700000000，融合2017新号规则, +86、86可选
-* **telphone**    电话手机混合
-* **phone**       固话，可带分机,  +86、86可选
-* **date**        日期 2017-7-7或2017/7/7，0补位非必须，含大小月、闰月检测
-* **time**        时间 12:12:12，分秒个位须0补位
-* **datetime**    日期 + 时间 如2017-07-07 12:02:02, 0补位非必须
-* **year**        年份 1900-2099
-* **month**       月份 1-12，不带补位，下同
-* **day**         日 1-31
-* **hour**        小时 0-23
-* **minute**      分钟 0-59
-* **second**      秒钟 0-59
-* **file**        合法文件名
-* **image**       合法图像文件名
-* **word**        合法文档文件名
-* **lon**         地理位置——经度，小数点1位及以上
-* **lat**         地理位置——纬度，小数点1位及以上
-* **approval**    审批文号 政字〔2004〕18号 或 政字[2004]18号
-* **citycode**    地区代码
-* **isbn**        书号（仅限13位）
-* **bodycard**    身份证，含地区、生日、验证数等规则
-* **autocard**    车牌号码，支持新能源车牌号及港澳等
-* **upper**       有大写
-* **lower**       有小写
+## 浏览器上使用（AMD规范）
 
-比较
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.bootcss.com/require.js/2.2.0/require.js"></script>
+    <script>
+      require(['http://175.io/lib/shai.js'], function(shai){
+        var Shai = shai.default, 
+          v = new Shai().validator;
+        
+        console.log(v.check('1111'));
+      });
+      /*
+      require(['http://175.io/lib/validator.js'], function(validator){
+        var Validator = validator.default, 
+          v = new Validator();
+        
+        console.log(v.check('1111'));
+      });      
+      */
+    </script>
+</head>
+<body>
+</body>
+</html>
 
-* **not**         不等于，可使用!=替代
-* **eq**          等于，可使用==替代
-* **gt**          大于，可使用>替代
-* **gte**         大于或等于，可使用>=替代
-* **lt**          小于，可使用<替代
-* **lte**         小于或等于，可使用<=替代
-* **bet**         之间，大于并小于
-* **min**         最小
-* **max**         最大
-* **minlength**   最小长度
-* **maxlength**   最大长度
-* **length**      等于长度
-* **in**          是否包含，字符
+```
 
 ------
 
@@ -440,8 +508,8 @@ var v = new Shai().valitator;
 使用TypeScript的项目, 可考虑直接引用ts原文件：
 
 ```typescript
-import Shai from 'shai/src';
+  import Shai from 'shai/src';
 
-var v: = new Shai().valitator;
-// ……
+  var v: = new Shai().valitator;
+  // ……
 ```

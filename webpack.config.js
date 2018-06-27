@@ -6,7 +6,8 @@ const webpack = require('webpack'),
 module.exports = {
   entry: {
     'shai': __dirname + '/src/index.ts',
-    'validator': __dirname + '/src/validator.ts'
+    'validator': __dirname + '/src/jsonvalidator.ts',
+    'mock': __dirname + '/src/mock.ts'
   },
   // devtool: 'source-map',
   output: {

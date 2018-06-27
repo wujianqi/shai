@@ -19,7 +19,7 @@ export interface Division {
 }
 
 export interface MockInterface extends MakerInterface {
-    readonly region: (string | number | null)[];
+    readonly region: Division;
 }
 
 const randCode = /(1[1-5]|2[1-3]|3[3-7]|4[1-6]|5[1-4]|6[1-5])/;
@@ -123,10 +123,10 @@ export default class Mock extends Maker implements MockInterface {
         }
         return { province, prefecture, county } as Division;        
     }
-
+    
     // 获取设定的区域对象
-    get region(): (string | number | null)[] {
-        return this.config.divisionCode ? regions[this.config.divisionCode] : [] ;
+    get region():Division {
+        return this.division;
     }
 
     constructor(option?: MockConfig) {
@@ -154,7 +154,7 @@ export default class Mock extends Maker implements MockInterface {
             'day': <RuleFunc>(() => util.getInt(1, 31)),
             'hour': <RuleFunc>(() => util.getInt(0, 23)),
             'minute': <RuleFunc>(() => util.getInt(1, 59)),
-            'mid': /[0-9A-Z]{1,8}(\-[0-9A-Z]{2,6}){0,2}/,
+            'mid': /[1-9A-Z][0-9A-Z]{1,7}(\-[0-9A-Z]{2,6}){0,2}/,            
             'validcode': (arg = 4) => new RandExp(new RegExp('[A-Z0-9]{' + arg + '}')).gen(),
             'account': /[a-zA-Z]{1,3}[a-zA-Z0-9]{3,6}/,
             'password': /[a-zA-Z0-9][a-zA-Z0-9\W_]{7}/,
@@ -165,8 +165,10 @@ export default class Mock extends Maker implements MockInterface {
             'ip': /((192\.168)|(172\.0)|(10\.0))\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])/,
             'port': /[1-9]\d{3}/,
             'bizcode': /91[1-4]\d{5}[0-9A-HJ-NPQRTUWXY]{10}/,
+            'aeo': /AEO<CN\d{10}>/,
             'bankcard': /62(([0-3]\d)(4[0-5])|5([0-3]|5|8|9)|70|8[2-3])\d{12,15}/,
             'qq': /[1-9]\d{4,10}/,
+            'isbn':/9787\d{9}/,
             'enName': <RuleFunc>(() => util.getItem(names.eMaleName.concat(names.eFemaleName)) + ' ' + util.getItem(names.eSurname)),
             'enMaleName': <RuleFunc>(() => util.getItem(names.eMaleName) + ' ' + util.getItem(names.eSurname)),
             'enFemaleName': <RuleFunc>(() => util.getItem(names.eFemaleName) + ' ' + util.getItem(names.eSurname)),
@@ -187,7 +189,7 @@ export default class Mock extends Maker implements MockInterface {
                 return util.getItems(d.split(''), num).join('');
             }),
             'chinese': <RuleFunc>((arg: string, num: number = 1): string => {
-                const d = arg ? arg : String.fromCharCode(util.getInt(19968, 40869));
+                let d = arg ? arg : String.fromCharCode(util.getInt(19968, 40869));
 
                 return util.getItems(d.split(''), num).join('');
             }),
@@ -206,11 +208,13 @@ export default class Mock extends Maker implements MockInterface {
                 else n = d + '';
                 return n;
             }),
+            'size':<RuleFunc>(() => [util.getNumber(200, 500), util.getNumber(100, 200), util.getNumber(10, 100)].join(' x ')),
+            'wearsize':<RuleFunc>(() => util.getItem(['XXS','XS','S','M','L','XL','XXL'])),
             'citycode': <RuleFunc>(() => this.division.county),
             'province': <RuleFunc>(() => regions[this.getRndDivision().province][0]),
             'prefecture': <RuleFunc>(() => regions[this.getRndDivision().prefecture][0]),
             'county': <RuleFunc>(() => regions[this.getRndDivision().county][0]),
-            'telphone': <RuleFunc>(() => {
+            'phone': <RuleFunc>(() => {
                 let cd = regions[this.division.county][1] as string, ps;
 
                 if (this.is8bit.indexOf(cd) > -1) ps = cd + '-' + new RandExp(/[268]\d{7}/).gen();

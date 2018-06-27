@@ -74,8 +74,8 @@ describe('单项数据生成与模拟测试 maker test', function () {
     it('mobile make test', () => {
         console.log(m.get('mobile'));
     });
-    it('telphone make test', () => {
-        console.log(m.get('telphone'));
+    it('phone make test', () => {
+        console.log(m.get('phone'));
     });
     it('ip make test', () => {
         console.log(m.get('ip'));
@@ -170,6 +170,12 @@ describe('单项数据生成与模拟测试 maker test', function () {
     });
     it('lat', function () {
         console.log(m.get('lat'));
+    });
+    it('size', function () {
+        console.log(m.get('size'));
+    });
+    it('wearsize', function () {
+        console.log(m.get('wearsize'));
     });
 
 });

@@ -10,7 +10,7 @@ export interface Division {
     'county': string;
 }
 export interface MockInterface extends MakerInterface {
-    readonly region: (string | number | null)[];
+    readonly region: Division;
 }
 export default class Mock extends Maker implements MockInterface {
     private config;
@@ -23,6 +23,6 @@ export default class Mock extends Maker implements MockInterface {
     private division;
     private extract();
     private getRndDivision();
-    readonly region: (string | number | null)[];
+    readonly region: Division;
     constructor(option?: MockConfig);
 }
