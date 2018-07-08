@@ -38,7 +38,6 @@ export default class Mock extends Maker implements MockInterface {
         '0379','0411','0451','0512','0513','0516','0510','0531','0532','0571','0574','0577',
         '0591','0595','0755','0757','0769','0898','0431'       
     ];
-
     private level: number = 0;
     private prefectures: string[] = [];
     private countys: string[] = [];
@@ -119,14 +118,18 @@ export default class Mock extends Maker implements MockInterface {
                     prefecture = code.slice(0, 4) + '00';
                     county = code;
                     break;
-            }            
+            }
         }
         return { province, prefecture, county } as Division;        
     }
     
     // 获取设定的区域对象
     get region():Division {
-        return this.division;
+        return {
+            'province': regions[this.division.province][0] as string,
+            'prefecture': regions[this.division.prefecture][0] as string,
+            'county': regions[this.division.county][0] as string
+        };
     }
 
     constructor(option?: MockConfig) {
@@ -209,7 +212,7 @@ export default class Mock extends Maker implements MockInterface {
                 return n;
             }),
             'size':<RuleFunc>(() => [util.getNumber(200, 500), util.getNumber(100, 200), util.getNumber(10, 100)].join(' x ')),
-            'wearsize':<RuleFunc>(() => util.getItem(['XXS','XS','S','M','L','XL','XXL'])),
+            'wearsize':<RuleFunc>(() => util.getItem(feature.wearsize)),
             'citycode': <RuleFunc>(() => this.division.county),
             'province': <RuleFunc>(() => regions[this.getRndDivision().province][0]),
             'prefecture': <RuleFunc>(() => regions[this.getRndDivision().prefecture][0]),
@@ -238,7 +241,9 @@ export default class Mock extends Maker implements MockInterface {
             }),
             'autocard': <RuleFunc>(() => {
                 let card = regions[this.division.prefecture][5] as string,
-                    pf = card.length === 1 ? card + util.getItem(['A', 'B', 'C']) : card;
+                    ps:any = {'京': /[ACE-J]/, '沪': /[A-E]/, '津': /[A-DFG]/},
+                    pf = card.length === 1 ? new RandExp((ps.hasOwnProperty(card) ? ps[card]: /[A-C]/)).gen() : card;
+
                 return pf + new RandExp(/\d{3}[A-HJ-NP-UW-Z]{2}|[A-HJ-NP-UW-Z]\d{4}/).gen();
             }),
             'address': <RuleFunc>(() => {

@@ -2653,7 +2653,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '033000',
         '111.13',
         '37.52',
-        '豫'
+        '晋J'
     ],
     '141102': [
         '离石区',
@@ -2661,7 +2661,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '033000',
         '111.15',
         '37.51',
-        '豫'
+        '晋J'
     ],
     '141121': [
         '文水县',
@@ -2669,7 +2669,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '032100',
         '112.02',
         '37.43',
-        '豫'
+        '晋J'
     ],
     '141122': [
         '交城县',
@@ -2677,7 +2677,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '030500',
         '112.15',
         '37.55',
-        '豫'
+        '晋J'
     ],
     '141123': [
         '兴县',
@@ -2685,7 +2685,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '033600',
         '111.12',
         '38.46',
-        '豫'
+        '晋J'
     ],
     '141124': [
         '临县',
@@ -2693,7 +2693,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '033200',
         '110.99',
         '37.95',
-        '豫'
+        '晋J'
     ],
     '141125': [
         '柳林县',
@@ -2701,7 +2701,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '033300',
         '110.88',
         '37.42',
-        '豫'
+        '晋J'
     ],
     '141126': [
         '石楼县',
@@ -2709,7 +2709,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '032500',
         '110.83',
         '36.99',
-        '豫'
+        '晋J'
     ],
     '141127': [
         '岚县',
@@ -2717,7 +2717,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '033500',
         '111.67',
         '38.27',
-        '豫'
+        '晋J'
     ],
     '141128': [
         '方山县',
@@ -2725,7 +2725,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '033100',
         '111.24',
         '37.88',
-        '豫'
+        '晋J'
     ],
     '141129': [
         '中阳县',
@@ -2733,7 +2733,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '033400',
         '111.17',
         '37.35',
-        '豫'
+        '晋J'
     ],
     '141130': [
         '交口县',
@@ -2741,7 +2741,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '032400',
         '111.18',
         '36.98',
-        '豫'
+        '晋J'
     ],
     '141181': [
         '孝义市',
@@ -2749,7 +2749,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '032300',
         '111.77',
         '37.14',
-        '豫'
+        '晋J'
     ],
     '141182': [
         '汾阳市',
@@ -2757,7 +2757,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '032200',
         '111.78',
         '37.26',
-        '豫'
+        '晋J'
     ],
     '150000': [
         '内蒙古自治区',
@@ -3341,7 +3341,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '015001',
         '107.41',
         '40.75',
-        '蒙'
+        '蒙L'
     ],
     '150802': [
         '临河区',
@@ -3349,7 +3349,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '015001',
         '107.42',
         '40.75',
-        '蒙'
+        '蒙L'
     ],
     '150821': [
         '五原县',
@@ -3357,7 +3357,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '015100',
         '108.26',
         '41.09',
-        '蒙'
+        '蒙L'
     ],
     '150822': [
         '磴口县',
@@ -3365,7 +3365,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '015200',
         '107.00',
         '40.33',
-        '蒙'
+        '蒙L'
     ],
     '150823': [
         '乌拉特前旗',
@@ -3381,7 +3381,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '015300',
         '108.52',
         '41.56',
-        '蒙'
+        '蒙L'
     ],
     '150825': [
         '乌拉特后旗',
@@ -3389,7 +3389,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '015500',
         '106.98',
         '41.43',
-        '蒙'
+        '蒙L'
     ],
     '150826': [
         '杭锦后旗',
@@ -3397,7 +3397,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '015400',
         '107.15',
         '40.88',
-        '蒙'
+        '蒙L'
     ],
     '150900': [
         '乌兰察布市',
@@ -3405,7 +3405,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '012000',
         '113.11',
         '41.03',
-        '蒙'
+        '蒙J'
     ],
     '150902': [
         '集宁区',
@@ -3413,7 +3413,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '012000',
         '113.11',
         '41.03',
-        '蒙'
+        '蒙J'
     ],
     '150921': [
         '卓资县',
@@ -3421,7 +3421,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '012300',
         '112.57',
         '40.89',
-        '蒙'
+        '蒙J'
     ],
     '150922': [
         '化德县',
@@ -3429,7 +3429,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '013350',
         '114.01',
         '41.90',
-        '蒙'
+        '蒙J'
     ],
     '150923': [
         '商都县',
@@ -3437,7 +3437,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '013450',
         '113.57',
         '41.56',
-        '蒙'
+        '蒙J'
     ],
     '150924': [
         '兴和县',
@@ -3445,7 +3445,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '013650',
         '113.83',
         '40.87',
-        '蒙'
+        '蒙J'
     ],
     '150925': [
         '凉城县',
@@ -3453,7 +3453,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '013750',
         '112.49',
         '40.53',
-        '蒙'
+        '蒙J'
     ],
     '150926': [
         '察哈尔右翼前旗',
@@ -3461,7 +3461,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '012200',
         '113.22',
         '40.77',
-        '蒙'
+        '蒙J'
     ],
     '150927': [
         '察哈尔右翼中旗',
@@ -3469,7 +3469,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '013550',
         '112.63',
         '41.27',
-        '蒙'
+        '蒙J'
     ],
     '150928': [
         '察哈尔右翼后旗',
@@ -3477,7 +3477,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '012400',
         '113.19',
         '41.43',
-        '蒙'
+        '蒙J'
     ],
     '150929': [
         '四子王旗',
@@ -3485,7 +3485,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '011800',
         '111.70',
         '41.53',
-        '蒙'
+        '蒙J'
     ],
     '150981': [
         '丰镇市',
@@ -3493,7 +3493,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '012100',
         '113.10',
         '40.43',
-        '蒙'
+        '蒙J'
     ],
     '152200': [
         '兴安盟',
@@ -17478,7 +17478,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '546100',
         '109.22',
         '23.73',
-        '桂'
+        '桂G'
     ],
     '451302': [
         '兴宾区',
@@ -17486,7 +17486,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '546100',
         '109.23',
         '23.72',
-        '桂'
+        '桂G'
     ],
     '451321': [
         '忻城县',
@@ -17494,7 +17494,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '546200',
         '108.66',
         '24.06',
-        '桂'
+        '桂G'
     ],
     '451322': [
         '象州县',
@@ -17502,7 +17502,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '545800',
         '109.69',
         '23.97',
-        '桂'
+        '桂G'
     ],
     '451323': [
         '武宣县',
@@ -17510,7 +17510,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '545900',
         '109.66',
         '23.59',
-        '桂'
+        '桂G'
     ],
     '451324': [
         '金秀瑶族自治县',
@@ -17518,7 +17518,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '545799',
         '110.19',
         '24.12',
-        '桂'
+        '桂G'
     ],
     '451381': [
         '合山市',
@@ -17526,7 +17526,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '546500',
         '108.88',
         '23.80',
-        '桂'
+        '桂G'
     ],
     '451400': [
         '崇左市',
@@ -17534,7 +17534,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '532299',
         '107.35',
         '22.40',
-        '桂'
+        '桂F'
     ],
     '451402': [
         '江州区',
@@ -17542,7 +17542,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '532299',
         '107.34',
         '22.41',
-        '桂'
+        '桂F'
     ],
     '451421': [
         '扶绥县',
@@ -17550,7 +17550,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '532199',
         '107.90',
         '22.63',
-        '桂'
+        '桂F'
     ],
     '451422': [
         '宁明县',
@@ -17558,7 +17558,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '532599',
         '107.07',
         '22.13',
-        '桂'
+        '桂F'
     ],
     '451423': [
         '龙州县',
@@ -17566,7 +17566,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '532499',
         '106.85',
         '22.33',
-        '桂'
+        '桂F'
     ],
     '451424': [
         '大新县',
@@ -17574,7 +17574,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '532399',
         '107.19',
         '22.83',
-        '桂'
+        '桂F'
     ],
     '451425': [
         '天等县',
@@ -17582,7 +17582,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '532899',
         '107.13',
         '23.07',
-        '桂'
+        '桂F'
     ],
     '451481': [
         '凭祥市',
@@ -17590,7 +17590,7 @@ export const regions:{[key: string]: (string|number|null)[]} = {
         '532699',
         '106.75',
         '22.10',
-        '桂'
+        '桂F'
     ],
     '460000': [
         '海南省',

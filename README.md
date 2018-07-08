@@ -164,6 +164,8 @@ var m = new Shai().mock({
 | lon                   | 地理位置，经度，（依据全局区划） |
 | lat                   | 地理位置，纬度，（依据全局区划） |
 | autocard              | 车牌号码（依据全局区划） |
+| address               | 住址，当前县/区+路+号+...等 （依据全局区划） |
+| phone                 | 固定电话（依据全局区划，自动识别8位或7位） |
 | **模拟数据（商业）** |   |
 | company               | 企业名称（依据全局区划） |
 | bizcode               | 统一信用编码 |
@@ -191,8 +193,6 @@ var m = new Shai().mock({
 | account               | 账号名 |
 | password              | 密码 |
 | validcode             | 验证随机数，可选1个参数，位数 |
-| address               | 住址，当前县/区+路+号+...等 （依据全局区划） |
-| phone                 | 固定电话（依据全局区划，自动识别8位或7位） |
 | mobile                | 手机 |
 | url                   | 网址 |
 | mail                  | 邮箱 |
@@ -209,9 +209,9 @@ var m = new Shai().mock({
 #### 补充说明
 
 * 本库仅生成单纯的基本类型数据（字符串、数字、布尔），对象需自主去封装；
-* 地址请求拦截、API模拟、二进制数据，可结合其它库来使用：
+* 地址请求拦截、API模拟、二进制数据，可结合其它库来使用：<br>
 
-* [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
+[axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
 [json-server](https://github.com/typicode/json-server) <br>
 [holder](https://github.com/imsky/holder) <br>
 [dummyimage](https://dummyimage.com/) <br>
@@ -363,7 +363,7 @@ var v = new Shai().valitator;
 
 #### 单独使用
 
-可不使用生成模拟模块，仅使用数据验证模块。
+可不使用生成模拟数据模块，仅使用数据验证模块。
 
 ```javascript
   import Validator from 'shai/validator';

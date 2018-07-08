@@ -1,9 +1,9 @@
 export const feature:{[key: string]: string[]} = {
-  'sex': [
+  'sex': [ // GB2261
     '男',
     '女'
   ],
-  'nation': [
+  'nation': [ // GB3304
     '汉族',
     '蒙古族',
     '回族',
@@ -61,7 +61,7 @@ export const feature:{[key: string]: string[]} = {
     '珞巴族',
     '基诺族'
   ],
-  'affiliate': [
+  'affiliate': [ // GB4762
     '中国共产党党员',
     '中国共产党预备党员',
     '中国共产主义青年团团员',
@@ -76,7 +76,7 @@ export const feature:{[key: string]: string[]} = {
     '无党派民主人士',
     '群众'
   ],
-  'edu': [
+  'edu': [ // GB4658
     '研究生',
     '大学本科',
     '大学专科和专科学校',
@@ -87,17 +87,26 @@ export const feature:{[key: string]: string[]} = {
     '小学',
     '文盲或半文盲'
   ],
-  'mary': [
+  'mary': [ // GB4766
     '未婚',
     '已婚',
     '丧偶',
     '离婚'
   ],
-  'health': [
+  'health': [ // GB4767
     '健康或良好',
     '一般或较弱',
     '有慢性病',
     '有生理缺陷',
     '残废'
+  ],
+  'wearsize':[ // GB1335
+    'XXS',
+    'XS',
+    'S',
+    'M',
+    'L',
+    'XL',
+    'XXL'
   ]
 }

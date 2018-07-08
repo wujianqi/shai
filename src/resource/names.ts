@@ -1,5 +1,5 @@
 export const names:{[key: string]: string[]} = {
-  'eSurname': [
+  'eSurname': [ // 英美排名前25-30的姓
     'Smith',
     'Johnson',
     'Williams',
@@ -31,7 +31,7 @@ export const names:{[key: string]: string[]} = {
     'Hernandez',
     'King'
   ],
-  'eMaleName': [
+  'eMaleName': [ // 英美排名前25-30的男性名
     'James',
     'John',
     'Robert',
@@ -58,7 +58,7 @@ export const names:{[key: string]: string[]} = {
     'Jason',
     'Jeff'
   ],
-  'eFemaleName': [
+  'eFemaleName': [ // 英美排名前25-30的女性名
     'Mary',
     'Patricia',
     'Linda',
@@ -85,7 +85,7 @@ export const names:{[key: string]: string[]} = {
     'Kimberly',
     'Deborah'
   ],
-  'cSurname': [
+  'cSurname': [ // 中国排名前100左右的姓
     '李',
     '王',
     '张',
@@ -204,7 +204,7 @@ export const names:{[key: string]: string[]} = {
     '章',
     '鲁'
   ],
-  'cMaleName': [
+  'cMaleName': [ // 中国排名前50左右的男性名
     '伟',
     '强',
     '磊',
@@ -259,7 +259,7 @@ export const names:{[key: string]: string[]} = {
     '利',
     '建平'
   ],
-  'cFemaleName': [
+  'cFemaleName': [ // 中国排名前50左右的女性名
     '芳',
     '娜',
     '敏',
@@ -342,7 +342,7 @@ export const names:{[key: string]: string[]} = {
     '璐',
     '凤兰'
   ],
-  'eStates': [
+  'eStates': [ // 世界GDP排名前50左右国家
     'United States',
     'China',
     'Japan',
@@ -395,7 +395,7 @@ export const names:{[key: string]: string[]} = {
     'Romania',
     'New Zealand'
   ],
-  'cStates': [
+  'cStates': [ // 世界GDP排名前50左右国家
     '美国',
     '中国',
     '日本',
@@ -448,7 +448,7 @@ export const names:{[key: string]: string[]} = {
     '罗马尼亚',
     '新西兰'
   ],
-  'commonWord': [
+  'commonWord': [ // 中国200左右常用字
     '云',
     '舟',
     '巨',
@@ -663,7 +663,7 @@ export const names:{[key: string]: string[]} = {
     '傲',
     '旭'
   ],
-  'road': [
+  'road': [ // 中国排名前50左右路名
     '建设',
     '人民',
     '文化',
