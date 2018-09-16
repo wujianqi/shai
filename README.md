@@ -6,12 +6,12 @@
 npm install shai
 ```
 
-简介：
+简介： 
 
 > 前后台通用，但不支持IE9及以下浏览器； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
-> 内置数据生成方法60多项，验证方法70多项； <br>
-> 区划数据采用最新来源，2018.4 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2018/)
+> 内置数据生成方法50多项，验证方法70多项； <br>
+> V0.1.6：精简模拟数据项，优化及修复bug，区划更新到2018.7 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2018/)
 
 ------
 
@@ -134,16 +134,20 @@ var m = new Shai().mock({
 
 | Key Name  | 说明  | 
 | --------------------- | --------------------- |
-| **常用数据生成**  |   | 
+| **基本数据生成**  |   | 
 | uuid                  | UUID，以时间为因子。可选1个参数，为指定分隔符号，默认为-符号 |
 | md5                   | MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位，默认32位 |
 | now                   | 当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss') |
 | increment             | 递增整数，可选2个参数，参数1为步长，参数2为左补位0的个数 |
 | exp                   | 自定义正则，可选参数为字符串表达式（特殊字符需转义） |
-| **模拟数据（数字）**|   | 
+| **模拟数据**|   | 
+| enum                  | 自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个 |
+| bool                  | 布尔，true或false |
+| color                 | 颜色，如 #000FFF |
+| **数字类**|   | 
 | int                   | 整数，可选2个参数，参数1为下限值，参数2位上限值 |
 | number                | 数字，可选3个参数，参数1为下限值(整数)，参数2位上限值(整数)，参数3为小数位数(整数) |
-| **模拟数据（时间）** |   | 
+| **时间类** |   | 
 | date                  | 日期，如 2017-11-11 （全局时间段内） |
 | time                  | 时间，如 11:11:08（全局时间段内） |
 | datetime              | 时间，可选1个参数，为指定格式，如datetime('yyyy-MM-dd hh:mm:ss')，（全局时间段内） |
@@ -152,8 +156,7 @@ var m = new Shai().mock({
 | day                   | 日 |
 | hour                  | 时 |
 | minute                | 分 |
-| second                | 秒 |
-| **模拟数据（区域）** |   | 
+| **区域类** |   | 
 | enState               | 英文国名 |
 | cnState               | 中文国名 |
 | zipcode               | 邮编（依据全局区划） |
@@ -166,29 +169,19 @@ var m = new Shai().mock({
 | autocard              | 车牌号码（依据全局区划） |
 | address               | 住址，当前县/区+路+号+...等 （依据全局区划） |
 | phone                 | 固定电话（依据全局区划，自动识别8位或7位） |
-| **模拟数据（商业）** |   |
+| **商业类** |   |
 | company               | 企业名称（依据全局区划） |
 | bizcode               | 统一信用编码 |
-| aeo                   | 海关AEO编码 |
 | bankcard              | 银行卡号 |
 | price                 | 价格，可选参数1为下限数，可选参数2为上限数，可选参数3为是否带分号, true或false |
-| mid                   | 商品产品编号，货号 |
-| size                  | 外观尺寸或包装尺寸 |
-| wearsize              | 衣鞋帽尺码 |
-| isbn                  | 书号 |
-| **模拟数据（人/账号/网络）**|   | 
+| mid                   | 型号，货号、编号 |
+| **账号网络类**|   | 
 | enName                | 英文姓名 |
 | enMaleName            | 英文姓名 男 |
 | enFemaleName          | 英文姓名 女 |
 | cnName                | 中文姓名 |
 | cnMaleName            | 中文姓名 男 |
 | cnFemaleName          | 中文姓名 女 |
-| sex                   | 性别 |
-| nation                | 民族 |
-| affiliate             | 政治面貌 |
-| edu                   | 学历 |
-| mary                  | 婚姻状况 |
-| health                | 健康状况 |
 | bodycard              | 身份证（依据全局区划、全局时间段） |
 | account               | 账号名 |
 | password              | 密码 |
@@ -196,28 +189,26 @@ var m = new Shai().mock({
 | mobile                | 手机 |
 | url                   | 网址 |
 | mail                  | 邮箱 |
-| ip                    | 局域网IP |
+| ip                    | IP，可选参数1，是否为局域网IP |
 | port                  | 端口 |
-| **模拟数据（其它）** |   | 
-| enum                  | 自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个 |
-| bool                  | 布尔，true或false |
+| **文本块类** |   | 
 | english               | 英文，可选2个参数，参数1为备选随机英文字串，参数2为长度 |
 | chinese               | 中文，可选2个参数，参数1为备选随机中文字串，参数2为长度 |
 | text                  | 文本填充，可选3个参数，参数1为文本，参数2为显示次数或为随机下限值，参数3为随机上限值 |
-| color                 | 颜色，如 #000FFF |
+
 
 #### 补充说明
 
 * 本库仅生成单纯的基本类型数据（字符串、数字、布尔），对象需自主去封装；
 * 地址请求拦截、API模拟、二进制数据，可结合其它库来使用：<br>
 
-[axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
-[json-server](https://github.com/typicode/json-server) <br>
-[holder](https://github.com/imsky/holder) <br>
-[dummyimage](https://dummyimage.com/) <br>
-[JsBarcode](https://github.com/lindell/JsBarcode) <br>
-[qrcode](https://github.com/PaulKinlan/qrcode) <br>
-[randomColor](https://github.com/davidmerfield/randomColor)
+* [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
+* [json-server](https://github.com/typicode/json-server) <br>
+* [holder](https://github.com/imsky/holder) <br>
+* [dummyimage](https://dummyimage.com/) <br>
+* [JsBarcode](https://github.com/lindell/JsBarcode) <br>
+* [qrcode](https://github.com/PaulKinlan/qrcode) <br>
+* [randomColor](https://github.com/davidmerfield/randomColor)
 
 ------
 
@@ -253,8 +244,8 @@ var v = new Shai().valitator;
 
 ###### checkJSON 参数选项(json, struct, callback)说明：
 
-> 参数1为数据类型结构，参考代码示例，**必须** <br>
-> 参数2为数据，**必须** <br>
+> 参数1为数据，文本或对象均可，**必须** <br>
+> 参数2为数据类型结构，参考代码示例，**必须** <br>
 > 参数3为可选，回调方法，含2参数，未通过项的组、数据层级路径组。
 
 **v.type**  链式验证对象
@@ -379,14 +370,23 @@ var v = new Shai().valitator;
 
 | Key Name  | 说明  | 
 | -------------------- | -------------------- |
-| **基本类型验证**  | （建议配合checkJSON使用，仅测试文本数据） | 
+| **基本类型验证**  | （建议配合checkJSON使用） | 
 | object               | 对象 |   
 | array                | 数组 | 
 | number               | 数字 | 
 | string               | 文本 | 
 | boolean              | 布尔 | 
 | null                 | 空值 |
-| **格式验证（数字）**|  | 
+| **数据格式验证**|  | 
+| require              | 非空任意字符 |  
+| english              | 英文字母 | 
+| chinese              | 中文|
+| file                 | 合法文件名 |
+| image                | 合法图像文件名 |
+| word                 | 合法文档文件名 |
+| upper                | 有大写 |
+| lower                | 有小写 |
+| **数字类**|  | 
 | currency             | 货币，2小数，带分号|
 | float                | 数字 |
 | int                  | 整数 |
@@ -394,7 +394,7 @@ var v = new Shai().valitator;
 | percent              | 百分数，可两位小数点 |
 | even                 | 偶数 |
 | odd                  | 奇数 |
-| **格式验证（时间）** |  | 
+| **时间类** |  | 
 | date                 | 日期 2017-7-7或2017/7/7，0补位非必须，含大小月、闰月检测  |
 | time                 | 时间 12:12:12，分秒个位须0补位 |
 | datetime             | 日期 + 时间 如2017-07-07 12:02:02, 0补位非必须 |
@@ -404,7 +404,7 @@ var v = new Shai().valitator;
 | hour                 | 小时 0-23 |
 | minute               | 分钟 0-59 |
 | second               | 秒钟 0-59 |
-| **格式验证（人/账号/网络）** |  | 
+| **账号/网络类** |  | 
 | qq                   | QQ号 5-11位 | 
 | age                  | 年龄 0-129岁 | 
 | zipcode              | 邮编 | 
@@ -421,19 +421,19 @@ var v = new Shai().valitator;
 | ip                   | IP地址 |
 | ipv6                 | IPV6地址 |
 | port                 | 端口 |
-| **格式验证（商业）** |  | 
+| **商业类** |  | 
 | bizcode              | 统一信用代码  |
 | invoice              | 增值税发票代码 |
 | aeo                  | 海关AEO编码   |
 | bankcard             | 银行卡号（仅限国内卡）|
 | isbn                 | 书号（仅限13位）|
-| approval             | 审批文号 政字〔2004〕18号 或 政字[2004]18号 |
-| **格式验证（区域）**|  | 
+| approval             | 审批文号 政字〔2004〕第18号 或 政字[2004] 18号 |
+| **区域类**|  | 
 | citycode             | 地区代码
 | autocard             | 车牌号码，支持新能源车牌号及港澳等 |
-| lon                  | 地理位置——经度，小数点1位及以上 |
-| lat                  | 地理位置——纬度，小数点1位及以上 |
-| **格式验证（编码）**|  | 
+| lon                  | 地理位置——经度，小数点1~15位 |
+| lat                  | 地理位置——纬度，小数点1~15位 |
+| **编码类**|  | 
 | ascii                | ASCII码 |
 | base64               | BASE64码 |
 | md5                  | md5码 |
@@ -441,15 +441,6 @@ var v = new Shai().valitator;
 | dbc                  | 全角 |
 | hex                  | HEX码 |
 | color                | 颜色码，16进制 |
-| **格式验证（其它）**|  | 
-| require              | 非空任意字符 |  
-| english              | 英文字母 | 
-| chinese              | 中文|
-| file                 | 合法文件名 |
-| image                | 合法图像文件名 |
-| word                 | 合法文档文件名 |
-| upper                | 有大写 |
-| lower                | 有小写 |
 | **比较**  |  | 
 | not                  | 不等于 |
 | eq                   | 等于 |

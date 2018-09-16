@@ -1,23 +1,31 @@
 import Base, { RuleFunc, Rules, BaseInterface } from './base';
 
-export interface ValidRuleFunc extends RuleFunc{
-    (value:string | number, ...values: (string | number | boolean)[]): boolean;
+export interface ValidRuleFunc extends RuleFunc {
+    (...values: any[]): boolean;
 }
 
 export interface ValidRules extends Rules {
     [key: string]: RegExp | ValidRuleFunc;
 }
 
-export interface ValidatorBaseInterface extends BaseInterface {
+export interface Chain {
+    readonly __caches: any[];
+}
+
+interface ChainClass {
+    new(): Chain;
+}
+
+export interface ValidBaseInterface extends BaseInterface{
+    readonly type: Chain;
     addRule(arg: string | ValidRules, value?: RegExp | ValidRuleFunc): void;
-    readonly type: any;
 }
 
 /**
  * @class 数据验证链式基类
  */
-export default class ValidatorBase extends Base implements ValidatorBaseInterface {
-    protected chain = class {
+export default class ValidatorBase extends Base implements ValidBaseInterface {
+    private chain: ChainClass = class {
         __caches: any[] = [];
     };
 
@@ -44,27 +52,20 @@ export default class ValidatorBase extends Base implements ValidatorBaseInterfac
     /**
      * 链式规则调用，缓存设值内容
      */
-    get type():any {
+    get type(): Chain {
         return new this.chain();
     };
 
     addRule(arg: string | ValidRules, value?: RegExp | ValidRuleFunc): void {
         super.addRule(arg, value);
-        if(typeof arg === 'string' && value) {
+        if (typeof arg === 'string' && value) {
             this.ruleMap[arg] = value;
             this.addProp(arg, <ValidRules>this.ruleMap);
 
-        } else if(this.isObject(arg)) {
+        } else if (this.isObject(arg)) {
             (<any>Object).assign(this.ruleMap, arg);
             Object.keys(arg).forEach(k => this.addProp(k, <ValidRules>this.ruleMap));
         }
-        
-    }
 
-    constructor() {
-        super();
-
-        this.addRule = this.addRule.bind(this);
     }
-    
 }

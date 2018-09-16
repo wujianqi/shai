@@ -1,15 +1,15 @@
-import Base, { RuleFunc} from './base';
+import Base, { RuleFunc, BaseInterface } from './base';
 import { util } from './util';
 import RandExp = require('randexp');
 import md5 = require('md5');
 
-export interface MakerInterface {
-    get(methodName: string, ...args: (string | number | boolean)[]): string | number | boolean;
-    make(content: string, n1?: number, n2?: number): string;
+export interface MakerInterface extends BaseInterface {
     increment: number;
+    get(methodName: string, ...args: any[]): string | number | boolean;
+    make(content: string, n1?: number, n2?: number): string
 }
 
-export default class Maker extends Base implements MakerInterface {
+export default class Maker extends Base implements  MakerInterface{
     protected baseIncrement: number = 0;
 
     /**
@@ -19,13 +19,13 @@ export default class Maker extends Base implements MakerInterface {
     * @example
     * get('md5');
     */
-    get(methodName: string, ...args: (string | number | boolean)[]): string | number | boolean {
+    get(methodName: string, ...args: any[]): string | number | boolean {
         let result = '';
 
         const rule = this.getRule(methodName);
         if (rule) {
             if (rule instanceof RegExp) result = new RandExp(rule).gen();
-            else result = rule.apply(this, args);
+            else result = <string>rule(...args);
         } else throw new Error(`没有找到“${methodName}”相关生成数据的方法！`);
 
         return result;
@@ -33,15 +33,22 @@ export default class Maker extends Base implements MakerInterface {
 
     private parseTPL(content: string): string {
         return content.replace(/#([^#\n\r]+)#/g, ($0, $1): any => {
-            let args = $1.trim().split(',');
+            if ($1.indexOf(',') > -1) {
+                let args = $1.trim().split(',');
 
-            if (args.length > 1) {
-                args.forEach((arg: any, i: number) => {
-                    if (/^(\-|\+)?\d+(\.\d+)?$/.test(arg)) args[i] = parseFloat(arg);
-                    else if (typeof args[i] === 'boolean') args[i] = Boolean(args[i]);
-                });
+                if (args.length > 0) {
+                    if (args.length > 1) {
+                        args.forEach((arg: any, i: number) => {
+                            if (/^(\-|\+)?\d+(\.\d+)?$/.test(arg)) args[i] = parseFloat(arg);
+                            else if (typeof args[i] === 'boolean') args[i] = Boolean(args[i]);
+                        });
+                    }
+                    return this.get(args.shift(), ...args);
+                }
+
+            } else {
+                return this.get($1);
             }
-            return this.get.apply(this, args);
         })
     }
 
@@ -77,18 +84,17 @@ export default class Maker extends Base implements MakerInterface {
         super();
 
         this.addRule({
-            'increment': <RuleFunc>((arg1:number = 1, arg2?:number): string  => {
+            'increment': <RuleFunc>((arg1: number = 1, arg2?: number): string => {
                 this.baseIncrement += arg1;
-                return (arg2 ? (Array(arg2).join('0') + this.baseIncrement).slice(-arg2) : this.baseIncrement) +'';
+                return (arg2 ? (Array(arg2).join('0') + this.baseIncrement).slice(-arg2) : this.baseIncrement) + '';
             }),
-            'md5': <RuleFunc>((arg:string = new Date().getTime()+'', isshorter: boolean = false): string => {
+            'md5': <RuleFunc>((arg: string = new Date().getTime() + '', isShorter: boolean = false): string => {
                 const value = md5(arg);
-                return isshorter ? value.substr(8, 16) : value;
+                return isShorter ? value.substr(8, 16) : value;
             }),
             'uuid': <RuleFunc>((arg: string = '-'): string => {
-                let d = new Date().getTime();
-                const s = !arg ? arg : '',
-                    str = 'xxxxxxxx' + s + 'xxxx' + s + '4xxx' + s + 'yxxx' + s + 'xxxxxxxxxxxx',
+                let d = new Date().getTime(),
+                    str = 'xxxxxxxx' + arg + 'xxxx' + arg + '4xxx' + arg + 'yxxx' + arg + 'xxxxxxxxxxxx',
                     uuid = str.replace(/[xy]/g, function (c) {
                         const r = (d + Math.random() * 16) % 16 | 0;
 
@@ -106,7 +112,5 @@ export default class Maker extends Base implements MakerInterface {
             })
         });
 
-        this.get = this.get.bind(this);
-        this.make = this.make.bind(this);
     }
 }

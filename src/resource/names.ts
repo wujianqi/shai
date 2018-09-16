@@ -1,4 +1,4 @@
-export const names:{[key: string]: string[]} = {
+export const names: { [key: string]: string[] } = {
   'eSurname': [ // 英美排名前25-30的姓
     'Smith',
     'Johnson',

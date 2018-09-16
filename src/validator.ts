@@ -1,8 +1,8 @@
-import ValidatorBase, { ValidRuleFunc,ValidatorBaseInterface} from './validatorbase';
+import ValidatorBase, { ValidBaseInterface, ValidRuleFunc, Chain } from './validatorbase';
 
 export interface Item {
-    value: string | number;
-    callback? : (faults:string []) => void;
+    value: any;
+    callback?: (faults: string[]) => void;
     rule?: ValidChain;
     require?: boolean;
     english?: boolean;
@@ -40,7 +40,7 @@ export interface Item {
     day?: boolean;
     hour?: boolean;
     minute?: boolean;
-    second?: boolean; 
+    second?: boolean;
     time?: boolean;
     date?: boolean;
     datetime?: boolean;
@@ -59,24 +59,23 @@ export interface Item {
     ipv6?: boolean;
     bodycard?: boolean;
     autocard?: boolean;
-    not?: string|number;
-    eq?: string|number;
-    gt?: string|number;
-    gte?: string|number;
-    lt?: string|number;
-    lte?: string|number;
-    between?: string|number;
-    min?: (string|number)[];
-    max?: (string|number)[];
-    len?: number;
-    in?: string|number;
-    llt?: number;
-    lgt?: number;
+    not?: string | number | Date;
+    eq?: string | number | Date;
+    gt?: string | number | Date;
+    gte?: string | number | Date;
+    lt?: string | number | Date;
+    lte?: string | number | Date;
+    between?: string | number | Date;
+    min?: (string | number | Date)[];
+    max?: (string | number | Date)[];
+    len?: string | number;
+    in?: string | number;
+    minlength?: string | number;
+    maxlength?: string | number;
     [key: string]: any;
 };
 
-export interface ValidChain {
-    readonly __caches: any;
+export interface ValidChain extends Chain {
     require?: ValidChain;
     english?: ValidChain;
     qq?: ValidChain;
@@ -118,8 +117,8 @@ export interface ValidChain {
     date?: ValidChain;
     datetime?: ValidChain;
     file?: ValidChain;
-    image?:ValidChain;
-    word?:ValidChain;
+    image?: ValidChain;
+    word?: ValidChain;
     lon?: ValidChain;
     lat?: ValidChain;
     approval?: ValidChain;
@@ -127,37 +126,37 @@ export interface ValidChain {
     address?: ValidChain;
     upper?: ValidChain;
     lower?: ValidChain;
-    even?:ValidChain;
+    even?: ValidChain;
     odd?: ValidChain;
     ipv6?: ValidChain;
     bodycard?: ValidChain;
     autocard?: ValidChain;
-    not?: (arg:string|number) => ValidChain;
-    eq?: (arg:string|number) => ValidChain;
-    gt?: (arg:string|number) => ValidChain;
-    gte?: (arg:string|number) => ValidChain;
-    lt?: (arg:string|number) => ValidChain;
-    lte?: (arg:string|number) => ValidChain;
-    between?: (arg:string|number) => ValidChain;
-    min?: (args:(string|number)[]) => ValidChain;
-    max?: (args:(string|number)[]) => ValidChain;
-    len?: (arg:number) => ValidChain;
-    in?: (arg:string|number) => ValidChain;    
-    llt?: (arg:number) => ValidChain;
-    lgt?: (arg:number) => ValidChain;
+    not?: (arg: string | number | Date) => ValidChain;
+    eq?: (arg: string | number | Date) => ValidChain;
+    gt?: (arg: string | number | Date) => ValidChain;
+    gte?: (arg: string | number | Date) => ValidChain;
+    lt?: (arg: string | number | Date) => ValidChain;
+    lte?: (arg: string | number | Date) => ValidChain;
+    between?: (arg: string | number | Date) => ValidChain;
+    min?: (args: (string | number | Date)[]) => ValidChain;
+    max?: (args: (string | number | Date)[]) => ValidChain;
+    len?: (arg: string | number) => ValidChain;
+    in?: (arg: string | number) => ValidChain;
+    minlength?: (arg: string | number) => ValidChain;
+    maxlength?: (arg: string | number) => ValidChain;
 }
 
-export interface ValidatorInterface extends ValidatorBaseInterface {
+export interface ValidatorInterface extends ValidBaseInterface {
     readonly type: ValidChain;
-    check(value: string | number, rn?:string, ...args:(string | number)[]):boolean;
-    checkItem(options: Item) :boolean;
+    check(value: any, rn?: string, ...args: any[]): boolean;
+    checkItem(options: Item): boolean;
     checkItems(items: Item[]): boolean;
 }
 
 /**
  * @class 验证类
  */
-export default class Validator extends ValidatorBase implements ValidatorInterface {   
+export default class Validator extends ValidatorBase implements ValidatorInterface {
     /**
    * 单项单规则验证
    * @param {*} value 检测的值，必含
@@ -167,44 +166,43 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
    * @example
    * check('password1','==','password2')
    */
-    check(value: string | number, rn:string = 'require', ...args:(string | number)[]):boolean {
+    check(value: any, rn: string = 'require', ...args: any[]): boolean {
         let passed = false;
 
         const val = typeof value === 'string' ? value.trim() : value,
             rule = this.getRule(rn);
 
         if (rule) {
-            if(rule instanceof RegExp) passed = rule.test(val + '');
-            else passed = rule.apply(this, [val].concat(args));
+            if (rule instanceof RegExp) passed = rule.test(val + '');
+            else passed = <boolean>rule(val, ...args);
         } else throw new Error(`没有找到“${rn}”相关验证规则！`);
 
         return passed;
     }
-    
+
     /**
    * 单项组合规则验证，对象方式
    * @param {object} options 属性对象。
-   * @prop {string|number} value 必备选项，验证目标数据
+   * @prop {*} value 必备选项，验证目标数据
    * @prop {boolean} require 可选, 值不为空才检测
-   * @prop {t} rule 使用链式表达式检查，可选
+   * @prop {type} rule 使用链式表达式检查，可选
    * @prop {function} callback 默认验证结果处置方法，可选，参数faults为没通过的项的集合
    * @returns {boolean} 是否验证通过
    * @example
    * checkItem({value:'password1', password:true, eq:'password2'})
    */
-    checkItem(options: Item) :boolean {
+    checkItem(options: Item): boolean {
         let passed = false, opts = options, cb, val = opts.value;
         const hasVal = (!val || (val + '').trim() === '');
 
         delete opts.value;
-        if (opts.hasOwnProperty('callback')) { // 取回调
+        if (opts.hasOwnProperty('callback') && opts.callback) { // 取回调
             cb = opts.callback;
             delete opts.callback;
         }
 
-        if (opts.hasOwnProperty('rule')) { // 转换链式规则为动态属性
-            const caches: any[] = opts.rule ? opts.rule.__caches : undefined;
-            caches.forEach(t => {
+        if (opts.hasOwnProperty('rule') && opts.rule) { // 转换链式规则为动态属性
+            opts.rule.__caches.forEach(t => {
                 if (t instanceof Object) (<any>Object).assign(opts, t);
                 else opts[t] = true;
             });
@@ -213,12 +211,12 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
 
         if (opts.hasOwnProperty('require') && !opts['require'] && hasVal) passed = true;
         else {
-            let checkeds:boolean[] = [], faults:string[] = [], rs;
+            let checkeds: boolean[] = [], faults: string[] = [], rs;
 
             Object.keys(opts).forEach(k => { // 取出动态属性规则
                 const prop = opts[k];
 
-                if (Array.isArray(prop)) rs = this.check.apply(this, [val, k].concat(prop));
+                if (Array.isArray(prop)) rs = this.check(val, k, ...prop);
                 else if (typeof prop === 'boolean') rs = this.check(val, k) && prop;
                 else rs = this.check(val, k, prop);
                 checkeds.push(rs);
@@ -230,11 +228,11 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
         return passed;
     }
 
-  /**
-   * 多项组合规则验证
-   * @param {array} items 组对象
-   * @returns {boolean} 是否验证通过
-   */
+    /**
+     * 多项组合规则验证
+     * @param {array} items 组对象
+     * @returns {boolean} 是否验证通过
+     */
     checkItems(items: Item[]): boolean {
         let passed = false, checkeds: boolean[] = [];
 
@@ -259,7 +257,7 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
             'zipcode': /^(\d[1-7]|[1-9][0-7])\d{4}$/,
             'ip': /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
             'port': /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5]{2}[0-3][0-5])$/,
-            'bizcode': /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/,            
+            'bizcode': /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/,
             'invoice': /^(((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12]))\d{5}[1-9][1-7][0-4])$/,
             'bankcard': /^(10|30|35|37|4\d||5[0-6]|58|60|62|6[8-9]|84|8[7-8]|9[0-2]|9[4-6]|9[8-9])\d{14,17}$/,
             'aeo': /^AEO<[A-Z]{2,3}\d{4,15}[A-Z]?>$/,
@@ -273,7 +271,7 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
             'account': /^[A-Za-z0-9]+(_[A-Za-z0-9]+)*[A-Za-z0-9]+$/,
             'password': /^(?![a-zA-Z]+$)(?![A-Z0-9]+$)(?![A-Z\W_]+$)(?![a-z0-9]+$)(?![a-z\W_]+$)(?![0-9\W_]+$)[a-zA-Z0-9\W_]{8,}$/,
             'safe': />|<|,|\[|\]|\{|\}|\?|\/|\+|=|\||\'|\\|\'|:|;|\~|\!|\@|\#|\*|\$|\%|\^|\&|\(|\)|`/i,
-            'dbc': /[ａ-ｚＡ-Ｚ０-９！＠＃￥％＾＆＊（）＿＋｛｝［］｜：＂＇；．，／？＜＞｀～　]/,
+            'dbc':/[\uFF01-\uFF60\uFF0A-\uFF5F\u3000-\u3003]/,
             'hex': /^[0-9A-F]+$/i,
             'color': /^#?[a-fA-F0-9]{6}$/i,
             'ascii': /^[\u0000-\u007F]+$/,
@@ -288,41 +286,41 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
             'month': /^(0?[1-9]|1[0-2])$/,
             'day': /^(([1-9])|([1-2]\d)|(3[0-1]))$/,
             'hour': /^((1?\d)|(2[0-3]))$/,
-            'minute': /^[1-5]?\d$/,    
+            'minute': /^[1-5]?\d$/,
             'time': /^(\d|([0-1]\d|2[0-3])):([0-5]\d):([0-5]\d)$/,
             'date': /^((((1[6-9]|[2-9]\d)\d{2})(-|\/)(0?[13578]|1[02])\5(0?[1-9]|[12]\d|3[01]))|(((1[6-9]|[2-9]\d)\d{2})(-|\/)(0?[13456789]|1[012])\11(0?[1-9]|[12]\d|30))|(((1[6-9]|[2-9]\d)\d{2})(-|\/)0?2\17(0?[1-9]|1\d|2[0-8]))|(((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))(-|\/)0?2\25(29)))$/, // eslint-disable-line max-len
             'datetime': /^((((1[6-9]|[2-9]\d)\d{2})(-|\/)(0?[13578]|1[02])\5(0?[1-9]|[12]\d|3[01]))|(((1[6-9]|[2-9]\d)\d{2})(-|\/)(0?[13456789]|1[012])\11(0?[1-9]|[12]\d|30))|(((1[6-9]|[2-9]\d)\d{2})(-|\/)0?2\17(0?[1-9]|1\d|2[0-8]))|(((1[6-9]|[2-9]\d)(0[48]|[2468][048]|[13579][26])|((16|[2468][048]|[3579][26])00))(-|\/)0?2\25(29)))\s+(\d|([0-1]\d|2[0-3])):(\d|([0-5]?\d)):(\d|([0-5]?\d))$/, // eslint-disable-line max-len
-            'file': /^[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/,
-            'image': /^.+\.(jpg|jpeg|gif|png|bmp|svg)$/i,
-            'word': /^.+\.(txt|doc|docx|rtf|pdf|wps)$/i,
-            'lon': /^(\-|\+)?(0?\d{1,2}\.\d{1,}|1[0-7]?\d{1}\.\d{1,}|180\.0{1,})$/,
-            'lat': /^(\-|\+)?([0-8]?\d{1}\.\d{1,}|90\.0{1,})$/,
-            'approval': /^([\u2E80-\uFE4F]+)\u5b57(\u3014|\[])(19|20)\d{2}(\u3015|\])\u7b2c?\d{1,}\u53f7$/,
+            'file': /^([^<>/\\\|:""\*\?]+)\.\w+$/,
+            'image': /^([^<>/\\\|:""\*\?]+)\.(jpg|jpeg|gif|png|bmp|svg)$/i,
+            'word': /^([^<>/\\\|:""\*\?]+)\.(txt|doc|docx|rtf|pdf|wps)$/i,
+            'lon': /^(\-|\+)?(0?\d{1,2}\.\d{1,15}|1[0-7]?\d{1}\.\d{1,15}|180\.0{1,15})$/,
+            'lat': /^(\-|\+)?([0-8]?\d{1}\.\d{1,15}|90\.0{1,15})$/,
+            'approval': /^([\u2E80-\uFE4F]+)\u5b57(\u3014|\[)(19|20)\d{2}(\u3015|\])\u7b2c?\d{1,}\u53f7$/,
             'citycode': /^((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12]))\d{4}$/,
             'address': /^[\u2E80-\uFE4F]+(\u5e02|\u53BF|\u533A|\u65D7|\u4E61|\u9547|\u8857\u9053|\u5DDE)\S{3,}$/,
             'isbn': /^(978\-\d\-\d{3}\-\d{5}\-[a-z0-9]$)|(978\d{9}[a-z0-9])$/i,
             'upper': /[A-Z]/,
             'lower': /[a-z]/,
-            'even': <ValidRuleFunc>((arg: string|number)  => ((+arg) & 1) === 0),
-            'odd': <ValidRuleFunc>((arg: string|number)  => ((+arg) & 1) !== 0),
-            'ipv6': <ValidRuleFunc>((arg:string) => {
+            'even': <ValidRuleFunc>((arg: string | number) => ((+arg) & 1) === 0),
+            'odd': <ValidRuleFunc>((arg: string | number) => ((+arg) & 1) !== 0),
+            'ipv6': <ValidRuleFunc>((arg: string) => {
                 const m = arg.match(/:/g),
-                t1 = m ? m.length < 8 : false,
-                t2 = /:/.test(arg),
-                t3 = /::/.test(arg),
-                t4 = m ? m.length === 1 : false,
-                t5 = /^::$|^(::)?([\da-f]{1,4}(:|::))*[\da-f]{1,4}(:|::)?$/i.test(arg),
-                t6 = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i.test(arg);
-        
+                    t1 = m ? m.length < 8 : false,
+                    t2 = /:/.test(arg),
+                    t3 = /::/.test(arg),
+                    t4 = m ? m.length === 1 : false,
+                    t5 = /^::$|^(::)?([\da-f]{1,4}(:|::))*[\da-f]{1,4}(:|::)?$/i.test(arg),
+                    t6 = /^([\da-f]{1,4}:){7}[\da-f]{1,4}$/i.test(arg);
+
                 return t1 && t2 && (t3 ? (t4 && t5) : t6);
-            }),            
-            'bodycard': <ValidRuleFunc>((arg: string|number) => {
+            }),
+            'bodycard': <ValidRuleFunc>((arg: string | number) => {
                 const val = arg + '', args = val.toUpperCase().split(''),
-                factor = [ 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2 ],
-                parity = [ 1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2 ],
-                reg = /^((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12])|91)\d{4}(((19|20)\d{2}(0[13-9]|1[012])(0[1-9]|[12]\d|30))|((19|20)\d{2}(0[13578]|1[02])31)|((19|20)\d{2}02(0[1-9]|1\d|2[0-8]))|(19([13579][26]|[2468][048]|0[48])0229))\d{3}(\d|X|x)?$/;
+                    factor = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
+                    parity = [1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2],
+                    reg = /^((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12])|91)\d{4}(((19|20)\d{2}(0[13-9]|1[012])(0[1-9]|[12]\d|30))|((19|20)\d{2}(0[13578]|1[02])31)|((19|20)\d{2}02(0[1-9]|1\d|2[0-8]))|(19([13579][26]|[2468][048]|0[48])0229))\d{3}(\d|X|x)?$/;
                 let sum = 0, ai = 0, wi = 0;
-        
+
                 for (let i = 0; i < 17; i++) {
                     ai = parseInt(args[i], 10);
                     wi = factor[i];
@@ -330,34 +328,30 @@ export default class Validator extends ValidatorBase implements ValidatorInterfa
                 }
                 return reg.test(val) && parity[sum % 11] == args[17];
             }),
-            'autocard': <ValidRuleFunc>((arg:string) => {
-                const sn = '京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼',
-                reg1 = new RegExp('(^[' + sn + '使领][A-HJ-NP-Z]([A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警]|[DF][A-HJ-NP-Z0-9]{5}|[A-HJ-NP-Z0-9]{5}[DF])$)|(粤Z[A-HJ-NP-Z0-9]{4}[港澳])'),
-                reg2 = new RegExp('(^WJ[' + sn + '](\\d{5}|[BDGHJSTX]\\d{4}|\\d{4}[BDGHJSTX])$)|(^[A-Z]{2}\\d{5}$)/'),
-                matc = arg.match(/[A-Z]/g);
-        
+            'autocard': <ValidRuleFunc>((arg: string) => {
+                const sn = '\\u4EAC\\u6D25\\u6CAA\\u6E1D\\u5180\\u8C6B\\u4E91\\u8FBD\\u9ED1\\u6E58\\u7696\\u9C81\\u65B0\\u82CF\\u6D59\\u8D63\\u9102\\u6842\\u7518\\u664B\\u8499\\u9655\\u5409\\u95FD\\u8D35\\u7CA4\\u9752\\u85CF\\u5DDD\\u5B81\\u743C',
+                    reg1 = new RegExp('(^[' + sn + '\\u4F7F\\u9886;][A-HJ-NP-Z]([A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9\\u6302\\u5B66\\u8B66]|[DF][A-HJ-NP-Z0-9]{5}|[A-HJ-NP-Z0-9]{5}[DF])$)|(\\u7CA4Z[A-HJ-NP-Z0-9]{4}[\\u6E2F\\u6FB3])'),
+                    reg2 = new RegExp('(^WJ[' + sn + '](\\d{5}|[BDGHJSTX]\\d{4}|\\d{4}[BDGHJSTX])$)|(^[A-Z]{2}\\d{5}$)/'),
+                    matc = arg.match(/[A-Z]/g);
+
                 return reg1.test(arg) && matc && matc.length < 4 || reg2.test(arg);
             }),
-            'not': <ValidRuleFunc>(<T>(arg1: T, arg2: T) => arg1 != arg2),
-            'eq': <ValidRuleFunc>(<T>(arg1: T, arg2: T) => arg1 == arg2),
-            'gt': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (+arg1) > (+arg2)),
-            'gte': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (+arg1) >= (+arg2)),
-            'lt': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (+arg1) < (+arg2)),
-            'lte': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (+arg1) <= (+arg2)),
-            'between':<ValidRuleFunc>((arg1: string|number, arg2: string|number, arg3: string|number) => (+arg1) > (+arg2) && (+arg1) < (+arg3)),
-            'min': <ValidRuleFunc>((arg1: string|number, ...args: number[]) => (+arg1) === Math.min.apply(null, args)),
-            'max': <ValidRuleFunc>((arg1: string|number, ...args: number[]) => (+arg1) === Math.max.apply(null, args)),
-            'in': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (arg2 + '').indexOf(arg1 + '') > -1),
-            'length': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (arg1+'').length == (+arg2)),
-            'minlength': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (arg1+'').length < (+arg2)),
-            'maxlength': <ValidRuleFunc>((arg1: string|number, arg2: string|number) => (arg1+'').length > (+arg2))
+            'not': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) != (+arg2)),
+            'eq': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) == (+arg2)),
+            'gt': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) > (+arg2)),
+            'gte': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) >= (+arg2)),
+            'lt': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) < (+arg2)),
+            'lte': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) <= (+arg2)),
+            'between': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, arg2: T, arg3: T) => (+arg1) > (+arg2) && (+arg1) < (+arg3)),
+            'min': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, ...args: T[]) => (+arg1) === Math.min(...args.map(item => (+item)))),
+            'max': <ValidRuleFunc>(<T extends string | number | Date>(arg1: T, ...args: T[]) => (+arg1) === Math.max(...args.map(item => (+item)))),
+            'in': <ValidRuleFunc>(<T extends string | number>(arg1: T, arg2: T) => (arg2 + '').indexOf(arg1 + '') > -1),
+            'length': <ValidRuleFunc>(<T extends string | number>(arg1: T, arg2: T) => (arg1 + '').length == (+arg2)),
+            'minlength': <ValidRuleFunc>(<T extends string | number>(arg1: T, arg2: T) => (arg1 + '').length < (+arg2)),
+            'maxlength': <ValidRuleFunc>(<T extends string | number>(arg1: T, arg2: T) => (arg1 + '').length > (+arg2))
         }
 
         this.addRule(rules);
         this.addRule('second', rules['minute']);
-        
-        this.check = this.check.bind(this);
-        this.checkItem = this.checkItem.bind(this);
-        this.checkItems = this.checkItems.bind(this);
     }
 }

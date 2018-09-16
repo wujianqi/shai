@@ -1,17 +1,18 @@
-import { ValidRuleFunc} from './validatorbase';
+import { ValidRuleFunc } from './validatorbase';
 import Validator, { Item, ValidChain, ValidatorInterface } from './validator';
 import * as objectPath from 'object-path';
 
-export interface JSONItem extends Item {
+export interface DataItem extends Item {
     null?: boolean;
     boolean?: boolean;
     string?: boolean;
     number?: boolean;
     array?: boolean;
     object?: boolean;
+    rule?: DataChain;
 }
 
-export interface JSONChain extends ValidChain {
+export interface DataChain extends ValidChain {
     null?: ValidChain;
     boolean?: ValidChain;
     string?: ValidChain;
@@ -20,45 +21,44 @@ export interface JSONChain extends ValidChain {
     object?: ValidChain;
 }
 
-export interface JsonValidatorInterface extends ValidatorInterface {
-    readonly type: JSONChain;
-    checkItem(options: JSONItem): boolean;
-    checkItems(items: JSONItem[]): boolean;
-    checkJSON(JSONStr: string, struct: any, callback?: (faults: string[], path: (string | number)[]) => void): boolean;
+export interface DataValidatorInterface extends ValidatorInterface {
+    readonly type: DataChain;
+    checkItem(options: DataItem): boolean;
+    checkItems(items: DataItem[]): boolean;
+    checkJSON<T extends {}>(JSONData: string | T, struct: T, callback?: (faults: string[], path: (string | number)[]) => void): boolean;
 }
 
 /**
  * @class JSON 数据验证类
  */
-export default class JSONValidator extends Validator implements JsonValidatorInterface {
+export default class DataValidator extends Validator implements DataValidatorInterface {
     /**
    * 类型与数据匹配
-   * @param {string} JSON 数据
+   * @param {string|object} JSON 数据
    * @param {object} struct 数据类型对象 (检测链)
    * @param {function} callback 自定义回调，可选，参数为未通过项、对象层级路径
    * @returns {boolean} 是否验证通过
    */
-    checkJSON(JSONStr: string, struct: any, callback?: (faults: string[], path: (string | number)[]) => void): boolean {
+    checkJSON<T extends {}>(JSONData: string | T, struct: T, callback?: (faults: string[], path: (string | number)[]) => void): boolean {
         let passed = false, checkeds: boolean[] = [];
-        const dataObj = JSON.parse(JSONStr);
+        const dataObj = typeof JSONData === 'string' ? JSON.parse(JSONData) : JSONData;
 
-        const checkValue = (dt: any, rule: any, p: (string | number)[]) => {
-            let val = (typeof dt === 'string' || typeof dt === 'number') ? dt : JSON.stringify(dt),
-                item = {
-                    value: val,
-                    rule: rule,
-                    callback: (faults: string[]) => {
-                        if (callback) callback(faults, p);
-                        else {
-                            faults.forEach(f => {
-                                console.error(`${p.join('.')}的值，不符合“${f}”项的要求！`);
-                            });
-                        }
+        const checkValue = (dt: string | number | T, rule: DataChain, p: (string | number)[]) => {
+            let item = {
+                value: dt,
+                rule: rule,
+                callback: (faults: string[]) => {
+                    if (callback) callback(faults, p);
+                    else {
+                        faults.forEach(f => {
+                            console.error(`${p.join('.')}的值，不符合“${f}”项的要求！`);
+                        });
                     }
-                };
+                }
+            };
             checkeds.push(this.checkItem(item));
         };
-        const findMany = (path: (string | number)[], rule: any): void => {
+        const findMany = (path: (string | number)[], rule: DataChain): void => {
             let ids: number[] = [],
                 lastRight = path.slice(path.lastIndexOf(0) + 1);
 
@@ -85,8 +85,8 @@ export default class JSONValidator extends Validator implements JsonValidatorInt
             };
             getMany(0);
         };
-        const findData = (type: any, path: (string | number)[]): void => { //匹配路径数据
-            let dt = objectPath.get(dataObj, path);
+        const findData = (type: DataChain, path: (string | number)[]): void => { //匹配路径数据
+            let dt: T = objectPath.get(dataObj, path);
 
             if (path.indexOf(0) > -1) findMany(path, type);
             else if (dt) {
@@ -100,15 +100,15 @@ export default class JSONValidator extends Validator implements JsonValidatorInt
         };
         const itemCheck = (types: any, path: (string | number)[]): void => {
             Object.keys(types).forEach(key => {
-                let p = path.concat(), t;
-                const type = types[key];
+                let p = path.concat(), t: DataChain;
+                const datatype = types[key];
 
                 p.push(key);
-                if (Array.isArray(type) && type.length > 0) {
-                    t = type[0];
+                if (Array.isArray(datatype) && datatype.length > 0) {
+                    t = datatype[0] as DataChain;
                     p.push(0);
                 } else {
-                    t = type
+                    t = datatype as DataChain;
                 }
 
                 if (this.isObject(t)) {
@@ -127,13 +127,12 @@ export default class JSONValidator extends Validator implements JsonValidatorInt
         super();
 
         this.addRule({
-            'null': /null/,
-            'boolean': /(?:true|false)/,
-            'string': <ValidRuleFunc>((arg:string) => typeof arg === 'string'),
-            'number': <ValidRuleFunc>((arg:string) => typeof arg === 'number'),
-            'array': /^\[(.*?)\]$/,
-            'object': /^\{(.*?)\}$/
+            'null': <ValidRuleFunc>((arg: any) => !arg && typeof arg != "undefined" && arg != 0),
+            'boolean': <ValidRuleFunc>((arg: any) => typeof arg === 'boolean'),
+            'string': <ValidRuleFunc>((arg: any) => typeof arg === 'string'),
+            'number': <ValidRuleFunc>((arg: any) => typeof arg === 'number'),
+            'array': <ValidRuleFunc>((arg: any) => Array.isArray(arg)),
+            'object': this.isObject
         });
-        this.checkJSON = this.checkJSON.bind(this);
     }
 }

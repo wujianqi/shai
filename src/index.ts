@@ -1,12 +1,12 @@
-import JSONValidator, { JsonValidatorInterface } from './jsonvalidator';
+import DataValidator, { DataValidatorInterface } from './datavalidator';
 import Mock, { MockConfig, MockInterface } from './mock';
 
-export { JSONValidator, JsonValidatorInterface, Mock, MockConfig, MockInterface }
+export { DataValidatorInterface, MockConfig, MockInterface }
 
 export default class Shai {
 
-    get validator(): JsonValidatorInterface {
-        return new JSONValidator();
+    get validator(): DataValidatorInterface {
+        return new DataValidator();
     }
 
     get maker(): MockInterface {

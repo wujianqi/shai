@@ -6,12 +6,15 @@ describe('单项数据生成与模拟测试 maker test', function () {
     var m = new Shai().mock({
         divisionCode: '350205'
     });
-
-    it('md5', function () {
-        console.log(m.get('md5', 'short'));
-    });
+    
     it('now', function () {
         console.log(m.get('now'));
+    });
+    it('md5', function () {
+        console.log(m.get('md5', m.get('now'), true));
+    });
+    it('uuid', function () {
+        console.log(m.get('uuid', ''));
     });
 
     it('enum make test', () => {
@@ -21,7 +24,7 @@ describe('单项数据生成与模拟测试 maker test', function () {
         console.log(m.get('int'));
     });
     it('number make test', () => {
-        console.log(m.get('number'));
+        console.log(m.get('number',100000,200000,1));
     });
     it('bool make test', () => {
         console.log(m.get('bool'));
@@ -118,25 +121,7 @@ describe('单项数据生成与模拟测试 maker test', function () {
     });
     it('cnState make test', () => {
         console.log(m.get('cnState'));
-    });
-    it('sex make test', () => {
-        console.log(m.get('sex'));
-    });
-    it('nation make test', () => {
-        console.log(m.get('nation'));
-    });
-    it('affiliate make test', () => {
-        console.log(m.get('affiliate'));
-    });
-    it('edu make test', () => {
-        console.log(m.get('edu'));
-    });
-    it('mary make test', () => {
-        console.log(m.get('mary'));
-    });
-    it('health make test', () => {
-        console.log(m.get('health'));
-    });
+    });    
     it('price make test', () => {
         console.log(m.get('price'));
     });
@@ -170,12 +155,6 @@ describe('单项数据生成与模拟测试 maker test', function () {
     });
     it('lat', function () {
         console.log(m.get('lat'));
-    });
-    it('size', function () {
-        console.log(m.get('size'));
-    });
-    it('wearsize', function () {
-        console.log(m.get('wearsize'));
     });
 
 });

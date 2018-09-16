@@ -1,6 +1,6 @@
-import ValidatorBase, { ValidatorBaseInterface } from './validatorbase';
+import ValidatorBase, { ValidBaseInterface, Chain } from './validatorbase';
 export interface Item {
-    value: string | number;
+    value: any;
     callback?: (faults: string[]) => void;
     rule?: ValidChain;
     require?: boolean;
@@ -58,23 +58,22 @@ export interface Item {
     ipv6?: boolean;
     bodycard?: boolean;
     autocard?: boolean;
-    not?: string | number;
-    eq?: string | number;
-    gt?: string | number;
-    gte?: string | number;
-    lt?: string | number;
-    lte?: string | number;
-    between?: string | number;
-    min?: (string | number)[];
-    max?: (string | number)[];
-    len?: number;
+    not?: string | number | Date;
+    eq?: string | number | Date;
+    gt?: string | number | Date;
+    gte?: string | number | Date;
+    lt?: string | number | Date;
+    lte?: string | number | Date;
+    between?: string | number | Date;
+    min?: (string | number | Date)[];
+    max?: (string | number | Date)[];
+    len?: string | number;
     in?: string | number;
-    llt?: number;
-    lgt?: number;
+    minlength?: string | number;
+    maxlength?: string | number;
     [key: string]: any;
 }
-export interface ValidChain {
-    readonly __caches: any;
+export interface ValidChain extends Chain {
     require?: ValidChain;
     english?: ValidChain;
     qq?: ValidChain;
@@ -130,28 +129,28 @@ export interface ValidChain {
     ipv6?: ValidChain;
     bodycard?: ValidChain;
     autocard?: ValidChain;
-    not?: (arg: string | number) => ValidChain;
-    eq?: (arg: string | number) => ValidChain;
-    gt?: (arg: string | number) => ValidChain;
-    gte?: (arg: string | number) => ValidChain;
-    lt?: (arg: string | number) => ValidChain;
-    lte?: (arg: string | number) => ValidChain;
-    between?: (arg: string | number) => ValidChain;
-    min?: (args: (string | number)[]) => ValidChain;
-    max?: (args: (string | number)[]) => ValidChain;
-    len?: (arg: number) => ValidChain;
+    not?: (arg: string | number | Date) => ValidChain;
+    eq?: (arg: string | number | Date) => ValidChain;
+    gt?: (arg: string | number | Date) => ValidChain;
+    gte?: (arg: string | number | Date) => ValidChain;
+    lt?: (arg: string | number | Date) => ValidChain;
+    lte?: (arg: string | number | Date) => ValidChain;
+    between?: (arg: string | number | Date) => ValidChain;
+    min?: (args: (string | number | Date)[]) => ValidChain;
+    max?: (args: (string | number | Date)[]) => ValidChain;
+    len?: (arg: string | number) => ValidChain;
     in?: (arg: string | number) => ValidChain;
-    llt?: (arg: number) => ValidChain;
-    lgt?: (arg: number) => ValidChain;
+    minlength?: (arg: string | number) => ValidChain;
+    maxlength?: (arg: string | number) => ValidChain;
 }
-export interface ValidatorInterface extends ValidatorBaseInterface {
+export interface ValidatorInterface extends ValidBaseInterface {
     readonly type: ValidChain;
-    check(value: string | number, rn?: string, ...args: (string | number)[]): boolean;
+    check(value: any, rn?: string, ...args: any[]): boolean;
     checkItem(options: Item): boolean;
     checkItems(items: Item[]): boolean;
 }
 export default class Validator extends ValidatorBase implements ValidatorInterface {
-    check(value: string | number, rn?: string, ...args: (string | number)[]): boolean;
+    check(value: any, rn?: string, ...args: any[]): boolean;
     checkItem(options: Item): boolean;
     checkItems(items: Item[]): boolean;
     constructor();

@@ -1,22 +1,20 @@
 import Base, { RuleFunc, Rules, BaseInterface } from './base';
 export interface ValidRuleFunc extends RuleFunc {
-    (value: string | number, ...values: (string | number | boolean)[]): boolean;
+    (...values: any[]): boolean;
 }
 export interface ValidRules extends Rules {
     [key: string]: RegExp | ValidRuleFunc;
 }
-export interface ValidatorBaseInterface extends BaseInterface {
-    addRule(arg: string | ValidRules, value?: RegExp | ValidRuleFunc): void;
-    readonly type: any;
+export interface Chain {
+    readonly __caches: any[];
 }
-export default class ValidatorBase extends Base implements ValidatorBaseInterface {
-    protected chain: {
-        new (): {
-            __caches: any[];
-        };
-    };
-    private addProp(key, map);
-    readonly type: any;
+export interface ValidBaseInterface extends BaseInterface {
+    readonly type: Chain;
     addRule(arg: string | ValidRules, value?: RegExp | ValidRuleFunc): void;
-    constructor();
+}
+export default class ValidatorBase extends Base implements ValidBaseInterface {
+    private chain;
+    private addProp(key, map);
+    readonly type: Chain;
+    addRule(arg: string | ValidRules, value?: RegExp | ValidRuleFunc): void;
 }
