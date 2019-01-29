@@ -34,7 +34,6 @@
     "webpack-cli": "^3.2.1"
   },
   "dependencies": {
-    "@types/jquery": "^3.3.29",
     "md5": "^2.2.1",
     "object-path": "^0.11.4",
     "randexp": "^0.4.5"
