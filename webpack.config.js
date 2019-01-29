@@ -1,24 +1,23 @@
-const webpack = require('webpack'),
-  path = require('path'),
-  CleanWebpackPlugin = require('clean-webpack-plugin');
-// const env = require('yargs').argv.env;
+const path = require('path');
 
 module.exports = {
   entry: {
     'shai': __dirname + '/src/index.ts',
-    'validator': __dirname + '/src/datavalidator.ts',
-    'mock': __dirname + '/src/mock.ts'
+    'validator': __dirname + '/src/validator/index.ts',
+    'maker': __dirname + '/src/maker/index.ts'
   },
   // devtool: 'source-map',
+  mode: 'development',
   output: {
     path: __dirname,
     filename: '[name].js',
     library: '[name]',
     libraryTarget: 'umd',
-    umdNamedDefine: true
+    umdNamedDefine: true,
+    globalObject: "this"
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /.ts$/,
         loader: 'awesome-typescript-loader'
@@ -28,8 +27,5 @@ module.exports = {
   resolve: {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
     extensions: ['.ts', '.js']
-  },
-  plugins: [
-    new CleanWebpackPlugin(['types/resource'])
-  ]
+  }
 };

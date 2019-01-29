@@ -1,20 +1,13 @@
-import DataValidator, { DataValidatorInterface } from './datavalidator';
-import Mock, { MockConfig, MockInterface } from './mock';
+import Validator, { Item } from './validator';
+import Maker, { MakerConfig } from './Maker';
 
-export { DataValidatorInterface, MockConfig, MockInterface }
+export { Item, MakerConfig }
 
 export default class Shai {
+    maker:Maker;
+    validator = Validator;
 
-    get validator(): DataValidatorInterface {
-        return new DataValidator();
-    }
-
-    get maker(): MockInterface {
-        return new Mock();
-    }
-
-    mock(option: MockConfig): MockInterface {
-        return new Mock(option);
-    }
-
+    constructor(opts?:MakerConfig) {
+        this.maker = new Maker(opts);
+    }    
 }

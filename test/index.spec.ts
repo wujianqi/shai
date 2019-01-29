@@ -22,7 +22,7 @@ describe('数据验证测试 shai valid', function () {
   });
 
   it('addRule 扩展规则', function () {
-    v.addRule('testss', function(val){ return val!='test'});
+    v.addRule('testss', function(val:string){ return val!='test'});
     assert(v.check(1,'testss'));
   });
 
@@ -112,8 +112,10 @@ describe('数据验证测试 shai valid', function () {
 
 });
 
+
 describe('数据生成测试 shai maker', function () {
-  var m = new Shai().maker;
+  var m = new Shai({divisionCode: '440300'}).maker;
+  var m2 = new Shai({divisionCode: '440200'}).maker;
 
   it('maker 数据生成', function() {
     var jsontpl = m.make(`{
@@ -134,7 +136,7 @@ describe('数据生成测试 shai maker', function () {
         }`, 3)}
       }`);
 
-      var tpl1 = m.make(`{
+      var tpl1 = m2.make(`{
         "name": "#cnName#",
         "realname": "#cnFemaleName#",
         "region":"#county#",

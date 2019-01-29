@@ -11,8 +11,10 @@ npm install shai
 > 前后台通用，但不支持IE9及以下浏览器； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
 > 内置数据生成方法50多项，验证方法70多项； <br>
-> V0.1.7：区划更新到2018.11 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2018/)
+> V0.1.8：优化，Validator改为静态，调整了部分API<br>
+> V0.1.7：区划更新到2018.11 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2018/) <br>
 > V0.1.6：精简模拟数据项，优化及修复bug，区划更新到2018.7
+
 
 ------
 
@@ -30,11 +32,11 @@ import Shai from 'shai';
 var m = new Shai().maker;
 
 // 如果需要设定全局选项，则可如下：
-var m = new Shai().mock({
+var m = new Shai({
     divisionCode: '610000',
     beginTime: new Date('1980/06/01'),
     endTime: new Date('2018/06/01')
-});
+}).maker;
 
 ```
 配置选项(config)：
@@ -64,8 +66,6 @@ var m = new Shai().mock({
 **m.getRule(key)** 按key名，获取规则方法 
 
 **m.increment = 0**   重置自增长基数
-
-**m.region**  取当前地区对象。
 
 
 ##### 用法例子：
@@ -123,10 +123,10 @@ var m = new Shai().mock({
 可不使用验证模块，仅使用数据生成与模拟模块。
 
 ```javascript
-  import Mock from 'shai/mock';
-  // ES5使用 const Mock = require('shai/mock').default;
+  import Maker from 'shai/maker';
+  // ES5使用 const Maker = require('shai/maker').default;
 
-  var m = new Mock();
+  var m = new Maker();
   console.log(m.get('cnName'));
   // ……
 ```
@@ -180,6 +180,7 @@ var m = new Shai().mock({
 | enName                | 英文姓名 |
 | enMaleName            | 英文姓名 男 |
 | enFemaleName          | 英文姓名 女 |
+| surname               | 中文姓 |
 | cnName                | 中文姓名 |
 | cnMaleName            | 中文姓名 男 |
 | cnFemaleName          | 中文姓名 女 |
@@ -249,7 +250,7 @@ var v = new Shai().valitator;
 > 参数2为数据类型结构，参考代码示例，**必须** <br>
 > 参数3为可选，回调方法，含2参数，未通过项的组、数据层级路径组。
 
-**v.type**  链式验证对象
+**v.type**  链式验证对象，注：不可简写，因为定义的本身就是实例化。
 
 **v.addRule(rules|key, value)**  扩展验证数据的方法，正则或函数；参数1为对象集合，或者是方法名（key），参数2为key的值。
 
@@ -361,7 +362,7 @@ var v = new Shai().valitator;
   import Validator from 'shai/validator';
   // ES5使用 const Validator = require('shai/validator').default;
 
-  var v = new Validator();
+  var v = Validator;
   console.log(v.check('abc'));
   // ……
 ```
@@ -476,13 +477,13 @@ var v = new Shai().valitator;
           v = new Shai().validator;
         
         console.log(v.check('1111'));
+
       });
       /*
       require(['http://175.io/lib/validator.js'], function(validator){
-        var Validator = validator.default, 
-          v = new Validator();
+        var Validator = validator.default;
         
-        console.log(v.check('1111'));
+        console.log(Validator.check('1111'));
       });      
       */
     </script>

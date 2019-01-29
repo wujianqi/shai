@@ -3,9 +3,9 @@ import assert from 'power-assert';
 import Shai from '../src/index';
 
 describe('单项数据生成与模拟测试 maker test', function () {
-    var m = new Shai().mock({
+    var m = new Shai({
         divisionCode: '350205'
-    });
+    }).maker
     
     it('now', function () {
         console.log(m.get('now'));
