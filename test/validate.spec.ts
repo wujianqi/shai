@@ -153,7 +153,7 @@ describe('单项数据，各规则方法测试 validator test', function () {
     assert(!v.check('mmmddd1112', 'base64'));
   });
   it('base64 passed test', function () {
-    assert(v.check('dGVzdA==', 'base64'));
+    assert(v.check('YWZkc2Zkc2FmZHNkZHNhJTIwZmFkc2YzMjQ5MzI0b2hkc2Foa2ZoJTYwMTMxMw==', 'base64'));
   });
   it('md5 no passed test', function () {
     assert(!v.check('dasfhkl11', 'md5'));

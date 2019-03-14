@@ -6,7 +6,7 @@ describe('Validator库测试', function () {
   //console.dir(Validator);
 
   it('validator test', function () {
-    console.log(Validator.check('23451234','qq'));
+    console.log((new Validator()).check('23451234','qq'));
   });
 
 });

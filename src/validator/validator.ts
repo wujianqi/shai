@@ -1,53 +1,56 @@
-import { Rules, RulesInterface, RuleFunction} from './rules';
-import Chain from './chain';
+import { rules, RulesInterface, RuleFunction} from './rules';
+import { Chain, ChainInterface } from './Chain';
 import * as objectPath from 'object-path';
 
-type ruletype = RegExp | RuleFunction;
+type ruleType = RegExp | RuleFunction;
 
 export interface Item {
     value: any;
     callback?: (faults: string[]) => void;
-    rule?: Chain;
+    rule?: ChainInterface;
     [key: string]: any;
-};
-
-const isObject = (value: any): value is object => {
-    return typeof value === 'object' && Object.prototype.toString.call(value) === '[object Object]';
 };
 
 /**
  * @module 验证器
  */
-export const Validator = {
+export default class Validator {
+    private __rules: RulesInterface;
+
+    constructor() {
+        this.__rules = (<any>Object).assign({}, rules);
+        Object.keys(this.__rules).forEach(k => Chain.addProp(k, this.__rules) );
+    }
+
     /**
      * 扩展规则
      * @param arg  参数字符串或规则集合对象
      * @param value 值，第一个参数为键字符串时使用
      */
-    addRule(arg: string | RulesInterface<ruletype>, value?: ruletype): void {        
+    addRule(arg: string | RulesInterface, value?: ruleType): void {        
         if (typeof arg === 'string' && value) {
-            Rules[arg] = value;
-            Chain.addProp(arg);
-        } else if (isObject(arg)) {
-            (<any>Object).assign(Rules, arg);
-            Object.keys(arg).forEach(k => Chain.addProp(k));
-        }
-    },
+            this.__rules[arg] = value;
+            Chain.addProp(arg, this.__rules);
+        } else if (rules.object(arg)) {
+            (<any>Object).assign(this.__rules, arg);
+            Object.keys(arg).forEach(k => Chain.addProp(k, this.__rules) );
+        } 
+    }
 
     /**
      * 取规则对象
      * @param key 规则属性名
      */
-    getRule(key: string): ruletype {
-        return Rules[key];
-    },
+    getRule(key: string): ruleType {
+        return this.__rules[key];
+    }
 
     /**
      * 链式规则调用
      */
-    get type(): Chain {
+    get type(): ChainInterface {
         return new Chain();
-    },
+    }
 
     /**
    * 单项单规则验证
@@ -58,19 +61,19 @@ export const Validator = {
    * @example
    * check('password1','==','password2')
    */
-    check(value: any, rn: string = 'require', ...args: any[]): boolean {
+    check(value: any, ruleName: string = 'require', ...args: any[]): boolean {
         let passed = false;
 
         const val = typeof value === 'string' ? value.trim() : value,
-            rule = Rules[rn];
+            rule = this.__rules[ruleName];
 
         if (rule) {
             if (rule instanceof RegExp) passed = rule.test(val + '');
             else passed = <boolean>rule(val, ...args);
-        } else throw new Error(`没有找到“${rn}”相关验证规则！`);
+        } else throw new Error(`没有找到“${ruleName}”相关验证规则！`);
 
         return passed;
-    },
+    }
 
     /**
    * 单项组合规则验证，对象方式
@@ -94,7 +97,7 @@ export const Validator = {
         }
 
         if (opts.hasOwnProperty('rule') && opts.rule) { // 转换链式规则为动态属性
-            opts.rule.caches.forEach(t => {
+            opts.rule.__caches.forEach(t => {
                 if (t instanceof Object) (<any>Object).assign(opts, t);
                 else opts[t] = true;
             });
@@ -118,7 +121,7 @@ export const Validator = {
             if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
         }
         return passed;
-    },
+    }
 
     /**
      * 多项组合规则验证
@@ -136,7 +139,7 @@ export const Validator = {
             if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
         }
         return passed;
-    },
+    }
 
     /**
    * 类型与数据匹配
@@ -145,11 +148,11 @@ export const Validator = {
    * @param {function} callback 自定义回调，可选，参数为未通过项、对象层级路径
    * @returns {boolean} 是否验证通过
    */
-    checkJSON<T extends {}>(JSONData: string | T, struct: T, callback?: (faults: string[], path: (string | number)[]) => void): boolean {
+  checkJSON<T extends {}>(JSONData: string | T, struct: T, callback?: (faults: string[], path: (string | number)[]) => void): boolean {
         let passed = false, checkeds: boolean[] = [];
         const dataObj = typeof JSONData === 'string' ? JSON.parse(JSONData) : JSONData;
 
-        const checkValue = (dt: string | number | T, rule: Chain, p: (string | number)[]) => {
+        const checkValue = (dt: string | number | T, rule: ChainInterface, p: (string | number)[]) => {
             let item = {
                 value: dt,
                 rule: rule,
@@ -164,7 +167,7 @@ export const Validator = {
             };
             checkeds.push(this.checkItem(item));
         };
-        const findMany = (path: (string | number)[], rule: Chain): void => {
+        const findMany = (path: (string | number)[], rule: ChainInterface): void => {
             let ids: number[] = [],
                 lastRight = path.slice(path.lastIndexOf(0) + 1);
 
@@ -191,7 +194,7 @@ export const Validator = {
             };
             getMany(0);
         };
-        const findData = (type: Chain, path: (string | number)[]): void => { //匹配路径数据
+        const findData = (type: ChainInterface, path: (string | number)[]): void => { //匹配路径数据
             let dt: T = objectPath.get(dataObj, path);
 
             if (path.indexOf(0) > -1) findMany(path, type);
@@ -205,19 +208,19 @@ export const Validator = {
             }
         };
         const itemCheck = (types: any, path: (string | number)[]): void => {
-            Object.keys(types).forEach(key => {
-                let p = path.concat(), t: Chain;
+            Object.keys(types).forEach(key => {                
+                let p = path.concat(), t: ChainInterface;
                 const datatype = types[key];
 
                 p.push(key);
                 if (Array.isArray(datatype) && datatype.length > 0) {
-                    t = datatype[0] as Chain;
-                    p.push(0);
+                    t = datatype[0] as ChainInterface;
+                    p.push(0);                   
                 } else {
-                    t = datatype as Chain;
+                    t = datatype as ChainInterface;                   
                 }
 
-                if (isObject(t)) {
+                if (rules.object(t)) {
                     if (t.hasOwnProperty('__caches')) findData(t, p);
                     else itemCheck(t, p);
                 }

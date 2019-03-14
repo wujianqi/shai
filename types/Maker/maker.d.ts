@@ -1,25 +1,15 @@
 import { RuleFunction, RulesInterface } from './rules';
-import Division from './division';
-declare type ruletype = RegExp | RuleFunction;
-export interface MakerConfig {
-    'divisionCode'?: string;
-    'beginTime'?: Date;
-    'endTime'?: Date;
-}
+import { SettingOption } from './SpecificRules';
+declare type ruleType = RegExp | RuleFunction;
+export { SettingOption };
 export default class Maker {
-    private config;
-    private is8bit;
-    private getRndTime;
-    private stateIndex;
-    protected baseIncrement: number;
-    protected rules: RulesInterface<ruletype>;
-    protected division: Division;
-    addRule(arg: string | RulesInterface<ruletype>, value?: ruletype): void;
-    getRule(key: string): ruletype;
+    private __specificRules;
+    private __rules;
+    constructor(option?: SettingOption);
+    increment: number;
+    addRule(arg: string | RulesInterface, value?: ruleType): void;
+    getRule(key: string): ruleType;
     get(methodName: string, ...args: any[]): string | number | boolean;
     private parseTPL;
     make(content: string, n1?: number, n2?: number): string;
-    increment: number;
-    constructor(option?: MakerConfig);
 }
-export {};

@@ -11,10 +11,7 @@ npm install shai
 > 前后台通用，但不支持IE9及以下浏览器； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
 > 内置数据生成方法50多项，验证方法70多项； <br>
-> V0.1.8：优化，Validator改为静态，调整了部分API<br>
-> V0.1.7：区划更新到2018.11 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2018/) <br>
-> V0.1.6：精简模拟数据项，优化及修复bug，区划更新到2018.7
-
+> V0.1.9：优化，区划更新到2019.1 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
 
 ------
 
@@ -362,7 +359,7 @@ var v = new Shai().valitator;
   import Validator from 'shai/validator';
   // ES5使用 const Validator = require('shai/validator').default;
 
-  var v = Validator;
+  var v = new Validator();
   console.log(v.check('abc'));
   // ……
 ```
@@ -405,7 +402,6 @@ var v = new Shai().valitator;
 | day                  | 日 1-31 |
 | hour                 | 小时 0-23 |
 | minute               | 分钟 0-59 |
-| second               | 秒钟 0-59 |
 | **账号/网络类** |  | 
 | qq                   | QQ号 5-11位 | 
 | age                  | 年龄 0-129岁 | 
@@ -481,9 +477,9 @@ var v = new Shai().valitator;
       });
       /*
       require(['http://175.io/lib/validator.js'], function(validator){
-        var Validator = validator.default;
+        var v = new Validator().default;
         
-        console.log(Validator.check('1111'));
+        console.log(v.check('1111'));
       });      
       */
     </script>

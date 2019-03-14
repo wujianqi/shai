@@ -1,4 +1,4 @@
-import { Validator, Item } from './validator';
+import Validator, { Item } from './Validator';
 
 export { Item };
 export default Validator;

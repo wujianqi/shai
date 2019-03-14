@@ -1,13 +1,13 @@
 import Validator, { Item } from './validator';
-import Maker, { MakerConfig } from './Maker';
+import Maker, { SettingOption } from './maker/Maker';
 
-export { Item, MakerConfig }
+export { Item, SettingOption }
 
 export default class Shai {
     maker:Maker;
-    validator = Validator;
+    validator = new Validator();
 
-    constructor(opts?:MakerConfig) {
+    constructor(opts?:SettingOption) {
         this.maker = new Maker(opts);
-    }    
+    }
 }

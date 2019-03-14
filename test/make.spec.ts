@@ -1,5 +1,5 @@
 import 'mocha';
-import assert from 'power-assert';
+// import assert from 'power-assert';
 import Shai from '../src/index';
 
 describe('单项数据生成与模拟测试 maker test', function () {
