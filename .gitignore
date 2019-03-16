@@ -9,6 +9,7 @@ node_modules
 # Remove some common IDE working directories
 .idea
 .vscode
+.*_cache
 
 # other
 *-lock.*

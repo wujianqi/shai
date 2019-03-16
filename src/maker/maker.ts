@@ -68,20 +68,11 @@ export default class Maker {
     }
 
     private parseTPL(content: string): string {
-        return content.replace(/#([^#\n\r]+)#/g, ($0, $1): any => {
+        return content.replace(/#([^#\n\r]+)#/g, ($0, $1): any  => {
             if ($1.indexOf(',') > -1) {
                 let args = $1.trim().split(',');
 
-                if (args.length > 0) {
-                    if (args.length > 1) {
-                        args.forEach((arg: any, i: number) => {
-                            if (/^(\-|\+)?\d+(\.\d+)?$/.test(arg)) args[i] = parseFloat(arg);
-                            else if (typeof args[i] === 'boolean') args[i] = Boolean(args[i]);
-                        });
-                    }
-                    return this.get(args.shift(), ...args);
-                }
-
+                if (args.length > 0) return this.get(args.shift(), ...args);
             } else {
                 return this.get($1);
             }

@@ -1,6 +1,5 @@
 {
    "compilerOptions": {
-        "module": "commonjs",
         "target": "es5",
         "noImplicitAny": true,
         "removeComments": true,
@@ -15,15 +14,12 @@
         ],
         "declaration": true,
         "declarationDir": "types",
-        "types": [
-            "md5"
-        ],
         "paths": {
             "randexp": ["types/randexp.d.ts"]
         }
    },
    "include": [
-        "src/**/*"
+        "src/**/*", "types/randexp.d.ts"
     ],
     "exclude": [
         "node_modules",

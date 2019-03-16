@@ -1,5 +1,8 @@
 import { RulesInterface } from './rules';
 
+/**
+ * @interface 验证规则链，扩展新规则，可继承本接口
+ */
 export interface ChainInterface {
     __caches: any[];
     readonly string?: this;

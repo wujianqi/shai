@@ -1,4 +1,4 @@
-import Maker, { SettingOption } from './maker';
+import Maker, { SettingOption } from './Maker';
 
 export { SettingOption };
 export default Maker;

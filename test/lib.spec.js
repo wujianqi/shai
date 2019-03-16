@@ -1,6 +1,6 @@
-const Validator = require('../validator.js').default;
-const Maker = require('../maker.js').default;
-const Shai = require('../shai').default;
+const Validator = require('../validator.js');
+const Maker = require('../maker.js');
+const shai = require('../shai');
 
 describe('Validator库测试', function () {
   //console.dir(Validator);
@@ -22,8 +22,8 @@ describe('Maker库测试', function () {
 });
 
 describe('完整库测试', function () {
-  var v = new Shai().validator;
-  var m = new Shai().maker;
+  var v = new shai.Validator();
+  var m = new shai.Maker();
 
   it('validator test', function () {
     console.log(v.check('23451234aaa','qq'));

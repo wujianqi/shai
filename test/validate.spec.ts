@@ -1,9 +1,9 @@
 import 'mocha';
 import assert from 'power-assert';
-import Shai from '../src/index';
+import Validator from '../src/validator/';
 
 describe('单项数据，各规则方法测试 validator test', function () {
-  var v = new Shai().validator;
+  var v = new Validator();
 
   it('require no passed test', function () {
     assert(!v.check('', 'require'));

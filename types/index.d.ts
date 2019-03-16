@@ -1,8 +1,10 @@
 import Validator, { Item } from './validator';
-import Maker, { SettingOption } from './maker/Maker';
+import Maker, { SettingOption } from './maker';
+import { objectPath } from './validator/objectPath';
 export { Item, SettingOption };
-export default class Shai {
-    maker: Maker;
-    validator: Validator;
-    constructor(opts?: SettingOption);
-}
+declare const _default: {
+    Validator: typeof Validator;
+    Maker: typeof Maker;
+    objectPath: typeof objectPath;
+};
+export default _default;

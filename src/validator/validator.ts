@@ -1,7 +1,7 @@
 import { rules, RulesInterface, RuleFunction} from './rules';
 import { Chain, ChainInterface } from './Chain';
-import * as objectPath from 'object-path';
-
+import { objectPath } from './objectPath';
+ 
 type ruleType = RegExp | RuleFunction;
 
 export interface Item {
@@ -180,7 +180,7 @@ export default class Validator {
                     p: any[], dt: any, len: number;
 
                 if (pr && left.lastIndexOf(0) > -1) left.splice(left.lastIndexOf(0), 1, pr);
-                dt = objectPath.get(dataObj, left);
+                dt = objectPath(dataObj, left);
                 len = (<(string | number)[]>dt).length;
 
                 for (let j = 0; j < len; j++) { // 循环数据列
@@ -188,14 +188,14 @@ export default class Validator {
                     if (ids[next]) getMany(next, j);
                     else {
                         // console.log(objectPath.get(dataObj, p), p);
-                        checkValue(objectPath.get(dataObj, p), rule, p);
+                        checkValue(objectPath(dataObj, p), rule, p);
                     }
                 }
             };
             getMany(0);
         };
         const findData = (type: ChainInterface, path: (string | number)[]): void => { //匹配路径数据
-            let dt: T = objectPath.get(dataObj, path);
+            let dt: T = objectPath(dataObj, path);
 
             if (path.indexOf(0) > -1) findMany(path, type);
             else if (dt) {

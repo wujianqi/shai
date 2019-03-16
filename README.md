@@ -3,7 +3,7 @@
 安装：
 
 ```npm
-npm install shai
+npm i shai
 ```
 
 简介： 
@@ -11,7 +11,8 @@ npm install shai
 > 前后台通用，但不支持IE9及以下浏览器； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
 > 内置数据生成方法50多项，验证方法70多项； <br>
-> V0.1.9：优化，区划更新到2019.1 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
+> V0.1.10：打包工具webpack换成rollup, 优化微调<br>
+> V0.1.9：区划更新到2019.1 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
 
 ------
 
@@ -24,16 +25,16 @@ npm install shai
 
 
 ```javascript
-import Shai from 'shai';
+import shai from 'shai';
 
-var m = new Shai().maker;
+var m = new shai.Maker();
 
 // 如果需要设定全局选项，则可如下：
-var m = new Shai({
+var m = new shai.Maker({
     divisionCode: '610000',
     beginTime: new Date('1980/06/01'),
     endTime: new Date('2018/06/01')
-}).maker;
+});
 
 ```
 配置选项(config)：
@@ -68,10 +69,10 @@ var m = new Shai({
 ##### 用法例子：
 
 ```javascript
-    import Shai from 'shai'; 
-    // ES5使用 const Shai = require('shai').default;
+    import shai from 'shai'; 
+    // ES5使用 const shai = require('shai');
 
-    var m = new Shai().maker;
+    var m = new shai.Maker();
 
     // 扩展数据生成方法
     m.addRule({
@@ -121,7 +122,7 @@ var m = new Shai({
 
 ```javascript
   import Maker from 'shai/maker';
-  // ES5使用 const Maker = require('shai/maker').default;
+  // ES5使用 const Maker = require('shai/maker');
 
   var m = new Maker();
   console.log(m.get('cnName'));
@@ -214,9 +215,9 @@ var m = new Shai({
 ## 数据验证
 
 ```javascript
-import Shai from 'shai';
+import shai from 'shai';
 
-var v = new Shai().valitator;
+var v = new shai.Valitator();
 // ……
 ```
 
@@ -256,10 +257,10 @@ var v = new Shai().valitator;
 ##### 用法例子：
 
 ```javascript
-    import Shai from 'shai';
-    // ES5使用 const Shai = require('shai').default;
+    import shai from 'shai';
+    // ES5使用 const shai = require('shai');
 
-    var v = new Shai().validator;
+    var v = new shai.Valitator();
     
     // 扩展验证规则，函数要求有返回值，最少一个引用数据的参数
     v.addRule({
@@ -357,7 +358,7 @@ var v = new Shai().valitator;
 
 ```javascript
   import Validator from 'shai/validator';
-  // ES5使用 const Validator = require('shai/validator').default;
+  // ES5使用 const Validator = require('shai/validator');
 
   var v = new Validator();
   console.log(v.check('abc'));
@@ -456,7 +457,7 @@ var v = new Shai().valitator;
 
 ------
 
-## 浏览器上使用（AMD规范）
+## 浏览器上使用
 
 ```html
 <!DOCTYPE html>
@@ -466,39 +467,29 @@ var v = new Shai().valitator;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script src="https://cdn.bootcss.com/require.js/2.2.0/require.js"></script>
+    <script src="http://www.175.io/lib/shai.js"></script>
     <script>
-      require(['http://175.io/lib/shai.js'], function(shai){
-        var Shai = shai.default, 
-          v = new Shai().validator;
-        
-        console.log(v.check('1111'));
-
-      });
-      /*
-      require(['http://175.io/lib/validator.js'], function(validator){
-        var v = new Validator().default;
-        
-        console.log(v.check('1111'));
-      });      
-      */
+      v = new shai.Validator(); 	
+	  // 如果引用为http://www.175.io/lib/validator.js，则为v = new Validator() ，类推;
+	  
+      console.log(v.check('1111'));
+	  
     </script>
 </head>
 <body>
 </body>
 </html>
-
 ```
 
 ------
 
 ## TypeScript 使用
 
-使用TypeScript的项目, 可考虑直接引用ts原文件：
+使用TypeScript的项目, 可考虑直接引用ts源文件：
 
 ```typescript
-  import Shai from 'shai/src';
+  import shai from 'shai/src';
 
-  var v: = new Shai().valitator;
+  var v: = new shai.Valitator();
   // ……
 ```

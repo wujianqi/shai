@@ -1,5 +1,5 @@
-import RandExp = require('randexp');
-import md5 = require('md5');
+import RandExp from 'randexp';
+import md5 from 'md5';
 import { util } from './util';
 import names from './names.json';
 

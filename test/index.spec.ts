@@ -1,9 +1,9 @@
 import 'mocha';
 import assert from 'power-assert';
-import Shai from '../src/index';
+import shai from '../src/index';
 
 describe('数据验证测试 shai valid', function () {
-  var v = new Shai().validator;
+  var v = new shai.Validator();
 
   it('regexp_rule 正则', function () {
     assert(v.check('23451234','qq'));
@@ -114,8 +114,8 @@ describe('数据验证测试 shai valid', function () {
 
 
 describe('数据生成测试 shai maker', function () {
-  var m = new Shai({divisionCode: '440300'}).maker;
-  var m2 = new Shai({divisionCode: '440200'}).maker;
+  var m = new shai.Maker({divisionCode: '440300'});
+  var m2 = new shai.Maker({divisionCode: '440200'});
 
   it('maker 数据生成', function() {
     var jsontpl = m.make(`{
