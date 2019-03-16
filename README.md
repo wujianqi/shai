@@ -11,8 +11,8 @@ npm i shai
 > 前后台通用，但不支持IE9及以下浏览器； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
 > 内置数据生成方法50多项，验证方法70多项； <br>
-> V0.1.10：打包工具webpack换成rollup, 优化微调<br>
-> V0.1.9：区划更新到2019.1 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
+> V0.1.11：打包工具webpack换成rollup, 优化微调<br>
+> 区划更新到 2019.1 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
 
 ------
 
@@ -199,8 +199,8 @@ var m = new shai.Maker({
 
 #### 补充说明
 
-* 本库仅生成单纯的基本类型数据（字符串、数字、布尔），对象需自主去封装；
-* 地址请求拦截、API模拟、二进制数据，可结合其它库来使用：<br>
+本库仅生成单纯的基本类型数据（字符串、数字、布尔），对象需自主去封装；<br>
+地址请求拦截、API模拟、二进制数据，可结合其它库来使用：<br>
 
 * [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
 * [json-server](https://github.com/typicode/json-server) <br>
