@@ -8,10 +8,9 @@ npm i shai
 
 简介： 
 
-> 前后台通用，但不支持IE9及以下浏览器； <br>
+> 前后台通用，但不支持IE9以下浏览器； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
 > 内置数据生成方法50多项，验证方法70多项； <br>
-> V0.1.11：打包工具webpack换成rollup, 优化微调<br>
 > 区划更新到 2019.1 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
 
 ------
@@ -20,8 +19,9 @@ npm i shai
 
 模拟数据的特色：让数据看起来更真实
 
+- [x] 使用简单，较少的约束规则，模版支持标准JSON配置；<br>
 - [x] 以设定的区划，生成关联的电话号码、经纬度坐标、车牌号、身份证等；<br>
-- [x] 以行业统计热门、频次高的词汇，生成姓、名、公司名、国名、地址等；
+- [x] 以行业统计热门、频次高的词汇，生成姓、名、公司名、国名、地址等；<br>
 
 
 ```javascript
@@ -40,7 +40,9 @@ var m = new shai.Maker({
 配置选项(config)：
 
 > ***divisionCode***  设定全局的行政区划范围（行政区划代码），默认全国（不含港澳台） <br>
+
 > ***beginTime***  全局时间范围的开始时间，默认1970-01-01<br>
+
 > ***endTime***  全局时间范围的结束时间，默认当前时间 <br>
 
 **m.get(key, ...args)** 生成数据，包括md5、uuid, 及模拟数据等。
@@ -48,23 +50,63 @@ var m = new shai.Maker({
 ###### get 参数说明：
 
 > 参数1 ***key*** 为方法名； <br>
+
 > 参数2 ***args*** 为可选，方法中的更多参数。
 
-**m.make(content, num1, num2)** JSON模板，变量输出为#method, ...arguments#
+**m.addRule(key, fn)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
+
+###### addRule 参数说明：
+
+> 参数1 ***key*** 为方法名； <br>
+
+> 参数2 ***fn*** 为可选，方法函数。
+
+
+**m.make(content, parseValueType, optionKey)** 根据JSON模板，生成设值后的新JSON
 
 ###### make 参数说明：
 
-> 参数1 ***content*** 为简单对象文本； <br>
-> 参数2 ***num1*** 可选，为输出数组长度，无参数2为单对象输出，有参数3时则为下限值； <br>
-> 参数3 ***num2*** 可选，为数组长度的随机的参考上限值。 <br>
-> 注：模版内使用正则需转义且不含限定符#，也可先设定为扩展再来使用。
+> 参数1 ***content*** 为JSON模版；string或object，如果本参数是字符串则函数输出为字符串，如果是对象则输出也是对象 <br>
 
-**m.addRule(rules|key, value)**  扩展生成数据的方法，正则或函数；参数1为对象集合，或者是方法名（key），参数2为key的值。
+> 参数2 ***parseValueType*** 是否需要转换值的类型，默认为true，即是，转换。注：模板静态数据内容不受此限制。<br>
+>> 如"key": <% int %>, 如果参数1为对象，标准JSON不支持直接放特殊字符，因此需改为"key": "<% int %>"，因此类型需要转换；<br>
+>> parseValueType 设为false，为保留文本，设为string，则为指定的需转换的规则名，不同的规则名使用,号隔开<br>
 
-**m.getRule(key)** 按key名，获取规则方法 
+> 参数3 ***optionKey*** 自定义循环输出的对象属性名，默认为makerOption。 string，详细JSON模板说明<br>
 
 **m.increment = 0**   重置自增长基数
 
+###### JSON模版 约束规则说明：
+
+> 规则名、参数，使用这种方式：<% int, 0, 2 %>  <br>
+
+> 循环与嵌套输出，需要输出多列数据的，在目标对象里加属性：makerOption（也可自定义，见make）, 值为：“参数”数组，例：[2,3,'childrens']， 参数说明如下：<br>
+
+>> 参数1，默认情况下为输出对象的个数，即数组长度，但有参数3的情况下，为嵌套的层数；必需项！<br>
+>> 参数2，默认不设值，当设值后，无参数3的情况下，参数1变为随机数字的下限值，参数2为上限值；有参数3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
+>> 参数3，默认不设值，当设值后，为嵌套对象的属性名，文本<br>
+
+> 模版示例：<br>
+
+```json
+{
+    "realname": "<% cnName %>",
+    "address": "<% address %>",
+    "log": {
+        "makerOption": [2],
+        "id_<% increment %>": "<% int, 0, 200 %>",
+        "condition": "<% enum,开始,启用,停止 %>",
+        "log": {
+            "makerOption": [2, 3, "items"],
+            "time": "<% datetime %>",
+            "msg": {
+                "code": "<% int %>"
+            }
+        }
+    }
+}
+
+```
 
 ##### 用法例子：
 
@@ -74,55 +116,62 @@ var m = new shai.Maker({
 
     var m = new shai.Maker();
 
-    // 扩展数据生成方法
-    m.addRule({
-        'newrule': /abc/, 
-        'mydata': test => test += 123
-    });
-
     m.get('cnName') // 返回 张伟
     m.get('bodycard') // 返回 120101199901011693  
     m.get('enum','是','否') // 返回 是
     m.get('province') //返回 北京市
+  
+    // 使用自定义函数生成数据
+    m.get('custom', () => 123 + 2);
 
-  // 使用模板生成JSON数据
+  // 使用文本模板生成JSON数据
   var user = m.make(`{
-      "realname": "#cnName#",
-      "address": "#address#",
-      "log": ${m.make(`{
-          "id_#increment#": #int,0,200#,
-          "date": #date#,
-          "condition": "#enum,开始,启用,停止#"
-        }`,10)}
+        "realname": "<% cnName %>",
+        "address": "<% address %>",
+        "log": {
+            "makerOption": [1, 3],
+            "id_<% increment %>": "<% int, 0, 200 %>",
+            "date": <% date %>,
+            "condition": "<% enum, 开始, 启用, 停止 %>"
+        }
       }`);
 
     console.log(user);
 
-  // 不使用模板生成JSON数据
+// 使用对象模板生成JSON数据
+  var user = m.make({
+      "realname": "<% cnName %>",
+      "address": "<% address %>"
+      });
+
+    console.log(user);
+
+
+  // 仅使用单项数据生成，不使用模板（速度略快）
   var user = {
         realname: m.get('cnName'),
         address: m.get('address'),
         log: []
     };
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 3; i++) {
         user.log.push({
             "id_" +  m.get('increment'): m.get('int', 0, 200)
             date: m.get('date'),
             condition: m.get('enum','开始','启用','停止')
         });
     }
-    console.log(JSON.stringify(user));
+    console.log(user);
 
 ```
 
 
-#### 单独使用
+#### 模块单独使用
 
 可不使用验证模块，仅使用数据生成与模拟模块。
 
 ```javascript
-  import Maker from 'shai/maker';
-  // ES5使用 const Maker = require('shai/maker');
+  import Maker from 'shai/lib/maker';
+  // ES5使用 const Maker = require('shai/lib/maker');
 
   var m = new Maker();
   console.log(m.get('cnName'));
@@ -138,7 +187,8 @@ var m = new shai.Maker({
 | md5                   | MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位，默认32位 |
 | now                   | 当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss') |
 | increment             | 递增整数，可选2个参数，参数1为步长，参数2为左补位0的个数 |
-| exp                   | 自定义正则，可选参数为字符串表达式（特殊字符需转义） |
+| regexp                | 自定义正则，可选参数为字符串表达式 |
+| custom                | 自定义方法，参数为通过addRule进行索引的key名，string |
 | **模拟数据**|   | 
 | enum                  | 自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个 |
 | bool                  | 布尔，true或false |
@@ -199,8 +249,7 @@ var m = new shai.Maker({
 
 #### 补充说明
 
-本库仅生成单纯的基本类型数据（字符串、数字、布尔），对象需自主去封装；<br>
-地址请求拦截、API模拟、二进制数据，可结合其它库来使用：<br>
+Http请求拦截、API模拟、二进制数据等，可结合其它库来使用：<br>
 
 * [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
 * [json-server](https://github.com/typicode/json-server) <br>
@@ -209,6 +258,7 @@ var m = new shai.Maker({
 * [JsBarcode](https://github.com/lindell/JsBarcode) <br>
 * [qrcode](https://github.com/PaulKinlan/qrcode) <br>
 * [randomColor](https://github.com/davidmerfield/randomColor)
+
 
 ------
 
@@ -221,22 +271,24 @@ var v = new shai.Valitator();
 // ……
 ```
 
-**v.check(value, rule, ...args)** 单项数据，单规则验证，返回值为是否通过(boolean)
+**v.check(value, ruleName, ...args)** 单项数据，单规则验证，返回值为是否通过(boolean)
 
 ###### check 参数说明：
 
 > 参数1为验证目标数据，参数2为规则，可选，默认为最少一个任意字符 
 
+
 **v.checkItem(option)**  单项数据，组合规则验证，返回值为是否通过(boolean)
+
 
 ###### checkItem 参数选项(option)说明：
 
 > 属性 ***value***，**必须**。 <br>
-> 属性 ***rule***，链式检查，可选。 <br>
+> 属性 ***format***，链式检查。 多参数的<br>
 > 属性 ***callback***，验证回调函数，可选，参数为未通过的项的数组。 <br>
 > 属性 ***rquire***，可选，值为false时，值为空或null,验证结果为true。 <br>
 > 动态属性，可选，键为任意规则名，值：规则为正则或函数形参长度1的，为true或false, 函数2形参，等于值，多于2形参，值为数组。 <br>
-> 例：{ value:'password1', password:true, eq:'password2', minl:6, maxl:20 ... }
+> 例：{ value:'password1', format: password.eq('password2').minlength(6).maxlength(20) }
 
 **v.checkItems(itemsArray)**  多项数据，组合规则验证，返回值为是否通过(boolean)
 
@@ -250,10 +302,6 @@ var v = new shai.Valitator();
 
 **v.type**  链式验证对象，注：不可简写，因为定义的本身就是实例化。
 
-**v.addRule(rules|key, value)**  扩展验证数据的方法，正则或函数；参数1为对象集合，或者是方法名（key），参数2为key的值。
-
-**v.getRule(key)** 按key名，获取验证方法 
-
 ##### 用法例子：
 
 ```javascript
@@ -261,28 +309,18 @@ var v = new shai.Valitator();
     // ES5使用 const shai = require('shai');
 
     var v = new shai.Valitator();
-    
-    // 扩展验证规则，函数要求有返回值，最少一个引用数据的参数
-    v.addRule({
-        'newrule': /abc/,
-        'myfnc': 'test':(val, n1, n2)=> val.length > n1 && val.length < n2
-    });
 
     // 单项单规则验证
     v.check('password1','eq','password2'); // 返回false
     v.check('120101199901011693','bodycard'); // 返回true
 
-    // 单项组合规则验证，动态属性方式
-    v.checkItem({
-        value:'afdsD12$',
-        password:true,
-        test:[6, 10]
-    });
+    // 自定义验证规则，函数要求有返回值
+    v.check('3', 'custom', val => val.length > 1 && val.length < 5);
 
     // 单项组合规则验证，链式
     v.checkItem({
         value: 'yr qw2{O',
-        rule: v.type.eq('yr qw2{O').myfnc(6, 10),
+        format: v.type.eq('yr qw2{O'),
         callback: faults => {
           if (faults.indexOf('eq') === -1) console.log('密码二次验证OK！');
           faults.forEach(f => {
@@ -294,8 +332,8 @@ var v = new shai.Valitator();
 
     // 多项组合规则验证
     v.checkItems([
-        {value:'123456', int:true, max:200000},
-        {value:'password1', password:true, eq:'password2'}
+        {value:'123456', format: v.type.int},
+        {value:'password1', format: v.type.password.eq('password2')}
     ]);
 
     // JSON数据类型验证，链式，可任意层级。
@@ -352,13 +390,13 @@ var v = new shai.Valitator();
 
 ```
 
-#### 单独使用
+#### 模块单独使用
 
 可不使用生成模拟数据模块，仅使用数据验证模块。
 
 ```javascript
-  import Validator from 'shai/validator';
-  // ES5使用 const Validator = require('shai/validator');
+  import Validator from 'shai/lib/validator';
+  // ES5使用 const Validator = require('shai/lib/validator');
 
   var v = new Validator();
   console.log(v.check('abc'));
@@ -453,7 +491,10 @@ var v = new shai.Valitator();
 | minlength            | 最小长度 |
 | maxlength            | 最大长度 |
 | length               | 等于长度 |
-| in                   | 是否包含，字符 |
+| in                   | 是否包含，字符、数组元素、对象属性 |
+| **自定义**  |  | 
+| regexp                  | 自定义正则判断 |
+| custom               | 自定义函数方法判断，允许一个参数，即要判断的值 |
 
 ------
 

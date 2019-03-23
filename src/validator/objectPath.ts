@@ -24,10 +24,10 @@ export function objectPath(obj: objType, path: Array<number | string> | number |
     currentPath =  (+p).toString() === p ? +p : p;
     if (typeof currentPath === 'number' && Array.isArray(obj) || obj.hasOwnProperty(currentPath)) {
         nextObj = obj[currentPath]; 
-    }
-    if (path.length === 1) {
-        return nextObj;
-    } 
+        if (path.length === 1) {
+            return nextObj;
+        } 
+    }    
     return objectPath(obj[currentPath], path.slice(1));
 }
 

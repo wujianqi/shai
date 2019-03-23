@@ -2,7 +2,7 @@ import 'mocha';
 import assert from 'power-assert';
 import shai from '../src/index';
 
-describe('数据验证测试 shai valid', function () {
+/* describe('数据验证测试 shai valid', function () {
   var v = new shai.Validator();
 
   it('regexp_rule 正则', function () {
@@ -21,27 +21,14 @@ describe('数据验证测试 shai valid', function () {
     assert(v.check(1) || !v.check(''));
   });
 
-  it('addRule 扩展规则', function () {
-    v.addRule('testss', function(val:string){ return val!='test'});
-    assert(v.check(1,'testss'));
+  it('扩展规则', function () {
+    assert(v.check(123,'custom', (arg:any) => arg.toString()=== '123'));
   });
 
   it('checkItem 链式', function () {
     assert(!v.checkItem({
       value: '23',
-      rule: v.type.age.int.lt(20),
-      callback: function(faults: string[]){
-        console.log(faults);
-      }
-    }));
-  });
-
-  it('checkItem 动态属性', function () {
-    assert(!v.checkItem({
-      value: '23',
-      age: true,
-      int: true,
-      gt: 30,
+      format: v.type.age.int.lt(20),
       callback: function(faults: string[]){
         console.log(faults);
       }
@@ -110,7 +97,7 @@ describe('数据验证测试 shai valid', function () {
 
   });
 
-});
+}); */
 
 
 describe('数据生成测试 shai maker', function () {
@@ -118,33 +105,47 @@ describe('数据生成测试 shai maker', function () {
   var m2 = new shai.Maker({divisionCode: '440200'});
 
   it('maker 数据生成', function() {
-    var jsontpl = m.make(`{
-      "name": "#cnName#",
-      "realname": "#cnFemaleName#",
-      "region":"#county#",
-      "address": "#address#",
-      "list": ${m.make(`{
-          "datetime":"#datetime#",
-          "color":"#color#",
-          "int": #increment#,
-          "condition": "#enum,开始,启用,停止#",
-          "price": "#price,1000,100000,true#",
+     var jsontpl = m.make(`{
+      "name": "<% cnName %>",
+      "realname": "<% cnFemaleName %>",
+      "region":"<% county%>",
+      "address": "<% address %>",
+      "list": {
+          "datetime":"<% datetime %>",
+          "color":"<% color%>",
+          "int": "<% increment %>",
+          "condition": "<% enum,开始,启用,停止 %>",
+          "price": "<% price,1000,100000,true %>",
           "gps":{
-              "lon":#lon#,
-              "lat":#lat#
+              "lon":"<% lon %>",
+              "lat":"<% lat %>
           }
-        }`, 3)}
+        }
       }`);
 
-      var tpl1 = m2.make(`{
-        "name": "#cnName#",
-        "realname": "#cnFemaleName#",
-        "region":"#county#",
-        "address": "#address#"
-        }`, 6);
+      var tpl1 = m2.make({
+          data:{
+            makerOption:[1,2,"abc"],
+            items: {
+              makerOption:[2],
+              a: "<% datetime %>",
+              b: "<% int, 2, 10 %>"
+            }
+          }
+        }); 
+
+      /* m2.addRule('testv', () => {
+        return 'aaa';
+      });
+
+      var tpl2 = m2.make({
+          pase: "<% custom, testv%>"
+      }); */
+      
 
       console.log(jsontpl);
-      console.log(tpl1);
+      console.dir(tpl1);
+      //console.dir(tpl2);
   });
 
 });

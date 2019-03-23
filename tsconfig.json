@@ -13,7 +13,6 @@
             "types"
         ],
         "declaration": true,
-        "declarationDir": "types",
         "paths": {
             "randexp": ["types/randexp.d.ts"]
         }

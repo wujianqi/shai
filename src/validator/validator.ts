@@ -1,49 +1,18 @@
-import { rules, RulesInterface, RuleFunction} from './rules';
+import { rules, rulesName, RuleFunction} from './rules';
 import { Chain, ChainInterface } from './Chain';
 import { objectPath } from './objectPath';
  
-type ruleType = RegExp | RuleFunction;
-
 export interface Item {
-    value: any;
-    callback?: (faults: string[]) => void;
-    rule?: ChainInterface;
-    [key: string]: any;
+    value: any;    
+    format?: ChainInterface;
+    require?: boolean;
+    callback?: (faults: string[]) => void;    
 };
 
 /**
  * @module 验证器
  */
 export default class Validator {
-    private __rules: RulesInterface;
-
-    constructor() {
-        this.__rules = (<any>Object).assign({}, rules);
-        Object.keys(this.__rules).forEach(k => Chain.addProp(k, this.__rules) );
-    }
-
-    /**
-     * 扩展规则
-     * @param arg  参数字符串或规则集合对象
-     * @param value 值，第一个参数为键字符串时使用
-     */
-    addRule(arg: string | RulesInterface, value?: ruleType): void {        
-        if (typeof arg === 'string' && value) {
-            this.__rules[arg] = value;
-            Chain.addProp(arg, this.__rules);
-        } else if (rules.object(arg)) {
-            (<any>Object).assign(this.__rules, arg);
-            Object.keys(arg).forEach(k => Chain.addProp(k, this.__rules) );
-        } 
-    }
-
-    /**
-     * 取规则对象
-     * @param key 规则属性名
-     */
-    getRule(key: string): ruleType {
-        return this.__rules[key];
-    }
 
     /**
      * 链式规则调用
@@ -61,15 +30,14 @@ export default class Validator {
    * @example
    * check('password1','==','password2')
    */
-    check(value: any, ruleName: string = 'require', ...args: any[]): boolean {
+    check(value: any, ruleName: rulesName = 'require', ...args: any[]): boolean {
         let passed = false;
+        const val = typeof value === 'string' ? value.trim() : value;
 
-        const val = typeof value === 'string' ? value.trim() : value,
-            rule = this.__rules[ruleName];
-
-        if (rule) {
-            if (rule instanceof RegExp) passed = rule.test(val + '');
-            else passed = <boolean>rule(val, ...args);
+        if (rules.hasOwnProperty(ruleName)) {
+            const r = rules[ruleName];
+            if (r instanceof RegExp) passed = (<RegExp>r).test(val);
+            else if (typeof r === 'function') passed = (<RuleFunction>r)(value, ...args);
         } else throw new Error(`没有找到“${ruleName}”相关验证规则！`);
 
         return passed;
@@ -80,46 +48,39 @@ export default class Validator {
    * @param {object} options 属性对象。
    * @prop {*} value 必备选项，验证目标数据
    * @prop {boolean} require 可选, 值不为空才检测
-   * @prop {type} rule 使用链式表达式检查，可选
+   * @prop {type} format 使用链式表达式检查，可选
    * @prop {function} callback 默认验证结果处置方法，可选，参数faults为没通过的项的集合
    * @returns {boolean} 是否验证通过
    * @example
-   * checkItem({value:'password1', password:true, eq:'password2'})
+   * checkItem({value:'password1', format: string.password.eq:'password2'})
    */
-    checkItem(options: Item): boolean {
-        let passed = false, opts = options, cb, val = opts.value;
-        const hasVal = (!val || (val + '').trim() === '');
+    checkItem(option: Item): boolean {
+        let passed = false;
+        const cb = option.callback, val = option.value,
+            hasVal = !val || (typeof val === 'string' && val.trim() === '');     
 
-        delete opts.value;
-        if (opts.hasOwnProperty('callback') && opts.callback) { // 取回调
-            cb = opts.callback;
-            delete opts.callback;
-        }
+        if(hasVal && option.require) return true;
 
-        if (opts.hasOwnProperty('rule') && opts.rule) { // 转换链式规则为动态属性
-            opts.rule.__caches.forEach(t => {
-                if (t instanceof Object) (<any>Object).assign(opts, t);
-                else opts[t] = true;
-            });
-            delete opts.rule;
-        }
+        if (val && option.format) {
+            let checkeds: boolean[] = [], faults: string[] = [], rs:boolean;
 
-        if (opts.hasOwnProperty('require') && !opts['require'] && hasVal) passed = true;
-        else {
-            let checkeds: boolean[] = [], faults: string[] = [], rs;
+            option.format.__caches.forEach(t => {
+                if (t instanceof Object) {
+                    let key:rulesName = <rulesName>Object.keys(t)[0], args:any[] = t[key];
 
-            Object.keys(opts).forEach(k => { // 取出动态属性规则
-                const prop = opts[k];
-
-                if (Array.isArray(prop)) rs = this.check(val, k, ...prop);
-                else if (typeof prop === 'boolean') rs = this.check(val, k) && prop;
-                else rs = this.check(val, k, prop);
+                    rs = this.check(val, key, ...args);
+                    if (rs === false) faults.push(key);          
+                } else {
+                    rs = this.check(val, t);
+                    if (rs === false) faults.push(t);
+                }               
                 checkeds.push(rs);
-                if (rs === false) faults.push(k);
             });
+
             if (typeof cb === 'function') cb(faults); // 执行回调
             if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
         }
+
         return passed;
     }
 
@@ -155,7 +116,7 @@ export default class Validator {
         const checkValue = (dt: string | number | T, rule: ChainInterface, p: (string | number)[]) => {
             let item = {
                 value: dt,
-                rule: rule,
+                format: rule,
                 callback: (faults: string[]) => {
                     if (callback) callback(faults, p);
                     else {

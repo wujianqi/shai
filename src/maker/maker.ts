@@ -1,51 +1,15 @@
-import { rules, RuleFunction, RulesInterface } from './rules';
-import SpecificRules, { SettingOption, SpecificRulesInterface } from './SpecificRules';
+import SpecificRules, { SettingOption, RuleFunction, rulesName } from './SpecificRules';
 
-type ruleType = RegExp | RuleFunction;
-type rulesType = RulesInterface & SpecificRulesInterface;
-
-export { SettingOption }
+export { SettingOption, RuleFunction }
 
 /**
  * @class 数据生成、模拟
  */
-export default class Maker {
-    private __specificRules:SpecificRules;
-    private __rules: rulesType;
+export default class Maker extends SpecificRules {
+    private __OptPropKey:string = 'makerOption';
 
     constructor(option?:SettingOption) {
-        let newrules = (<any>Object).assign({}, rules);
-
-        this.__specificRules = new SpecificRules(option);
-        this.__rules = (<any>Object).assign(newrules, this.__specificRules.map);
-
-    }
-    
-    /**
-     * 重置自增长基数
-     */
-    set increment(num: number) {
-        this.__specificRules.increment = num;
-    }    
-
-    /**
-     * 扩展规则
-     * @param arg  参数字符串或规则集合对象
-     * @param value 值，第一个参数为键字符串时使用
-     */
-    addRule(arg: string | RulesInterface, value?: ruleType): void {
-        if (typeof arg === 'string' && value) this.__rules[arg] = value;
-        else if (typeof arg === 'object' && Object.prototype.toString.call(arg) === '[object Object]'){
-            (<any>Object).assign(this.__rules, arg);
-        }
-    }
-
-    /**
-     * 取规则对象
-     * @param key 规则属性名
-     */
-    getRule(key: string): ruleType {
-        return this.__rules[key];
+        super(option);
     }
 
     /**
@@ -55,24 +19,115 @@ export default class Maker {
     * @example
     * get('md5');
     */
-    get(methodName: string, ...args: any[]): string | number | boolean {
+    get(methodName: rulesName, ...args: any[]): string | number | boolean {
         let result = '';
 
-        const rule = this.__rules[methodName];
+        const rule = this.rules[methodName];
         if (rule) {
-            if (rule instanceof RegExp) result = rules.exp(rule);
-            else result = <string>rule(...args);
+            if (rule instanceof RegExp) result = this.rules.regexp(rule);
+            else result = (<RuleFunction>rule)(...args) as string;
         } else throw new Error(`没有找到“${methodName}”相关生成数据的方法！`);
 
         return result;
+    } 
+
+    /**
+     * 批量数据--模版生成
+     * @param content
+     * @param n1
+     * @param n2
+     */
+    private bulk(content: string, n1?: number, n2?: number):string {
+        let num = 0;
+
+        if (typeof n1 === 'number' && typeof n2 === 'number') num = this.rules.int(n1, n2);
+        else if (typeof n1 === 'number') num = n1;
+
+        if (num > 0) {
+            let list = [], i;
+
+            for (i = 0; i < num; i++) list.push(content);
+            return '[' + list.join(',') + ']';
+
+        } else return content;
     }
 
-    private parseTPL(content: string): string {
-        return content.replace(/#([^#\n\r]+)#/g, ($0, $1): any  => {
-            if ($1.indexOf(',') > -1) {
-                let args = $1.trim().split(',');
+    /**
+     * 递归嵌套数据--模版生成
+     * @param content 
+     * @param level
+     * @param keyName
+     * @param num
+     */
+    private nested(content: string, level:number, keyName:string, num?:number) {
+        let newstr = content;
+        const makedata = ():void => {
+            level--;
+            if (level < 0) return void 0;
+            newstr = newstr.replace(/(?<=_@@).*(?=_##)/,($0):any => {
+                return `${$0},${keyName}:${this.bulk(`_@@${$0}_##`, num )}`;
+            })
+            makedata();
+        };
 
-                if (args.length > 0) return this.get(args.shift(), ...args);
+        makedata();
+        return newstr;
+    }
+
+    /**
+     * 批量、嵌套数据模板，选项转换 
+     * @param content 
+     */
+    private convertOption (content: string):string {
+        let objbody:string, n1:number, n2:number, itemsKey:string;
+        const reg = new RegExp(`"${this.__OptPropKey}":\\[([^\\]]+)\\],?`);
+
+        objbody = content.replace(reg, ($0, $1): any  => {
+            let args = $1.split(',');
+
+            n1 = +args[0];
+            n2 = args.length > 1 ? +args[1] :void 0;
+            itemsKey = args.length > 2 ? args[2] :void 0;
+            return '';      
+        });        
+        if (typeof itemsKey === 'string') objbody = this.nested(objbody, n1, itemsKey, n2);
+        else objbody = this.bulk(objbody, n1, n2);
+
+        return objbody;
+    }
+
+    /**
+     * 含循环输出配置的模板内容转换
+     * @param content
+     */
+    private findBlock(content: string):string {
+        let s1 = content;
+        const rpb = (str:string) => str.replace(/\{/g,'_@@').replace(/\}/g, '_##'); // 转换子对象标识，便于获取父对象
+        const unrpb  = (str:string) => str.replace(/_@@/g,'{').replace(/_##/g, '}'); // 子对象标识转换回来
+         
+        const callfn = ():void => { // 递归获取子对象块 
+            if (s1.indexOf(this.__OptPropKey) === -1) return void 0; 
+
+            s1 = s1.replace(/\{(?=(?:(?!\{)[\s\S])*$)[\s\S]*?\}/,($0):any => {          
+                if (new RegExp(this.__OptPropKey).test($0)) return this.convertOption(rpb($0));
+                else return rpb($0);
+            })
+            callfn();
+        }
+        callfn();
+        return unrpb(s1);
+    }
+    
+    /**
+     * 模版解析
+     * @param content
+     */
+    private parseTPL(content: string): string {
+        return content.replace(/<%([^(%>)\n\r]+)%>/g, ($0, $1): any  => {
+            if ($1.indexOf(',') > -1) {
+                let args = $1.split(',');
+
+                if (args.length > 0)  return this.get(args.shift(), ...args);
             } else {
                 return this.get($1);
             }
@@ -80,25 +135,32 @@ export default class Maker {
     }
 
     /**
-   * JSON数据生成模板解析
-   * @param {string} content json字符串，通过##嵌套数据类型，多参数可使用逗号隔开如#int,10,20#
-   * @param {number} n1 生成对象数目，生成数组字符串，可选
-   * @param {number} n2 为随机数目上限，结合参数2使用，无此参数则不随机数目，可选
-   * @returns {string} 替换数据后的json字符串
-   */
-    make(content: string, n1?: number, n2?: number): string {
-        let jsonstr, num;
+     * 根据模块内容，生成数据
+     * @param {tring | object} content JSON模版内容
+     * @param {string | boolean} parseValueType 是否需要转换值的类型，默认是，即转换值类型
+     * @param {string} optionKey 自定义循环输出的对象属性名，默认为makerOption
+     * @returns {tring | object} 
+     */
+    make <T extends string | object>(content: T, parseValueType?:string | boolean, optionKey?:string): T{
+        try {
+            let data: string, tpl:string;
+            const isobject = typeof content === 'object',
+                hasParse = typeof parseValueType ==='boolean' ? parseValueType : true,
+                parseKeys = typeof parseValueType ==='string' ? parseValueType.trim(): 'int,number,increment,bool';
 
-        if (typeof n1 === 'number' && typeof n2 === 'number') num =rules.int(n1, n2);
-        else num = n1;
-        if (typeof num === 'number') {
-            let list = [], i;
+            tpl = (isobject ? JSON.stringify(content) : <string>content).replace(/\s+/g,"");
+            if (typeof optionKey == 'string' && optionKey !== '') this.__OptPropKey = optionKey;
+            if (hasParse) {
+                const reg = new RegExp(`(?!:\\s*)"<%\\s*(${parseKeys.split(',').join('|')})[^%>"]*%>"`,'g'),
+                    ns = (str:string) => str.replace(reg, ($0):any => $0.replace(/"/g,''));
 
-            for (i = 0; i < num; i++) list.push(this.parseTPL(content));
-            jsonstr = '[' + list.join(',') + ']';
-        } else jsonstr = this.parseTPL(content);
-        return jsonstr;
+                data = this.parseTPL(this.findBlock(ns(tpl)));
+            }
+            else data= this.parseTPL(this.findBlock(tpl));
+            //console.log(data);
+            return isobject ? JSON.parse(data) : data;
+        } catch (error) {
+            throw new Error(`请检查模板与规则格式！${error.message}`);
+        }        
     }
-
 }
-

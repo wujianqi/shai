@@ -1,15 +1,23 @@
 import typescript from 'rollup-plugin-typescript2';
+import commonjs from 'rollup-plugin-commonjs'
+import resolve from 'rollup-plugin-node-resolve';
 import json from 'rollup-plugin-json';
-import minify from 'rollup-plugin-minify-es';
+import { terser } from "rollup-plugin-terser";
 
 const env = process.env.NODE_ENV;
-const override = {
-  tsconfigOverride: {
-    compilerOptions: {
-      declaration: false            
-    }
-  }
-};
+let commonPlugins = [
+  resolve({
+    module: true,
+    main: true
+  }),
+  commonjs(),
+  json(),
+  typescript()
+];
+
+if (env && env.trim() === 'production') {
+  commonPlugins.push(terser());
+}
 
 var config = [
   {
@@ -17,47 +25,28 @@ var config = [
     output: {
       format: 'umd',
       name: 'shai',
-      file: 'shai.js'
+      file: 'lib/shai.js'
     },
-    plugins: [
-      json(),
-      typescript({
-        useTsconfigDeclarationDir: true
-      })
-    ]
+    plugins: commonPlugins
   },
   {
     input: './src/maker/index.ts',
     output: {
       format: 'umd',
       name: 'Maker',
-      file: 'maker.js'
+      file: 'lib/maker.js'
     },
-    plugins: [
-      json(),
-      typescript(override)
-    ]
+    plugins: commonPlugins
   },
   {
     input: './src/validator/index.ts',
     output: {
       format: 'umd',
       name: 'Validator',
-      file: 'validator.js'
+      file: 'lib/validator.js'
     },
-    plugins: [
-      json(),
-      typescript(override)
-    ]
+    plugins: commonPlugins
   }
 ];
-
-if (env && env.trim() === 'production') {
-  config.forEach( item => {
-    item.plugins.push(
-      minify()
-    )
-  })  
-}
 
 export default config;

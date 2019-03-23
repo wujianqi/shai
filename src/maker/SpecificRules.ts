@@ -1,7 +1,13 @@
 import { util } from './util';
 import Division from './Division';
-import { rules, RuleFunction } from './rules';
+import { rules, RuleFunction, RulesInterface, baseRuleName } from './rules';
 import regions from './regions.json';
+
+type rulesName = baseRuleName | 'increment' | 'datetime' | 'date' | 'time' | 'year' | 'hour'
+    | 'phone' | 'zipcode' | 'province' | 'prefecture' | 'county' | 'bodycard' | 'autocard' | 'lon' | 'lat'
+    | 'company' | 'address' | 'custom';
+
+export {RuleFunction, RulesInterface, rulesName};
 
 export interface SettingOption {
     'divisionCode'?: string;
@@ -9,8 +15,11 @@ export interface SettingOption {
     'endTime'?: Date;
 }
 
+/**
+ * @class 特定设置范围的规则方法集合
+ */
 export interface SpecificRulesInterface {
-    [key:string]: RegExp | RuleFunction;
+    [key: string]: RegExp | RuleFunction;
     increment(arg1?: number, arg2?: number): string;
     datetime(arg?: string): string;
     date(): string;
@@ -28,11 +37,12 @@ export interface SpecificRulesInterface {
     company(): string;
     lon(): string;
     lat(): string;
+    custom(key:string): string | number | boolean;
 }
 
 export default class SpecificRules {
     private config = {
-        'divisionCode': rules.exp(/1[1-5]|2[1-3]|3[3-7]|4[1-6]|5[1-4]|6[1-5]/) + '0000',
+        'divisionCode': rules.regexp(/1[1-5]|2[1-3]|3[3-7]|4[1-6]|5[1-4]|6[1-5]/) + '0000',
         'beginTime': new Date('1970/01/01'),
         'endTime': new Date()
     };
@@ -47,15 +57,18 @@ export default class SpecificRules {
             et = this.config.endTime ? this.config.endTime : new Date();
         return new Date(util.getInt(bt.getTime(), et.getTime()));
     };
-    protected baseIncrement: number = 0;
-    protected division:Division
+    private baseIncrement: number = 0;
+    private division: Division;
+    private customFuncMap: { [key:string]:RuleFunction } = {};    
 
-    constructor(option?:SettingOption) {
-        (<any>Object).assign(this.config, option);
-
-        this.division = new Division(this.config.divisionCode, regions);
+    /**
+     * 添加函数引用，在custom规则中作为参数调用
+     * @param makeFunc
+     */
+    addRule(key:string, makeFunc:RuleFunction): void {        
+        this.customFuncMap[key] = makeFunc;
     }
-
+    
     /**
      * 重置自增长基数
      */
@@ -63,29 +76,36 @@ export default class SpecificRules {
         this.baseIncrement = num;
     }
 
-    map:SpecificRulesInterface = {
-        increment:(arg1: number = 1, arg2?: number): string => {
+    /**
+     * 新规则
+     */
+    protected get rules(): SpecificRulesInterface & RulesInterface {
+        return (<any>Object).assign((<any>Object).assign({}, rules), this.maps);
+    }
+
+    private maps: SpecificRulesInterface = {
+        increment: (arg1: number = 1, arg2?: number): string => {
             this.baseIncrement += arg1;
             return (arg2 ? (Array(arg2).join('0') + this.baseIncrement).slice(-arg2) : this.baseIncrement) + '';
         },
-        datetime:(arg?: string) => util.formatDate(this.getRndTime(), (arg ? arg : 'yyyy-MM-dd hh:mm:ss')),
-        date:() => util.formatDate(this.getRndTime(), 'yyyy-MM-dd'),
-        time:() => util.formatDate(this.getRndTime(), 'hh:mm:ss'),
-        year:() => util.formatDate(this.getRndTime(), 'yyyy'),
-        citycode:() => this.division.division.county,
-        province:() => this.division.region().province,
-        prefecture:() => this.division.region().prefecture,
-        county:() => this.division.region().county,
-        phone:() => {
+        datetime: (arg?: string) => util.formatDate(this.getRndTime(), (arg ? arg : 'yyyy-MM-dd hh:mm:ss')),
+        date: () => util.formatDate(this.getRndTime(), 'yyyy-MM-dd'),
+        time: () => util.formatDate(this.getRndTime(), 'hh:mm:ss'),
+        year: () => util.formatDate(this.getRndTime(), 'yyyy'),
+        citycode: () => this.division.division.county,
+        province: () => this.division.region().province,
+        prefecture: () => this.division.region().prefecture,
+        county: () => this.division.region().county,
+        phone: () => {
             let cd = this.division.region(1).county, ps;
 
-            if (this.is8b.indexOf(cd) > -1) ps = cd + '-' +  rules.exp(/[268]\d{7}/);
-            else ps = cd + '-' +  rules.exp(/[268]\\d{6}/);
+            if (this.is8b.indexOf(cd) > -1) ps = cd + '-' + rules.regexp(/[268]\d{7}/);
+            else ps = cd + '-' + rules.regexp(/[268]\\d{6}/);
             return ps;
         },
-        zipcode:() => this.division.region(2).county,
-        bodycard:() => {
-            const sn = this.division.division.county + util.formatDate(this.getRndTime(), 'yyyyMMdd') + rules.exp(/\d{3}/),
+        zipcode: () => this.division.region(2).county,
+        bodycard: () => {
+            const sn = this.division.division.county + util.formatDate(this.getRndTime(), 'yyyyMMdd') + rules.regexp(/\d{3}/),
                 arr = sn.split(''),
                 factor = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
                 parity = [1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2];
@@ -98,19 +118,23 @@ export default class SpecificRules {
             }
             return sn + parity[sum % 11];
         },
-        autocard:() => {
+        autocard: () => {
             let card = this.division.region(5).prefecture,
-                ps: any = { '京':'[ACE-J]', '沪':'[A-E]', '津':'[A-DFG]' },
-                pf = card.length === 1 ? rules.exp(ps.hasOwnProperty(card) ? ps[card] : '[A-C]') : card;
+                ps: any = { '京': '[ACE-J]', '沪': '[A-E]', '津': '[A-DFG]' },
+                pf = card.length === 1 ? rules.regexp(ps.hasOwnProperty(card) ? ps[card] : '[A-C]') : card;
 
-            return pf + rules.exp(/\d{3}[A-HJ-NP-UW-Z]{2}|[A-HJ-NP-UW-Z]\d{4}/);
+            return pf + rules.regexp(/\d{3}[A-HJ-NP-UW-Z]{2}|[A-HJ-NP-UW-Z]\d{4}/);
         },
-        address:() => this.division.region(0).county.replace('县', '县城') + rules.address(),
-        company:() => this.division.region().prefecture + rules.company(),
-        lon:() => this.division.region(3).county + rules.exp(/\d{8}/),
-        lat:() => this.division.region(4).county + rules.exp(/\d{8}/)
-    }  
+        address: () => this.division.region(0).county.replace('县', '县城') + rules.address(),
+        company: () => this.division.region().prefecture + rules.company(),
+        lon: () => this.division.region(3).county + rules.regexp(/\d{8}/),
+        lat: () => this.division.region(4).county + rules.regexp(/\d{8}/),
+        custom: (key:string) => this.customFuncMap[key].call(this)
+    }
+
+    constructor(option?: SettingOption) {
+        (<any>Object).assign(this.config, option);
+        this.division = new Division(this.config.divisionCode, regions);         
+    }
 
 }
-
-

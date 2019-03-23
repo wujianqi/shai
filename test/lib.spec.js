@@ -1,6 +1,6 @@
-const Validator = require('../validator.js');
-const Maker = require('../maker.js');
-const shai = require('../shai');
+const Validator = require('../lib/validator');
+const Maker = require('../lib/maker');
+const shai = require('../lib/shai');
 
 describe('Validator库测试', function () {
   //console.dir(Validator);

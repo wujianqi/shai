@@ -10,6 +10,9 @@ interface RegionData {
     [key: string]: (string | number | null)[]
 }
 
+/**
+ * 取随机或特定区域、并格式化数据
+ */
 export default class Division {   
     private divisionCode: string;
     private regions:RegionData;
