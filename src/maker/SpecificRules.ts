@@ -65,7 +65,7 @@ export default class SpecificRules {
      * 添加函数引用，在custom规则中作为参数调用
      * @param makeFunc
      */
-    addRule(key:string, makeFunc:RuleFunction): void {        
+    add(key:string, makeFunc:RuleFunction): void {        
         this.customFuncMap[key] = makeFunc;
     }
     

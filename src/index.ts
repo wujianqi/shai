@@ -1,6 +1,6 @@
-import Validator, { Item } from './validator';
-import Maker, { SettingOption } from './maker';
+import Validator, { Item, RuleFunction } from './validator';
+import Maker, { SettingOption, MethodFuction } from './maker';
 import { objectPath } from './validator/objectPath';
 
-export { Item, SettingOption }
+export { Item, RuleFunction, SettingOption, MethodFuction }
 export default { Validator, Maker, objectPath }

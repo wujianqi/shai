@@ -1,5 +1,5 @@
 import SpecificRules, { SettingOption, RuleFunction, rulesName } from './SpecificRules';
-export { SettingOption, RuleFunction };
+export { SettingOption, RuleFunction as MethodFuction };
 export default class Maker extends SpecificRules {
     private __OptPropKey;
     constructor(option?: SettingOption);

@@ -34,7 +34,7 @@ export default class SpecificRules {
     private baseIncrement;
     private division;
     private customFuncMap;
-    addRule(key: string, makeFunc: RuleFunction): void;
+    add(key: string, makeFunc: RuleFunction): void;
     increment: number;
     protected readonly rules: SpecificRulesInterface & RulesInterface;
     private maps;

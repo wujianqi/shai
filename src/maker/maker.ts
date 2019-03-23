@@ -1,6 +1,6 @@
 import SpecificRules, { SettingOption, RuleFunction, rulesName } from './SpecificRules';
 
-export { SettingOption, RuleFunction }
+export { SettingOption, RuleFunction as MethodFuction }
 
 /**
  * @class 数据生成、模拟
@@ -119,7 +119,7 @@ export default class Maker extends SpecificRules {
     }
     
     /**
-     * 模版解析
+     * 模版输出项解析
      * @param content
      */
     private parseTPL(content: string): string {
@@ -144,11 +144,12 @@ export default class Maker extends SpecificRules {
     make <T extends string | object>(content: T, parseValueType?:string | boolean, optionKey?:string): T{
         try {
             let data: string, tpl:string;
-            const isobject = typeof content === 'object',
+            const isobject = typeof content === 'object', 
+                cls = (str:string) => str.replace(/\s+/g,""),
                 hasParse = typeof parseValueType ==='boolean' ? parseValueType : true,
-                parseKeys = typeof parseValueType ==='string' ? parseValueType.trim(): 'int,number,increment,bool';
+                parseKeys = typeof parseValueType ==='string' ? cls(parseValueType): 'int,number,increment,bool';
 
-            tpl = (isobject ? JSON.stringify(content) : <string>content).replace(/\s+/g,"");
+            tpl = cls(isobject ? JSON.stringify(content) : <string>content);
             if (typeof optionKey == 'string' && optionKey !== '') this.__OptPropKey = optionKey;
             if (hasParse) {
                 const reg = new RegExp(`(?!:\\s*)"<%\\s*(${parseKeys.split(',').join('|')})[^%>"]*%>"`,'g'),

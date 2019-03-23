@@ -1,3 +1,3 @@
-import Validator, { Item } from './Validator';
-export { Item };
+import Validator, { Item, RuleFunction } from './Validator';
+export { Item, RuleFunction };
 export default Validator;

@@ -134,7 +134,7 @@ describe('数据生成测试 shai maker', function () {
           }
         }); 
 
-      /* m2.addRule('testv', () => {
+      /* m2.add('testv', () => {
         return 'aaa';
       });
 

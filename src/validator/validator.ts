@@ -1,7 +1,9 @@
 import { rules, rulesName, RuleFunction} from './rules';
 import { Chain, ChainInterface } from './Chain';
 import { objectPath } from './objectPath';
- 
+
+export { RuleFunction };
+
 export interface Item {
     value: any;    
     format?: ChainInterface;

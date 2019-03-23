@@ -1,4 +1,5 @@
-# 数据生成模拟、验证工具库 SHAI library
+## 数据生成模拟、验证工具库 
+# SHAI library
 
 安装：
 
@@ -45,7 +46,7 @@ var m = new shai.Maker({
 
 > ***endTime***  全局时间范围的结束时间，默认当前时间 <br>
 
-**m.get(key, ...args)** 生成数据，包括md5、uuid, 及模拟数据等。
+**m.get(key:string, ...args:Array<any>)** 生成数据，包括md5、uuid, 及模拟数据等。
 
 ###### get 参数说明：
 
@@ -53,16 +54,16 @@ var m = new shai.Maker({
 
 > 参数2 ***args*** 为可选，方法中的更多参数。
 
-**m.addRule(key, fn)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
+**m.add(key:string, fn:Function)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
 
-###### addRule 参数说明：
+###### add 参数说明：
 
 > 参数1 ***key*** 为方法名； <br>
 
 > 参数2 ***fn*** 为可选，方法函数。
 
 
-**m.make(content, parseValueType, optionKey)** 根据JSON模板，生成设值后的新JSON
+**m.make(content:string|object, parseValueType:boolean|string, optionKey:string)** 根据JSON模板，生成设值后的新JSON
 
 ###### make 参数说明：
 
@@ -70,7 +71,7 @@ var m = new shai.Maker({
 
 > 参数2 ***parseValueType*** 是否需要转换值的类型，默认为true，即是，转换。注：模板静态数据内容不受此限制。<br>
 >> 如"key": <% int %>, 如果参数1为对象，标准JSON不支持直接放特殊字符，因此需改为"key": "<% int %>"，因此类型需要转换；<br>
->> parseValueType 设为false，为保留文本，设为string，则为指定的需转换的规则名，不同的规则名使用,号隔开<br>
+>> parseValueType 设为false，为保留文本，设为string，则为指定的需转换的方法名，不同的方法名使用,号隔开<br>
 
 > 参数3 ***optionKey*** 自定义循环输出的对象属性名，默认为makerOption。 string，详细JSON模板说明<br>
 
@@ -78,13 +79,14 @@ var m = new shai.Maker({
 
 ###### JSON模版 约束规则说明：
 
-> 规则名、参数，使用这种方式：<% int, 0, 2 %>  <br>
+> 方法名、参数，使用这种方式：<% int, 0, 2 %>  <br>
 
-> 循环与嵌套输出，需要输出多列数据的，在目标对象里加属性：makerOption（也可自定义，见make）, 值为：“参数”数组，例：[2,3,'childrens']， 参数说明如下：<br>
+> 多列批量或嵌套的数据输出配置，在目标对象里加属性：makerOption（也可自定义，见make）, 说明如下：<br>
 
->> 参数1，默认情况下为输出对象的个数，即数组长度，但有参数3的情况下，为嵌套的层数；必需项！<br>
->> 参数2，默认不设值，当设值后，无参数3的情况下，参数1变为随机数字的下限值，参数2为上限值；有参数3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
->> 参数3，默认不设值，当设值后，为嵌套对象的属性名，文本<br>
+>> 值为“参数”数组，例："makerOption": [2,3,'childrens']
+>> 数组元素1，默认情况下为输出对象的个数，即数组长度，但有数组元素3的情况下，为嵌套的层数；必需项！<br>
+>> 数组元素2，默认不设值，当设值后，无数组元素3的情况下，数组元素1变为随机数字的下限值，数组元素2为上限值；有数组元素3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
+>> 数组元素3，默认不设值，当设值后，为嵌套对象的属性名，文本<br>
 
 > 模版示例：<br>
 
@@ -140,8 +142,8 @@ var m = new shai.Maker({
 
 // 使用对象模板生成JSON数据
   var user = m.make({
-      "realname": "<% cnName %>",
-      "address": "<% address %>"
+        realname: "<% cnName %>",
+        address: "<% address %>"
       });
 
     console.log(user);
@@ -188,7 +190,7 @@ var m = new shai.Maker({
 | now                   | 当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss') |
 | increment             | 递增整数，可选2个参数，参数1为步长，参数2为左补位0的个数 |
 | regexp                | 自定义正则，可选参数为字符串表达式 |
-| custom                | 自定义方法，参数为通过addRule进行索引的key名，string |
+| custom                | 自定义方法，参数为通过add方法函数进行索引的key名，string |
 | **模拟数据**|   | 
 | enum                  | 自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个 |
 | bool                  | 布尔，true或false |
@@ -271,23 +273,22 @@ var v = new shai.Valitator();
 // ……
 ```
 
-**v.check(value, ruleName, ...args)** 单项数据，单规则验证，返回值为是否通过(boolean)
+**v.check(value:any, ruleName:string, ...args:Array<any>)** 单项数据，单规则验证，返回值为是否通过(boolean)
 
 ###### check 参数说明：
 
 > 参数1为验证目标数据，参数2为规则，可选，默认为最少一个任意字符 
 
 
-**v.checkItem(option)**  单项数据，组合规则验证，返回值为是否通过(boolean)
+**v.checkItem(option:{value:string, foramt:object, callback:Function, rquire:boolean})**  单项数据，组合规则验证，返回值为是否通过(boolean)
 
 
 ###### checkItem 参数选项(option)说明：
 
 > 属性 ***value***，**必须**。 <br>
-> 属性 ***format***，链式检查。 多参数的<br>
+> 属性 ***format***，链式检查。见v.type……的用法<br>
 > 属性 ***callback***，验证回调函数，可选，参数为未通过的项的数组。 <br>
 > 属性 ***rquire***，可选，值为false时，值为空或null,验证结果为true。 <br>
-> 动态属性，可选，键为任意规则名，值：规则为正则或函数形参长度1的，为true或false, 函数2形参，等于值，多于2形参，值为数组。 <br>
 > 例：{ value:'password1', format: password.eq('password2').minlength(6).maxlength(20) }
 
 **v.checkItems(itemsArray)**  多项数据，组合规则验证，返回值为是否通过(boolean)
@@ -300,7 +301,11 @@ var v = new shai.Valitator();
 > 参数2为数据类型结构，参考代码示例，**必须** <br>
 > 参数3为可选，回调方法，含2参数，未通过项的组、数据层级路径组。
 
-**v.type**  链式验证对象，注：不可简写，因为定义的本身就是实例化。
+**v.type**  链式验证对象，注：不可简写，因为定义过程就是实例化。
+
+> 使用的规则为正则或函数，形参长度1的，如例：v.type.string.chinese <br>
+> 使用的规则为函数2形参的，例：v.type.eq('123456'); <br>
+> 多于2形参，值为数组,例：v.type.between([10,20]) <br>
 
 ##### 用法例子：
 
@@ -495,6 +500,7 @@ var v = new shai.Valitator();
 | **自定义**  |  | 
 | regexp                  | 自定义正则判断 |
 | custom               | 自定义函数方法判断，允许一个参数，即要判断的值 |
+
 
 ------
 
