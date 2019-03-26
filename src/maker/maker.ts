@@ -22,9 +22,9 @@ export default class Maker extends SpecificRules {
     get(methodName: rulesName, ...args: any[]): string | number | boolean {
         let result = '';
 
-        const rule = this.rules[methodName];
+        const rule = this.__rules[methodName];
         if (rule) {
-            if (rule instanceof RegExp) result = this.rules.regexp(rule);
+            if (rule instanceof RegExp) result = this.__rules.regexp(rule);
             else result = (<RuleFunction>rule)(...args) as string;
         } else throw new Error(`没有找到“${methodName}”相关生成数据的方法！`);
 
@@ -40,7 +40,7 @@ export default class Maker extends SpecificRules {
     private bulk(content: string, n1?: number, n2?: number):string {
         let num = 0;
 
-        if (typeof n1 === 'number' && typeof n2 === 'number') num = this.rules.int(n1, n2);
+        if (typeof n1 === 'number' && typeof n2 === 'number') num = this.__rules.int(n1, n2);
         else if (typeof n1 === 'number') num = n1;
 
         if (num > 0) {
@@ -161,7 +161,7 @@ export default class Maker extends SpecificRules {
             //console.log(data);
             return isobject ? JSON.parse(data) : data;
         } catch (error) {
-            throw new Error(`请检查模板与规则格式！${error.message}`);
+            throw new Error(`请检查模板格式！${error.message}`);
         }        
     }
 }

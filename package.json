@@ -1,6 +1,6 @@
 {
   "name": "shai",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "前后台通用，数据验证、模拟、生成库",
   "main": "lib/shai.js",
   "types": "lib/index.d.ts",
@@ -9,7 +9,7 @@
     "types"
   ],
   "scripts": {
-    "build": "set NODE_ENV=production && rollup -c",
+    "build": "set NODE_ENV=production && rollup -c -m",
     "dev": "rollup -c",
     "test": "mocha --require espower-typescript/guess ./test/*.spec.ts",
     "test:index": "mocha --require espower-typescript/guess ./test/index.spec.ts",

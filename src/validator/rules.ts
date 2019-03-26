@@ -7,9 +7,9 @@ export type rulesName = 'string' | 'number' | 'boolean' | 'object' | 'null' | 'a
 	| 'aeo' | 'currency' | 'float' | 'int' | 'decimal' | 'chinese' | 'mail' | 'url' | 'account' | 'password'
 	| 'safe' | 'dbc' | 'hex' | 'color' | 'ascii' | 'base64' | 'md5' | 'uuid' | 'mobile' | 'telphone' | 'phone'
 	| 'percent' | 'year' | 'month' | 'day' | 'hour' | 'minute' | 'time' | 'date' | 'datetime' | 'file' | 'image'
-	| 'word' | 'lon' | 'lat' | 'approval' | 'citycode' | 'address' | 'upper' | 'lower' | 'isbn:' | 'even' | 'odd'
-	| 'ipv6' | 'bodycard' | 'autocard' | 'not' | 'eq' | 'gt' | 'gte' | 'lt' | 'lte' | 'between' | 'min' | 'max'
-	| 'length' | 'minlength' | 'maxlength' | 'in';
+	| 'word' | 'lon' | 'lat' | 'approval' | 'citycode' | 'address' | 'upper' | 'lower' | 'isbn:' | 'htmltag'
+	| 'even' | 'odd' | 'ipv6' | 'bodycard' | 'autocard' | 'not' | 'eq' | 'gt' | 'gte' | 'lt' | 'lte' 
+	| 'between' | 'min' | 'max' | 'length' | 'minlength' | 'maxlength' | 'in';
 
 export interface RulesInterface {
 	[key: string]: RegExp | RuleFunction;
@@ -70,6 +70,7 @@ export interface RulesInterface {
 	upper: RegExp;
 	lower: RegExp;
 	isbn: RegExp;
+	htmltag:RegExp;
 	even(arg: string | number): boolean;
 	odd(arg: string | number): boolean;
 	ipv6(arg: string): boolean;
@@ -107,7 +108,7 @@ export const rules: RulesInterface = {
 	qq: /^[1-9]\d{4,10}$/,
 	age: /^(0|[1-9]\d?|1[0-2]\d)$/,
 	zipcode: /^(\d[1-7]|[1-9][0-7])\d{4}$/,
-	ip: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
+	ip: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
 	port: /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5]{2}[0-3][0-5])$/,
 	bizcode: /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/,
 	invoice: /^(((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12]))\d{5}[1-9][1-7][0-4])$/,
@@ -153,6 +154,7 @@ export const rules: RulesInterface = {
 	isbn: /^(978\-\d\-\d{3}\-\d{5}\-[a-z0-9]$)|(978\d{9}[a-z0-9])$/i,
 	upper: /[A-Z]/,
 	lower: /[a-z]/,
+	htmltag:/^<([a-z1-6]+)([^<]+)*(?:>(.*)<\/\1>| *\/>)$/,
 	even: (arg: string | number) => ((+arg) & 1) === 0,
 	odd: (arg: string | number) => ((+arg) & 1) !== 0,
 	ipv6: (arg: string) => {

@@ -5,7 +5,7 @@ import { objectPath } from './objectPath';
 export { RuleFunction };
 
 export interface Item {
-    value: any;    
+    value: any;
     format?: ChainInterface;
     require?: boolean;
     callback?: (faults: string[]) => void;    

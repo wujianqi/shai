@@ -32,11 +32,11 @@ export default class SpecificRules {
     private is8b;
     private getRndTime;
     private baseIncrement;
-    private division;
     private customFuncMap;
+    private division;
+    protected __rules: SpecificRulesInterface & RulesInterface;
     add(key: string, makeFunc: RuleFunction): void;
     increment: number;
-    protected readonly rules: SpecificRulesInterface & RulesInterface;
     private maps;
     constructor(option?: SettingOption);
 }

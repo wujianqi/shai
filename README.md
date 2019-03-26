@@ -1,5 +1,4 @@
-## 数据生成模拟、验证工具库 
-# SHAI library
+# 数据生成模拟、验证工具库 SHAI library
 
 安装：
 
@@ -12,7 +11,7 @@ npm i shai
 > 前后台通用，但不支持IE9以下浏览器； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
 > 内置数据生成方法50多项，验证方法70多项； <br>
-> 区划更新到 2019.1 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
+> 区划更新到 2019.2 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
 
 ------
 
@@ -46,7 +45,7 @@ var m = new shai.Maker({
 
 > ***endTime***  全局时间范围的结束时间，默认当前时间 <br>
 
-**m.get(key:string, ...args:Array<any>)** 生成数据，包括md5、uuid, 及模拟数据等。
+**m.get(key:string, ...args:Array)** 生成数据，包括md5、uuid, 及模拟数据等。
 
 ###### get 参数说明：
 
@@ -149,7 +148,7 @@ var m = new shai.Maker({
     console.log(user);
 
 
-  // 仅使用单项数据生成，不使用模板（速度略快）
+  // 仅使用单项数据生成，不使用模板
   var user = {
         realname: m.get('cnName'),
         address: m.get('address'),
@@ -248,6 +247,7 @@ var m = new shai.Maker({
 | chinese               | 中文，可选2个参数，参数1为备选随机中文字串，参数2为长度 |
 | text                  | 文本填充，可选3个参数，参数1为文本，参数2为显示次数或为随机下限值，参数3为随机上限值 |
 
+---------
 
 #### 补充说明
 
@@ -273,7 +273,7 @@ var v = new shai.Valitator();
 // ……
 ```
 
-**v.check(value:any, ruleName:string, ...args:Array<any>)** 单项数据，单规则验证，返回值为是否通过(boolean)
+**v.check(value:any, ruleName:string, ...args:Array)** 单项数据，单规则验证，返回值为是否通过(boolean)
 
 ###### check 参数说明：
 
@@ -293,7 +293,7 @@ var v = new shai.Valitator();
 
 **v.checkItems(itemsArray)**  多项数据，组合规则验证，返回值为是否通过(boolean)
 
-**v.checkJSON(json, struct, callback)**  JSON数据验证，返回值为是否通过(boolean)
+**v.checkJSON(json:string|object, struct:object, callback:Function)**  JSON数据验证，返回值为是否通过(boolean)
 
 ###### checkJSON 参数选项(json, struct, callback)说明：
 
@@ -483,6 +483,7 @@ var v = new shai.Valitator();
 | dbc                  | 全角 |
 | hex                  | HEX码 |
 | color                | 颜色码，16进制 |
+| htmltage             | 是否为Html标签|
 | **比较**  |  | 
 | not                  | 不等于 |
 | eq                   | 等于 |
@@ -528,15 +529,3 @@ var v = new shai.Valitator();
 </html>
 ```
 
-------
-
-## TypeScript 使用
-
-使用TypeScript的项目, 可考虑直接引用ts源文件：
-
-```typescript
-  import shai from 'shai/src';
-
-  var v: = new shai.Valitator();
-  // ……
-```

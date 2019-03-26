@@ -1,7 +1,7 @@
 export interface RuleFunction {
     (...values: any[]): boolean;
 }
-export declare type rulesName = 'string' | 'number' | 'boolean' | 'object' | 'null' | 'array' | 'regexp' | 'custom' | 'require' | 'english' | 'qq' | 'age' | 'zipcode' | 'ip' | 'port' | 'bizcode' | 'invoice' | 'bankcard' | 'aeo' | 'currency' | 'float' | 'int' | 'decimal' | 'chinese' | 'mail' | 'url' | 'account' | 'password' | 'safe' | 'dbc' | 'hex' | 'color' | 'ascii' | 'base64' | 'md5' | 'uuid' | 'mobile' | 'telphone' | 'phone' | 'percent' | 'year' | 'month' | 'day' | 'hour' | 'minute' | 'time' | 'date' | 'datetime' | 'file' | 'image' | 'word' | 'lon' | 'lat' | 'approval' | 'citycode' | 'address' | 'upper' | 'lower' | 'isbn:' | 'even' | 'odd' | 'ipv6' | 'bodycard' | 'autocard' | 'not' | 'eq' | 'gt' | 'gte' | 'lt' | 'lte' | 'between' | 'min' | 'max' | 'length' | 'minlength' | 'maxlength' | 'in';
+export declare type rulesName = 'string' | 'number' | 'boolean' | 'object' | 'null' | 'array' | 'regexp' | 'custom' | 'require' | 'english' | 'qq' | 'age' | 'zipcode' | 'ip' | 'port' | 'bizcode' | 'invoice' | 'bankcard' | 'aeo' | 'currency' | 'float' | 'int' | 'decimal' | 'chinese' | 'mail' | 'url' | 'account' | 'password' | 'safe' | 'dbc' | 'hex' | 'color' | 'ascii' | 'base64' | 'md5' | 'uuid' | 'mobile' | 'telphone' | 'phone' | 'percent' | 'year' | 'month' | 'day' | 'hour' | 'minute' | 'time' | 'date' | 'datetime' | 'file' | 'image' | 'word' | 'lon' | 'lat' | 'approval' | 'citycode' | 'address' | 'upper' | 'lower' | 'isbn:' | 'htmltag' | 'even' | 'odd' | 'ipv6' | 'bodycard' | 'autocard' | 'not' | 'eq' | 'gt' | 'gte' | 'lt' | 'lte' | 'between' | 'min' | 'max' | 'length' | 'minlength' | 'maxlength' | 'in';
 export interface RulesInterface {
     [key: string]: RegExp | RuleFunction;
     string(arg: any): boolean;
@@ -61,6 +61,7 @@ export interface RulesInterface {
     upper: RegExp;
     lower: RegExp;
     isbn: RegExp;
+    htmltag: RegExp;
     even(arg: string | number): boolean;
     odd(arg: string | number): boolean;
     ipv6(arg: string): boolean;

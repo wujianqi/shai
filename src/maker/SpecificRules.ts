@@ -16,7 +16,7 @@ export interface SettingOption {
 }
 
 /**
- * @class 特定设置范围的规则方法集合
+ * @class 特定范围设置的方法集合
  */
 export interface SpecificRulesInterface {
     [key: string]: RegExp | RuleFunction;
@@ -46,7 +46,6 @@ export default class SpecificRules {
         'beginTime': new Date('1970/01/01'),
         'endTime': new Date()
     };
-
     private is8b: string[] = [ // 电话号码 8位
         '010', '021', '022', '023', '024', '025', '027', '028', '029', '020', '0311', '0371', '0377',
         '0379', '0411', '0451', '0512', '0513', '0516', '0510', '0531', '0532', '0571', '0574', '0577',
@@ -58,8 +57,9 @@ export default class SpecificRules {
         return new Date(util.getInt(bt.getTime(), et.getTime()));
     };
     private baseIncrement: number = 0;
+    private customFuncMap: { [key:string]:RuleFunction } = {};
     private division: Division;
-    private customFuncMap: { [key:string]:RuleFunction } = {};    
+    protected __rules: SpecificRulesInterface & RulesInterface;  
 
     /**
      * 添加函数引用，在custom规则中作为参数调用
@@ -74,13 +74,6 @@ export default class SpecificRules {
      */
     set increment(num: number) {
         this.baseIncrement = num;
-    }
-
-    /**
-     * 新规则
-     */
-    protected get rules(): SpecificRulesInterface & RulesInterface {
-        return (<any>Object).assign((<any>Object).assign({}, rules), this.maps);
     }
 
     private maps: SpecificRulesInterface = {
@@ -133,8 +126,10 @@ export default class SpecificRules {
     }
 
     constructor(option?: SettingOption) {
-        (<any>Object).assign(this.config, option);
-        this.division = new Division(this.config.divisionCode, regions);         
+        (<any>Object).assign(this.config, option); 
+        
+        this.division = new Division(this.config.divisionCode, regions);
+        this.__rules = (<any>Object).assign((<any>Object).assign({}, rules), this.maps);
     }
 
 }
