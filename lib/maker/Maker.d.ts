@@ -2,6 +2,7 @@ import SpecificRules, { SettingOption, RuleFunction, rulesName } from './Specifi
 export { SettingOption, RuleFunction as MethodFuction };
 export default class Maker extends SpecificRules {
     private __OptPropKey;
+    private __parseTypes;
     constructor(option?: SettingOption);
     get(methodName: rulesName, ...args: any[]): string | number | boolean;
     private bulk;

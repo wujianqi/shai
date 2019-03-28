@@ -121,31 +121,31 @@ describe('数据生成测试 shai maker', function () {
               "lat":"<% lat %>
           }
         }
-      }`);
+      }`); 
 
-      var tpl1 = m2.make({
+       var tpl1 = m2.make({
           data:{
-            makerOption:[1,2,"abc"],
+            makerOption:[3],
+            b: "<% int, 2, 10 %>",
             items: {
-              makerOption:[2],
-              a: "<% datetime %>",
-              b: "<% int, 2, 10 %>"
+              makerOption:[1, 2, 'childrens'],
+              a: "<% datetime %>"              
             }
           }
         }); 
 
-      /* m2.add('testv', () => {
-        return 'aaa';
+      m2.add('testv', (aaa) => {
+         return aaa+1111;
       });
 
       var tpl2 = m2.make({
-          pase: "<% custom, testv%>"
-      }); */
+          pase: "<% custom, testv, 2222 %>"
+      });
       
 
       console.log(jsontpl);
       console.dir(tpl1);
-      //console.dir(tpl2);
+      console.dir(tpl2);
   });
 
 });

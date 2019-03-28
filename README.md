@@ -8,9 +8,9 @@ npm i shai
 
 简介： 
 
-> 前后台通用，但不支持IE9以下浏览器； <br>
+> 前后台通用，浏览器IE9+ ； <br>
 > 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
-> 内置数据生成方法50多项，验证方法70多项； <br>
+> 内置数据生成方法60项，验证方法78项； <br>
 > 区划更新到 2019.2 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
 
 ------
@@ -19,7 +19,7 @@ npm i shai
 
 模拟数据的特色：让数据看起来更真实
 
-- [x] 使用简单，较少的约束规则，模版支持标准JSON配置；<br>
+- [x] 使用简单，较少的约束，不用记太多的字符规则，模版支持标准JSON配置；<br>
 - [x] 以设定的区划，生成关联的电话号码、经纬度坐标、车牌号、身份证等；<br>
 - [x] 以行业统计热门、频次高的词汇，生成姓、名、公司名、国名、地址等；<br>
 
@@ -139,10 +139,15 @@ var m = new shai.Maker({
 
     console.log(user);
 
-// 使用对象模板生成JSON数据
+// 使用对象模板生成模拟JSON数据（holder图片引用示例）
+  m.add('image', (str1, str2) => {
+    return `<img src="holder.js/${str1}x${str2}">`;
+  })
+
   var user = m.make({
         realname: "<% cnName %>",
         address: "<% address %>"
+        avatar: "<% custom, image, 80, 80 %>"
       });
 
     console.log(user);
@@ -188,15 +193,19 @@ var m = new shai.Maker({
 | md5                   | MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位，默认32位 |
 | now                   | 当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss') |
 | increment             | 递增整数，可选2个参数，参数1为步长，参数2为左补位0的个数 |
-| regexp                | 自定义正则，可选参数为字符串表达式 |
+| regexp                | 自定义正则，可选参数为字符串表达式，写在模版中请使用string类型，注意转义 |
 | custom                | 自定义方法，参数为通过add方法函数进行索引的key名，string |
-| **模拟数据**|   | 
+| **简单随机**|   | 
 | enum                  | 自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个 |
 | bool                  | 布尔，true或false |
-| color                 | 颜色，如 #000FFF |
 | **数字类**|   | 
 | int                   | 整数，可选2个参数，参数1为下限值，参数2位上限值 |
 | number                | 数字，可选3个参数，参数1为下限值(整数)，参数2位上限值(整数)，参数3为小数位数(整数) |
+| alpha                 | 数字，0.1~0.9 |
+| **颜色类**|   | 
+| color                 | 颜色，如 #000FFF |
+| rgb                   | 颜色，如 rgb(255,0,0)，可选1个参数，是否带alpha值，默认false |
+| hsl                   | 颜色，如 hsl(27, 88.99%, 81.83%) 可选1个参数，是否带alpha值，默认false |
 | **时间类** |   | 
 | date                  | 日期，如 2017-11-11 （全局时间段内） |
 | time                  | 时间，如 11:11:08（全局时间段内） |
@@ -244,8 +253,11 @@ var m = new shai.Maker({
 | port                  | 端口 |
 | **文本块类** |   | 
 | english               | 英文，可选2个参数，参数1为备选随机英文字串，参数2为长度 |
+| upper                 | 大写字母，参数同english |
+| lower                 | 小写字母，参数同english |
 | chinese               | 中文，可选2个参数，参数1为备选随机中文字串，参数2为长度 |
 | text                  | 文本填充，可选3个参数，参数1为文本，参数2为显示次数或为随机下限值，参数3为随机上限值 |
+
 
 ---------
 
@@ -259,7 +271,6 @@ Http请求拦截、API模拟、二进制数据等，可结合其它库来使用�
 * [dummyimage](https://dummyimage.com/) <br>
 * [JsBarcode](https://github.com/lindell/JsBarcode) <br>
 * [qrcode](https://github.com/PaulKinlan/qrcode) <br>
-* [randomColor](https://github.com/davidmerfield/randomColor)
 
 
 ------
@@ -483,7 +494,7 @@ var v = new shai.Valitator();
 | dbc                  | 全角 |
 | hex                  | HEX码 |
 | color                | 颜色码，16进制 |
-| htmltage             | 是否为Html标签|
+| htmltag              | 是否为Html标签|
 | **比较**  |  | 
 | not                  | 不等于 |
 | eq                   | 等于 |

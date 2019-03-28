@@ -7,8 +7,8 @@ export interface RuleFunction {
     (...values: any[]): boolean | string | number;
 }
 
-export type baseRuleName = 'md5' | 'uuid' | 'now' | 'regexp' | 'enum'
-    | 'int' | 'number' | 'bool' | 'month' | 'day' | 'minute' | 'validcode' | 'mid'
+export type baseRuleName = 'md5' | 'uuid' | 'now' | 'regexp' | 'enum' | 'alpha' | 'rgb' | 'hsl'
+    | 'int' | 'number' | 'bool' | 'month' | 'day' | 'minute' | 'validcode' | 'mid' | 'upper' | 'lower'
     | 'account' | 'password' | 'color' | 'url' | 'mail' | 'mobile' | 'port' | 'bizcode'
     | 'bankcard' | 'qq' | 'english' | 'chinese' | 'ip' | 'text' | 'price' | 'enName'
     | 'enMaleName' | 'enFemaleName' | 'surname' | 'cnName' | 'cnMaleName' | 'cnFemaleName'
@@ -27,6 +27,9 @@ export interface RulesInterface {
     month(): number;
     day(): number;
     minute(): number;
+    alpha(): number;
+    rgb(arg?: boolean): string;
+    hsl(arg?: boolean): string;
     validcode(arg?: number): string;
     mid: RegExp;
     account: RegExp;
@@ -40,6 +43,8 @@ export interface RulesInterface {
     bankcard: RegExp;
     qq: RegExp;
     english(arg: string, num?: number): string;
+    upper(arg: string, num?: number): string;
+    lower(arg: string, num?: number): string;
     chinese(arg: string, num?: number): string;
     ip(local?: boolean): string;
     text(arg?: string, n1?: number, n2?: number): string;
@@ -61,7 +66,7 @@ export const rules: RulesInterface = {
     md5: (arg: string = new Date().getTime() + '', is16b: boolean = false): string => md5(arg, is16b),
     uuid: (arg: string = '-'): string => {
         let d = new Date().getTime(),
-            str = 'xxxxxxxx' + arg + 'xxxx' + arg + '4xxx' + arg + 'yxxx' + arg + 'xxxxxxxxxxxx',
+            str = ['xxxxxxxx','xxxx','4xxx','yxxx','xxxxxxxxxxxx'].join(arg),
             uuid = str.replace(/[xy]/g, function (c) {
                 const r = (d + Math.random() * 16) % 16 | 0;
 
@@ -87,17 +92,49 @@ export const rules: RulesInterface = {
     mid: /[1-9A-Z][0-9A-Z]{1,7}(\-[0-9A-Z]{2,6}){0,2}/,
     account: /[a-zA-Z]{1,3}[a-zA-Z0-9]{3,6}/,
     password: /[a-zA-Z0-9][a-zA-Z0-9\W_]{7}/,
-    color: /#[A-F0-9]{6}/,
+    color: /#[A-F0-9]{6}/,    
     url: /http(s?):\/\/www\.[a-z]{3,8}\.(com|cn|net|org|com\.cn)(\/[a-z]{3,5})?/,
     mail: /([a-z0-9]{3,6}[-_]?[a-z0-9]{3,6})@[a-z]{3,8}\.(com|cn|net|org)/,
     mobile: /(13\d|(14[5-7])|(15([0-3]|[5-9]))|17(0|1|8])|18\d)\d{8}/,
     port: /[1-9]\d{3}/,
     bizcode: /91[1-4]\d{5}[0-9A-HJ-NPQRTUWXY]{10}/,
     bankcard: /62(([0-3]\d)(4[0-5])|5([0-3]|5|8|9)|70|8[2-3])\d{12,15}/,
-    qq: /[1-9]\d{4,10}/,
-
+    qq: /[1-9]\d{4,10}/,    
+    alpha: () => + new RandExp(/0\.\d{1,9}/).gen(),
+    rgb: (arg:boolean = false) => {
+        if (arg) return `rgba(${[
+            util.getInt(0, 255),
+            util.getInt(0, 255),
+            util.getInt(0, 255),
+            util.getInt(0, 9)/10].join(',')})`;
+        else return `rgb(${[
+            util.getInt(0, 255),
+            util.getInt(0, 255),
+            util.getInt(0, 255)].join(',')})`;
+    },
+    hsl: (arg:boolean = false) => {
+        if (arg) return `hsla(${[
+            util.getInt(0, 360),
+            util.getInt(0, 100)+'%',
+            util.getInt(0, 100)+'%',
+            util.getInt(0, 9)/10].join(',')})`;
+        else return `hsl(${[
+            util.getInt(0, 360),
+            util.getInt(0, 100)+'%',
+            util.getInt(0, 100)+'%'].join(',')})`;
+    },
     english: (arg: string, num: number = 1): string => {
-        const d = arg ? arg : 'abcdefghijklmnopqrstuvwxyz';
+        const d = arg ? arg : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+        return util.getItems(d.split(''), num).join('');
+    },
+    upper: (arg: string, num: number = 1): string => {
+        const d = arg ? arg.toUpperCase() : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+        return util.getItems(d.split(''), num).join('');
+    },
+    lower: (arg: string, num: number = 1): string => {
+        const d = arg ? arg.toLowerCase() : 'abcdefghijklmnopqrstuvwxyz';
 
         return util.getItems(d.split(''), num).join('');
     },
@@ -109,7 +146,7 @@ export const rules: RulesInterface = {
     ip: (local: boolean = false) => {
         const node = "(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])";
         if (local) {
-            return new RandExp('((192\\.168)|(172\\.0)|(10\.0))\\.' + node + '\\.' + node).gen();
+            return new RandExp(`((192\\.168)|(172\\.0)|(10\.0))\\.${node}\\.${node}`).gen();
         } else {
             return new RandExp([node, node, node, node].join('\\.')).gen();
         }

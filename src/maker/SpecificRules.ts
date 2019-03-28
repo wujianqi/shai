@@ -46,6 +46,7 @@ export default class SpecificRules {
         'beginTime': new Date('1970/01/01'),
         'endTime': new Date()
     };
+    private baseIncrement: number = 0;
     private is8b: string[] = [ // 电话号码 8位
         '010', '021', '022', '023', '024', '025', '027', '028', '029', '020', '0311', '0371', '0377',
         '0379', '0411', '0451', '0512', '0513', '0516', '0510', '0531', '0532', '0571', '0574', '0577',
@@ -55,18 +56,17 @@ export default class SpecificRules {
         let bt = this.config.beginTime ? this.config.beginTime : new Date('1970/01/01'),
             et = this.config.endTime ? this.config.endTime : new Date();
         return new Date(util.getInt(bt.getTime(), et.getTime()));
-    };
-    private baseIncrement: number = 0;
-    private customFuncMap: { [key:string]:RuleFunction } = {};
+    };    
     private division: Division;
-    protected __rules: SpecificRulesInterface & RulesInterface;  
+    protected __methods: { [key:string]: { 'fn':RuleFunction; 'args'?:any[] } } = {};
+    protected __rules: SpecificRulesInterface & RulesInterface; 
 
     /**
      * 添加函数引用，在custom规则中作为参数调用
      * @param makeFunc
      */
-    add(key:string, makeFunc:RuleFunction): void {        
-        this.customFuncMap[key] = makeFunc;
+    add(key:string, makeFunc:RuleFunction): void {
+        this.__methods[key] = { fn:makeFunc };
     }
     
     /**
@@ -122,14 +122,14 @@ export default class SpecificRules {
         company: () => this.division.region().prefecture + rules.company(),
         lon: () => this.division.region(3).county + rules.regexp(/\d{8}/),
         lat: () => this.division.region(4).county + rules.regexp(/\d{8}/),
-        custom: (key:string) => this.customFuncMap[key].call(this)
+        custom: (key:string) => this.__methods[key].fn.apply(this, this.__methods[key].args)
     }
 
     constructor(option?: SettingOption) {
-        (<any>Object).assign(this.config, option); 
+        (<any>Object).assign(this.config, option);
         
         this.division = new Division(this.config.divisionCode, regions);
-        this.__rules = (<any>Object).assign((<any>Object).assign({}, rules), this.maps);
+        this.__rules = (<any>Object).assign(Object.create(rules), this.maps);
     }
 
 }

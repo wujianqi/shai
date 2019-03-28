@@ -29,11 +29,16 @@ export interface SpecificRulesInterface {
 }
 export default class SpecificRules {
     private config;
+    private baseIncrement;
     private is8b;
     private getRndTime;
-    private baseIncrement;
-    private customFuncMap;
     private division;
+    protected __methods: {
+        [key: string]: {
+            'fn': RuleFunction;
+            'args'?: any[];
+        };
+    };
     protected __rules: SpecificRulesInterface & RulesInterface;
     add(key: string, makeFunc: RuleFunction): void;
     increment: number;

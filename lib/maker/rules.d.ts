@@ -1,7 +1,7 @@
 export interface RuleFunction {
     (...values: any[]): boolean | string | number;
 }
-export declare type baseRuleName = 'md5' | 'uuid' | 'now' | 'regexp' | 'enum' | 'int' | 'number' | 'bool' | 'month' | 'day' | 'minute' | 'validcode' | 'mid' | 'account' | 'password' | 'color' | 'url' | 'mail' | 'mobile' | 'port' | 'bizcode' | 'bankcard' | 'qq' | 'english' | 'chinese' | 'ip' | 'text' | 'price' | 'enName' | 'enMaleName' | 'enFemaleName' | 'surname' | 'cnName' | 'cnMaleName' | 'cnFemaleName' | 'enState' | 'cnState' | 'company' | 'address';
+export declare type baseRuleName = 'md5' | 'uuid' | 'now' | 'regexp' | 'enum' | 'alpha' | 'rgb' | 'hsl' | 'int' | 'number' | 'bool' | 'month' | 'day' | 'minute' | 'validcode' | 'mid' | 'upper' | 'lower' | 'account' | 'password' | 'color' | 'url' | 'mail' | 'mobile' | 'port' | 'bizcode' | 'bankcard' | 'qq' | 'english' | 'chinese' | 'ip' | 'text' | 'price' | 'enName' | 'enMaleName' | 'enFemaleName' | 'surname' | 'cnName' | 'cnMaleName' | 'cnFemaleName' | 'enState' | 'cnState' | 'company' | 'address';
 export interface RulesInterface {
     [key: string]: RegExp | RuleFunction;
     md5(arg?: string, arg2?: boolean): string;
@@ -15,6 +15,9 @@ export interface RulesInterface {
     month(): number;
     day(): number;
     minute(): number;
+    alpha(): number;
+    rgb(arg?: boolean): string;
+    hsl(arg?: boolean): string;
     validcode(arg?: number): string;
     mid: RegExp;
     account: RegExp;
@@ -28,6 +31,8 @@ export interface RulesInterface {
     bankcard: RegExp;
     qq: RegExp;
     english(arg: string, num?: number): string;
+    upper(arg: string, num?: number): string;
+    lower(arg: string, num?: number): string;
     chinese(arg: string, num?: number): string;
     ip(local?: boolean): string;
     text(arg?: string, n1?: number, n2?: number): string;

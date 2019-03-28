@@ -7,6 +7,7 @@ export { SettingOption, RuleFunction as MethodFuction }
  */
 export default class Maker extends SpecificRules {
     private __OptPropKey:string = 'makerOption';
+    private __parseTypes:string[] = ['int', 'number', 'increment', 'bool'];
 
     constructor(option?:SettingOption) {
         super(option);
@@ -23,9 +24,12 @@ export default class Maker extends SpecificRules {
         let result = '';
 
         const rule = this.__rules[methodName];
-        if (rule) {
+        if (rule) {            
             if (rule instanceof RegExp) result = this.__rules.regexp(rule);
-            else result = (<RuleFunction>rule)(...args) as string;
+            else {
+                if (methodName === 'custom' && args.length > 1) this.__methods[args[0]].args = args.slice(1);
+                result = (<RuleFunction>rule)(...args) as string;
+            }
         } else throw new Error(`没有找到“${methodName}”相关生成数据的方法！`);
 
         return result;
@@ -127,6 +131,10 @@ export default class Maker extends SpecificRules {
             if ($1.indexOf(',') > -1) {
                 let args = $1.split(',');
 
+                args.forEach( (item:any, i:number) => {
+                    if (/^true|false$/.test(item)) args[i] = Boolean(item);
+                    else if (/^(\-|\+)?\d+(\.\d+)?$/.test(item)) args[i] = +item;
+                });
                 if (args.length > 0)  return this.get(args.shift(), ...args);
             } else {
                 return this.get($1);
@@ -146,19 +154,25 @@ export default class Maker extends SpecificRules {
             let data: string, tpl:string;
             const isobject = typeof content === 'object', 
                 cls = (str:string) => str.replace(/\s+/g,""),
-                hasParse = typeof parseValueType ==='boolean' ? parseValueType : true,
-                parseKeys = typeof parseValueType ==='string' ? cls(parseValueType): 'int,number,increment,bool';
+                hasParse = typeof parseValueType ==='boolean' ? parseValueType : true;
 
+            if (typeof parseValueType ==='string') {
+                let typs = cls(parseValueType).split(',');
+                typs.forEach(item => {
+                    if (this.__parseTypes.indexOf(item) === -1 && this.__rules.hasOwnProperty(item)) 
+                        this.__parseTypes.push(item);
+                });
+            }
             tpl = cls(isobject ? JSON.stringify(content) : <string>content);
             if (typeof optionKey == 'string' && optionKey !== '') this.__OptPropKey = optionKey;
             if (hasParse) {
-                const reg = new RegExp(`(?!:\\s*)"<%\\s*(${parseKeys.split(',').join('|')})[^%>"]*%>"`,'g'),
+                const reg = new RegExp(`(?!:\\s*)"<%\\s*(${this.__parseTypes.join('|')})[^%>"]*%>"`,'g'),
                     ns = (str:string) => str.replace(reg, ($0):any => $0.replace(/"/g,''));
 
                 data = this.parseTPL(this.findBlock(ns(tpl)));
             }
             else data= this.parseTPL(this.findBlock(tpl));
-            //console.log(data);
+
             return isobject ? JSON.parse(data) : data;
         } catch (error) {
             throw new Error(`请检查模板格式！${error.message}`);
