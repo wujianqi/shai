@@ -111,6 +111,7 @@ describe('数据生成测试 shai maker', function () {
       "region":"<% county%>",
       "address": "<% address %>",
       "list": {
+          "makerOption": [2],
           "datetime":"<% datetime %>",
           "color":"<% color%>",
           "int": "<% increment %>",

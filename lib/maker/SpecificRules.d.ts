@@ -8,7 +8,7 @@ export interface SettingOption {
 }
 export interface SpecificRulesInterface {
     [key: string]: RegExp | RuleFunction;
-    increment(arg1?: number, arg2?: number): string;
+    increment(arg1?: boolean, arg2?: number): number;
     datetime(arg?: string): string;
     date(): string;
     time(): string;
@@ -29,7 +29,7 @@ export interface SpecificRulesInterface {
 }
 export default class SpecificRules {
     private config;
-    private baseIncrement;
+    private baseinc;
     private is8b;
     private getRndTime;
     private division;

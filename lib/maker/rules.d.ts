@@ -30,10 +30,10 @@ export interface RulesInterface {
     bizcode: RegExp;
     bankcard: RegExp;
     qq: RegExp;
-    english(arg: string, num?: number): string;
-    upper(arg: string, num?: number): string;
-    lower(arg: string, num?: number): string;
-    chinese(arg: string, num?: number): string;
+    english(num?: number, arg?: string): string;
+    upper(arg?: string): string;
+    lower(arg?: string): string;
+    chinese(num?: number, arg?: string): string;
     ip(local?: boolean): string;
     text(arg?: string, n1?: number, n2?: number): string;
     price(arg1?: number, arg2?: number, arg3?: boolean): string;

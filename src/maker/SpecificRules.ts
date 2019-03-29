@@ -20,7 +20,7 @@ export interface SettingOption {
  */
 export interface SpecificRulesInterface {
     [key: string]: RegExp | RuleFunction;
-    increment(arg1?: number, arg2?: number): string;
+    increment(arg1?: boolean, arg2?: number): number;
     datetime(arg?: string): string;
     date(): string;
     time(): string;
@@ -46,7 +46,7 @@ export default class SpecificRules {
         'beginTime': new Date('1970/01/01'),
         'endTime': new Date()
     };
-    private baseIncrement: number = 0;
+    private baseinc: number = 0;
     private is8b: string[] = [ // 电话号码 8位
         '010', '021', '022', '023', '024', '025', '027', '028', '029', '020', '0311', '0371', '0377',
         '0379', '0411', '0451', '0512', '0513', '0516', '0510', '0531', '0532', '0571', '0574', '0577',
@@ -73,14 +73,11 @@ export default class SpecificRules {
      * 重置自增长基数
      */
     set increment(num: number) {
-        this.baseIncrement = num;
+        this.baseinc = num;
     }
 
     private maps: SpecificRulesInterface = {
-        increment: (arg1: number = 1, arg2?: number): string => {
-            this.baseIncrement += arg1;
-            return (arg2 ? (Array(arg2).join('0') + this.baseIncrement).slice(-arg2) : this.baseIncrement) + '';
-        },
+        increment: (arg1: boolean = true, arg2: number = 1): number => arg1 ? this.baseinc += arg2 : this.baseinc,
         datetime: (arg?: string) => util.formatDate(this.getRndTime(), (arg ? arg : 'yyyy-MM-dd hh:mm:ss')),
         date: () => util.formatDate(this.getRndTime(), 'yyyy-MM-dd'),
         time: () => util.formatDate(this.getRndTime(), 'hh:mm:ss'),

@@ -42,10 +42,10 @@ export interface RulesInterface {
     bizcode: RegExp;
     bankcard: RegExp;
     qq: RegExp;
-    english(arg: string, num?: number): string;
-    upper(arg: string, num?: number): string;
-    lower(arg: string, num?: number): string;
-    chinese(arg: string, num?: number): string;
+    english(num?: number, arg?: string): string;
+    upper(arg?: string): string;
+    lower(arg?: string): string;
+    chinese(num?: number, arg?: string): string;
     ip(local?: boolean): string;
     text(arg?: string, n1?: number, n2?: number): string;
     price(arg1?: number, arg2?: number, arg3?: boolean): string;
@@ -61,6 +61,11 @@ export interface RulesInterface {
     company(): string;
     address(): string;    
 }
+
+const lw = 'abcdefghijklmnopqrstuvwxyz',
+    uw = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    limit255 =  "(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])",
+    randText = (arg: string, num?: number): string => util.getItems(arg.split(''), num ? num : util.getInt(1, 9)).join('');
 
 export const rules: RulesInterface = {
     md5: (arg: string = new Date().getTime() + '', is16b: boolean = false): string => md5(arg, is16b),
@@ -92,7 +97,7 @@ export const rules: RulesInterface = {
     mid: /[1-9A-Z][0-9A-Z]{1,7}(\-[0-9A-Z]{2,6}){0,2}/,
     account: /[a-zA-Z]{1,3}[a-zA-Z0-9]{3,6}/,
     password: /[a-zA-Z0-9][a-zA-Z0-9\W_]{7}/,
-    color: /#[A-F0-9]{6}/,    
+    color: /#[A-F0-9]{6}/,
     url: /http(s?):\/\/www\.[a-z]{3,8}\.(com|cn|net|org|com\.cn)(\/[a-z]{3,5})?/,
     mail: /([a-z0-9]{3,6}[-_]?[a-z0-9]{3,6})@[a-z]{3,8}\.(com|cn|net|org)/,
     mobile: /(13\d|(14[5-7])|(15([0-3]|[5-9]))|17(0|1|8])|18\d)\d{8}/,
@@ -102,15 +107,11 @@ export const rules: RulesInterface = {
     qq: /[1-9]\d{4,10}/,    
     alpha: () => + new RandExp(/0\.\d{1,9}/).gen(),
     rgb: (arg:boolean = false) => {
-        if (arg) return `rgba(${[
-            util.getInt(0, 255),
-            util.getInt(0, 255),
-            util.getInt(0, 255),
-            util.getInt(0, 9)/10].join(',')})`;
-        else return `rgb(${[
-            util.getInt(0, 255),
-            util.getInt(0, 255),
-            util.getInt(0, 255)].join(',')})`;
+        if (arg) {
+            return new RandExp(`rgb(${limit255},${limit255},${limit255})`).gen();
+        } else {
+            return new RandExp(`rgba(${limit255},${limit255},${limit255},0\\.\\d)`).gen();
+        } 
     },
     hsl: (arg:boolean = false) => {
         if (arg) return `hsla(${[
@@ -123,32 +124,15 @@ export const rules: RulesInterface = {
             util.getInt(0, 100)+'%',
             util.getInt(0, 100)+'%'].join(',')})`;
     },
-    english: (arg: string, num: number = 1): string => {
-        const d = arg ? arg : 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
-        return util.getItems(d.split(''), num).join('');
-    },
-    upper: (arg: string, num: number = 1): string => {
-        const d = arg ? arg.toUpperCase() : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-        return util.getItems(d.split(''), num).join('');
-    },
-    lower: (arg: string, num: number = 1): string => {
-        const d = arg ? arg.toLowerCase() : 'abcdefghijklmnopqrstuvwxyz';
-
-        return util.getItems(d.split(''), num).join('');
-    },
-    chinese: (arg: string, num: number = 1): string => {
-        let d = arg ? arg : String.fromCharCode(util.getInt(19968, 40869));
-
-        return util.getItems(d.split(''), num).join('');
-    },
+    english: (num?: number, arg?: string) => randText((arg ? arg : uw + lw), num),
+    upper: (arg?: string) => typeof arg === 'string' ? arg.toUpperCase(): randText(uw),
+    lower: (arg?: string) => typeof arg === 'string' ? arg.toLowerCase(): randText(lw),
+    chinese: (num?: number, arg?: string) => randText(arg ? arg : String.fromCharCode(util.getInt(19968, 40869)), num),
     ip: (local: boolean = false) => {
-        const node = "(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])";
         if (local) {
-            return new RandExp(`((192\\.168)|(172\\.0)|(10\.0))\\.${node}\\.${node}`).gen();
+            return new RandExp(`((192\\.168)|(172\\.0)|(10\.0))\\.${limit255}\\.${limit255}`).gen();
         } else {
-            return new RandExp([node, node, node, node].join('\\.')).gen();
+            return new RandExp([limit255, limit255, limit255, limit255].join('\\.')).gen();
         }
     },
     text: (arg: string = '填充文本样式', n1?: number, n2?: number): string => {
