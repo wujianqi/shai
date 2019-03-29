@@ -1,6 +1,6 @@
 {
   "name": "shai",
-  "version": "0.1.16",
+  "version": "0.1.18",
   "description": "前后台通用，数据验证、模拟、生成库",
   "main": "lib/shai.js",
   "types": "lib/index.d.ts",

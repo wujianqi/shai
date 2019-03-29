@@ -128,6 +128,7 @@ describe('数据生成测试 shai maker', function () {
           data:{
             makerOption:[3],
             b: "<% int, 2, 10 %>",
+            "c<% increment %>": "<% increment, false %>",
             items: {
               makerOption:[1, 2, 'childrens'],
               a: "<% datetime %>"              

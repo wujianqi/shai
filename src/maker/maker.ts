@@ -132,7 +132,8 @@ export default class Maker extends SpecificRules {
                 let args = $1.split(',');
 
                 args.forEach( (item:any, i:number) => {
-                    if (/^true|false$/.test(item)) args[i] = Boolean(item);
+                    if (/^true$/.test(item)) args[i] = true;
+                    else if (/^false$/.test(item)) args[i] = false;
                     else if (/^(\-|\+)?\d+(\.\d+)?$/.test(item)) args[i] = +item;
                 });
                 if (args.length > 0)  return this.get(args.shift(), ...args);
