@@ -1,4 +1,10 @@
-# 数据生成模拟、验证工具库 SHAI library
+<div align=center>
+
+![shai.js](https://github.com/wujianqi/shai/raw/master/logo.svg?sanitize=true)
+
+</div>
+
+# 数据生成模拟、验证工具库
 
 安装：
 
@@ -123,7 +129,8 @@ var m = new shai.Maker({
     m.get('province') //返回 北京市
   
     // 使用自定义函数生成数据
-    m.get('custom', () => 123 + 2);
+    m.add('test1', () => 123 + 2);
+    m.get('custom', 'test1');
 
   // 使用文本模板生成JSON数据
   var user = m.make(`{
@@ -297,7 +304,7 @@ var v = new shai.Valitator();
 ###### checkItem 参数选项(option)说明：
 
 > 属性 ***value***，**必须**。 <br>
-> 属性 ***format***，链式检查。见v.type……的用法<br>
+> 属性 ***format***，链式检查。见v.string, v.number…… 等相关用法<br>
 > 属性 ***callback***，验证回调函数，可选，参数为未通过的项的数组。 <br>
 > 属性 ***rquire***，可选，值为false时，值为空或null,验证结果为true。 <br>
 > 例：{ value:'password1', format: password.eq('password2').minlength(6).maxlength(20) }
@@ -312,11 +319,11 @@ var v = new shai.Valitator();
 > 参数2为数据类型结构，参考代码示例，**必须** <br>
 > 参数3为可选，回调方法，含2参数，未通过项的组、数据层级路径组。
 
-**v.type**  链式验证对象，注：不可简写，因为定义过程就是实例化。
+**v.string | v.number | v.object | v.array | v.boolean | v.null**  链式验证对象。
 
-> 使用的规则为正则或函数，形参长度1的，如例：v.type.string.chinese <br>
-> 使用的规则为函数2形参的，例：v.type.eq('123456'); <br>
-> 多于2形参，值为数组,例：v.type.between([10,20]) <br>
+> 使用的规则为正则或函数，形参长度1的，如例：v.string.chinese <br>
+> 使用的规则为函数2形参的，例：v.number.eq(123456); <br>
+> 多于2形参，值为数组,例：v.number.between([10,20]) <br>
 
 ##### 用法例子：
 
@@ -336,7 +343,7 @@ var v = new shai.Valitator();
     // 单项组合规则验证，链式
     v.checkItem({
         value: 'yr qw2{O',
-        format: v.type.eq('yr qw2{O'),
+        format: v.string.eq('yr qw2{O'),
         callback: faults => {
           if (faults.indexOf('eq') === -1) console.log('密码二次验证OK！');
           faults.forEach(f => {
@@ -348,8 +355,8 @@ var v = new shai.Valitator();
 
     // 多项组合规则验证
     v.checkItems([
-        {value:'123456', format: v.type.int},
-        {value:'password1', format: v.type.password.eq('password2')}
+        {value: 1234, format: v.number.int},
+        {value:'password1', format: v.string.password.eq('password2')}
     ]);
 
     // JSON数据类型验证，链式，可任意层级。
@@ -381,20 +388,20 @@ var v = new shai.Valitator();
     }`;
 
     var struct = { // 定义类型结构
-      name: v.type.chinese.address,
-      address: v.type.string,
-      age: v.type.int.eq(30),
+      name: v.string.chinese.address,
+      address: v.string,
+      age: v.number.int.eq(30),
       looks: {
         size: {
-          foot: v.type.int
+          foot: v.number.int
         }
       },
-      hobby: v.type.array,
+      hobby: v.array,
       notes: [
-        { content: v.type.number,
+        { content: v.number,
           log: [
             {
-              'local.time': v.type.date
+              'local.time': v.string.date
             }
           ]
         }
@@ -424,13 +431,13 @@ var v = new shai.Valitator();
 
 | Key Name  | 说明  | 
 | -------------------- | -------------------- |
-| **基本类型验证**  | （建议配合checkJSON使用） | 
-| object               | 对象 |   
-| array                | 数组 | 
-| number               | 数字 | 
-| string               | 文本 | 
-| boolean              | 布尔 | 
-| null                 | 空值 |
+| **基本类型验证**  |  | 
+| object               | 是否为对象 |   
+| array                | 是否为数组 | 
+| number               | 是否为数字 | 
+| string               | 是否为文本 | 
+| boolean              | 是否为布尔 | 
+| null                 | 是否为null值 |
 | **数据格式验证**|  | 
 | require              | 非空任意字符 |  
 | english              | 英文字母 | 
@@ -477,7 +484,6 @@ var v = new shai.Valitator();
 | **商业类** |  | 
 | bizcode              | 统一信用代码  |
 | invoice              | 增值税发票代码 |
-| aeo                  | 海关AEO编码   |
 | bankcard             | 银行卡号（仅限国内卡）|
 | isbn                 | 书号（仅限13位）|
 | approval             | 审批文号 政字〔2004〕第18号 或 政字[2004] 18号 |
@@ -509,9 +515,10 @@ var v = new shai.Valitator();
 | maxlength            | 最大长度 |
 | length               | 等于长度 |
 | in                   | 是否包含，字符、数组元素、对象属性 |
+| empty                | 是否为空，数字则判断是否为0 |
 | **自定义**  |  | 
-| regexp                  | 自定义正则判断 |
-| custom               | 自定义函数方法判断，允许一个参数，即要判断的值 |
+| regexp               | 自定义正则判断 |
+| custom               | 自定义函数方法判断，函数允许一个参数，即要判断的值 |
 
 
 ------

@@ -413,4 +413,16 @@ describe('单项数据，各规则方法测试 validator test', function () {
   it('in passed test', function () {
     assert(v.check('ab', 'in', 'abc'));
   });
+  it('custom test', function () {
+    var testv = (target:string) => target.indexOf('aaabbb') > -1;
+    assert(v.check('aaabbbccc', 'custom', testv));
+    assert(!v.check('aaab', 'custom', testv));
+  });
+  it('base test', function () {
+    assert(v.check({}, 'object', ));
+    assert(!v.check('aaab', 'object', ));
+    assert(v.check(null, 'null', ));
+    assert(!v.check('', 'null', ));
+
+  });
 });

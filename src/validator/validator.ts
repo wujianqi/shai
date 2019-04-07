@@ -19,8 +19,23 @@ export default class Validator {
     /**
      * 链式规则调用
      */
-    get type(): ChainInterface {
-        return new Chain();
+    get string(): ChainInterface {
+        return (<ChainInterface>new Chain()).string;
+    }
+    get number(): ChainInterface {
+        return (<ChainInterface>new Chain()).number;
+    }
+    get object(): ChainInterface {
+        return (<ChainInterface>new Chain()).object;
+    }
+    get array(): ChainInterface {
+        return (<ChainInterface>new Chain()).array;
+    }
+    get boolean(): ChainInterface {
+        return (<ChainInterface>new Chain()).boolean;
+    }
+    get null(): ChainInterface {
+        return (<ChainInterface>new Chain()).null;
     }
 
     /**
@@ -40,7 +55,7 @@ export default class Validator {
             const r = rules[ruleName];
             if (r instanceof RegExp) passed = (<RegExp>r).test(val);
             else if (typeof r === 'function') passed = (<RuleFunction>r)(value, ...args);
-        } else throw new Error(`没有找到“${ruleName}”相关验证规则！`);
+        } else throw new TypeError(`没有找到“${ruleName}”相关验证规则！`);
 
         return passed;
     }
@@ -97,7 +112,7 @@ export default class Validator {
         if (Array.isArray(items) && items.length > 0) {
             items.forEach(item => {
                 if (item instanceof Object && item.hasOwnProperty('value')) checkeds.push(this.checkItem(item));
-                else throw new Error('验证组内容不合要求!');
+                else throw new TypeError('验证组内容不合要求!');
             });
             if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
         }
@@ -147,7 +162,7 @@ export default class Validator {
                 len = (<(string | number)[]>dt).length;
 
                 for (let j = 0; j < len; j++) { // 循环数据列
-                    p = lastRight ? left.concat(j).concat(lastRight) : left.concat(j);
+                    p = lastRight ? left.concat(j, lastRight) : left.concat(j);
                     if (ids[next]) getMany(next, j);
                     else {
                         // console.log(objectPath.get(dataObj, p), p);
@@ -167,26 +182,24 @@ export default class Validator {
                 });
                 else checkValue(dt, type, path);
             } else {
-                throw new Error(`${path.join('.')}，在检测的目标数据中不存在`);
+                throw new TypeError(`要检查的目标数据，没有找到${path.join('.')}的关联属性！`);
             }
         };
         const itemCheck = (types: any, path: (string | number)[]): void => {
             Object.keys(types).forEach(key => {                
-                let p = path.concat(), t: ChainInterface;
+                let p = path.concat(), t: any;
                 const datatype = types[key];
 
                 p.push(key);
                 if (Array.isArray(datatype) && datatype.length > 0) {
-                    t = datatype[0] as ChainInterface;
-                    p.push(0);                   
+                    t = datatype[0];
+                    p.push(0);
                 } else {
-                    t = datatype as ChainInterface;                   
+                    t = datatype;
                 }
 
-                if (rules.object(t)) {
-                    if (t.hasOwnProperty('__caches')) findData(t, p);
-                    else itemCheck(t, p);
-                }
+                if (t instanceof Chain) findData(t, p);
+                else itemCheck(t, p);
             });
         };
 

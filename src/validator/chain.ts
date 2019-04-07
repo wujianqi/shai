@@ -1,4 +1,4 @@
-import { rules } from './rules';
+import { rules, RuleFunction } from './rules';
 
 export interface ChainInterface {
     __caches: any[];
@@ -18,7 +18,6 @@ export interface ChainInterface {
     readonly bizcode?: this;
     readonly invoice?: this;
     readonly bankcard?: this;
-    readonly aeo?: this;
     readonly currency?: this;
     readonly float?: this;
     readonly int?: this;
@@ -63,21 +62,22 @@ export interface ChainInterface {
     readonly ipv6?: this;
     readonly bodycard?: this;
     readonly autocard?: this;
-    not?(...args: any[]): this;
-    eq?(...args: any[]): this;
-    gt?(...args: any[]): this;
-    gte?(...args: any[]): this;
-    lt?(...args: any[]): this;
-    lte?(...args: any[]): this;
-    between?(...args: any[]): this;
-    min?(...args: any[]): this;
-    max?(...args: any[]): this;
-    length?(...args: any[]): this;
-    minlength?(...args: any[]): this;
-    maxlength?(...args: any[]): this;
-    in?(...args: any[]): this;
-    regexp?(...args: any[]): this;
-    custom?(...args: any[]): this;
+    readonly empty?: this;
+    not?(arg: string | number | Date): this;
+    eq?(arg: string | number | Date): this;
+    gt?(arg: string | number | Date): this;
+    gte?(arg: string | number | Date): this;
+    lt?(arg: string | number | Date): this;
+    lte?(arg: string | number | Date): this;
+    between?<T extends string | number | Date>(arg1: T, arg2: T): this;
+    min?(...args: Array<string | number | Date>): this;
+    max?(...args: Array<string | number | Date>): this;
+    length?(arg: string | number): this;
+    minlength?(arg: string | number): this;
+    maxlength?(arg: string | number): this;
+    in?(arg: string | number | any[] | {}): this;
+    regexp?(arg: RegExp | string ): this;
+    custom?(arg: RuleFunction ): this;
 }
 
 var props:PropertyDescriptorMap = {} , that:ChainInterface;

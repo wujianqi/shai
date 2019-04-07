@@ -30,7 +30,7 @@ export default class Maker extends SpecificRules {
                 if (methodName === 'custom' && args.length > 1) this.__methods[args[0]].args = args.slice(1);
                 result = (<RuleFunction>rule)(...args) as string;
             }
-        } else throw new Error(`没有找到“${methodName}”相关生成数据的方法！`);
+        } else throw new TypeError(`没有找到“${methodName}”相关生成数据的方法！`);
 
         return result;
     } 
@@ -176,7 +176,7 @@ export default class Maker extends SpecificRules {
 
             return isobject ? JSON.parse(data) : data;
         } catch (error) {
-            throw new Error(`请检查模板格式！${error.message}`);
+            throw new SyntaxError(`请检查模板格式！${error.message}`);
         }        
     }
 }

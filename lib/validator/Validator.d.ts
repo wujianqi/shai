@@ -8,7 +8,12 @@ export interface Item {
     callback?: (faults: string[]) => void;
 }
 export default class Validator {
-    readonly type: ChainInterface;
+    readonly string: ChainInterface;
+    readonly number: ChainInterface;
+    readonly object: ChainInterface;
+    readonly array: ChainInterface;
+    readonly boolean: ChainInterface;
+    readonly null: ChainInterface;
     check(value: any, ruleName?: rulesName, ...args: any[]): boolean;
     checkItem(option: Item): boolean;
     checkItems(items: Item[]): boolean;

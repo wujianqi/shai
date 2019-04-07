@@ -1,7 +1,7 @@
 export interface RuleFunction {
     (...values: any[]): boolean;
 }
-export declare type rulesName = 'string' | 'number' | 'boolean' | 'object' | 'null' | 'array' | 'regexp' | 'custom' | 'require' | 'english' | 'qq' | 'age' | 'zipcode' | 'ip' | 'port' | 'bizcode' | 'invoice' | 'bankcard' | 'aeo' | 'currency' | 'float' | 'int' | 'decimal' | 'chinese' | 'mail' | 'url' | 'account' | 'password' | 'safe' | 'dbc' | 'hex' | 'color' | 'ascii' | 'base64' | 'md5' | 'uuid' | 'mobile' | 'telphone' | 'phone' | 'percent' | 'year' | 'month' | 'day' | 'hour' | 'minute' | 'time' | 'date' | 'datetime' | 'file' | 'image' | 'word' | 'lon' | 'lat' | 'approval' | 'citycode' | 'address' | 'upper' | 'lower' | 'isbn:' | 'htmltag' | 'even' | 'odd' | 'ipv6' | 'bodycard' | 'autocard' | 'not' | 'eq' | 'gt' | 'gte' | 'lt' | 'lte' | 'between' | 'min' | 'max' | 'length' | 'minlength' | 'maxlength' | 'in';
+export declare type rulesName = 'string' | 'number' | 'boolean' | 'object' | 'null' | 'array' | 'regexp' | 'custom' | 'require' | 'english' | 'qq' | 'age' | 'zipcode' | 'ip' | 'port' | 'bizcode' | 'invoice' | 'bankcard' | 'currency' | 'float' | 'int' | 'decimal' | 'chinese' | 'mail' | 'url' | 'account' | 'password' | 'safe' | 'dbc' | 'hex' | 'color' | 'ascii' | 'base64' | 'md5' | 'uuid' | 'mobile' | 'telphone' | 'phone' | 'percent' | 'year' | 'month' | 'day' | 'hour' | 'minute' | 'time' | 'date' | 'datetime' | 'file' | 'image' | 'word' | 'lon' | 'lat' | 'approval' | 'citycode' | 'address' | 'upper' | 'lower' | 'isbn:' | 'htmltag' | 'even' | 'odd' | 'ipv6' | 'bodycard' | 'autocard' | 'not' | 'eq' | 'gt' | 'gte' | 'lt' | 'lte' | 'between' | 'min' | 'max' | 'length' | 'minlength' | 'maxlength' | 'in' | 'empty';
 export interface RulesInterface {
     [key: string]: RegExp | RuleFunction;
     string(arg: any): boolean;
@@ -20,7 +20,6 @@ export interface RulesInterface {
     bizcode: RegExp;
     invoice: RegExp;
     bankcard: RegExp;
-    aeo: RegExp;
     currency: RegExp;
     float: RegExp;
     int: RegExp;
@@ -80,6 +79,7 @@ export interface RulesInterface {
     minlength<T extends string | number>(arg1: T, arg2: T): boolean;
     maxlength<T extends string | number>(arg1: T, arg2: T): boolean;
     in<T extends string | number | any[] | {}>(arg1: T, arg2: T): boolean;
+    empty(arg: any): boolean;
     regexp: (arg: any, arg2: RegExp | string) => boolean;
     custom: (arg: any, arg2: RuleFunction) => boolean;
 }

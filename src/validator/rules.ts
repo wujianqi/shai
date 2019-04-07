@@ -4,12 +4,12 @@ export interface RuleFunction {
 
 export type rulesName = 'string' | 'number' | 'boolean' | 'object' | 'null' | 'array' | 'regexp' | 'custom'
 	| 'require' | 'english' | 'qq' | 'age' | 'zipcode' | 'ip' | 'port' | 'bizcode' | 'invoice' | 'bankcard'
-	| 'aeo' | 'currency' | 'float' | 'int' | 'decimal' | 'chinese' | 'mail' | 'url' | 'account' | 'password'
+	| 'currency' | 'float' | 'int' | 'decimal' | 'chinese' | 'mail' | 'url' | 'account' | 'password'
 	| 'safe' | 'dbc' | 'hex' | 'color' | 'ascii' | 'base64' | 'md5' | 'uuid' | 'mobile' | 'telphone' | 'phone'
 	| 'percent' | 'year' | 'month' | 'day' | 'hour' | 'minute' | 'time' | 'date' | 'datetime' | 'file' | 'image'
 	| 'word' | 'lon' | 'lat' | 'approval' | 'citycode' | 'address' | 'upper' | 'lower' | 'isbn:' | 'htmltag'
 	| 'even' | 'odd' | 'ipv6' | 'bodycard' | 'autocard' | 'not' | 'eq' | 'gt' | 'gte' | 'lt' | 'lte' 
-	| 'between' | 'min' | 'max' | 'length' | 'minlength' | 'maxlength' | 'in';
+	| 'between' | 'min' | 'max' | 'length' | 'minlength' | 'maxlength' | 'in' | 'empty';
 
 export interface RulesInterface {
 	[key: string]: RegExp | RuleFunction;
@@ -29,7 +29,6 @@ export interface RulesInterface {
 	bizcode: RegExp;
 	invoice: RegExp;
 	bankcard: RegExp;
-	aeo: RegExp;
 	currency: RegExp;
 	float: RegExp;
 	int: RegExp;
@@ -89,6 +88,7 @@ export interface RulesInterface {
 	minlength<T extends string | number>(arg1: T, arg2: T): boolean;
 	maxlength<T extends string | number>(arg1: T, arg2: T): boolean;
 	in<T extends string | number | any[] | {}>(arg1: T, arg2: T): boolean;	
+	empty(arg: any): boolean;
 	regexp: (arg: any, arg2: RegExp | string ) => boolean;
 	custom: (arg: any, arg2: RuleFunction ) => boolean;
 }
@@ -102,7 +102,7 @@ export const rules: RulesInterface = {
 	boolean: (arg: any) => typeof arg === 'boolean',
 	string: (arg: any) => typeof arg === 'string',
 	number: (arg: any) => typeof arg === 'number',
-	array: (arg: any) => Array.isArray(arg),
+	array: (arg: any) => Array.isArray(arg),	
 	require: /.+/,
 	english: /^[A-Za-z]+$/,
 	qq: /^[1-9]\d{4,10}$/,
@@ -113,7 +113,6 @@ export const rules: RulesInterface = {
 	bizcode: /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/,
 	invoice: /^(((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12]))\d{5}[1-9][1-7][0-4])$/,
 	bankcard: /^(10|30|35|37|4\d||5[0-6]|58|60|62|6[8-9]|84|8[7-8]|9[0-2]|9[4-6]|9[8-9])\d{14,17}$/,
-	aeo: /^AEO<[A-Z]{2,3}\d{4,15}[A-Z]?>$/,
 	currency: /(^[-]?[1-9]\d{0,2}($|(\,\d{3})*($|(\.\d{1,2}$))))|((^[0](\.\d{1,2})?)|(^[-][0]\.\d{1,2}))$/,
 	float: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/,
 	int: /^-?\d+$/,
@@ -220,6 +219,19 @@ export const rules: RulesInterface = {
 		}
 		return false;
 	},
+	empty: (arg: any) => {
+		let ret = false;
+		if (typeof arg === 'string') {
+			ret = arg === '';
+		} else if (Array.isArray(arg)) {
+			ret = arg.length === 0;
+		} else if (typeof arg === 'object') {
+			ret = Object.keys(arg).length === 0;
+		} else if(typeof arg === 'number') {
+			ret = arg === 0;
+		}
+		return ret;
+	},
 	regexp: (arg: any, arg2: RegExp | string) => new RegExp(arg2).test(arg),
-	custom: (arg: any, arg2: (arg3: any) => boolean) => arg2(arg)
+	custom: (arg: any, arg2: RuleFunction) => arg2(arg)
 }

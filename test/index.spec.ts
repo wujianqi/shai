@@ -2,7 +2,7 @@ import 'mocha';
 import assert from 'power-assert';
 import shai from '../src/index';
 
-/* describe('数据验证测试 shai valid', function () {
+describe('数据验证测试 shai valid', function () {
   var v = new shai.Validator();
 
   it('regexp_rule 正则', function () {
@@ -28,7 +28,7 @@ import shai from '../src/index';
   it('checkItem 链式', function () {
     assert(!v.checkItem({
       value: '23',
-      format: v.type.age.int.lt(20),
+      format: v.number.age.int.lt(20),
       callback: function(faults: string[]){
         console.log(faults);
       }
@@ -64,6 +64,12 @@ import shai from '../src/index';
           }]
         },
         {
+          "content": "ddvvvd",
+          "log": [{
+            "local.time": "2032-16-02"
+          }]
+        },
+        {
           "content": "fdafsd22",
           "log": [{
             "local.time": "2016-15-06"
@@ -73,20 +79,20 @@ import shai from '../src/index';
     }`;
 
     var struct = {
-      name: v.type.chinese,
-      address: v.type.address ,
-      age: v.type.int,
-      hobby: v.type.string,
+      name: v.string.chinese,
+      address: v.string.address,
+      age: v.number.int,
+      hobby: v.string,
       looks: {
         size: {
-          foot: v.type.int.eq(20)
+          foot: v.number.int.eq(20)
         }
       },
       notes: [
         { 
           log: [
             {
-              'local.time': v.type.date
+              'local.time': v.string.date
             }
           ]
         }
@@ -97,9 +103,9 @@ import shai from '../src/index';
 
   });
 
-}); */
+}); 
 
-
+/* 
 describe('数据生成测试 shai maker', function () {
   var m = new shai.Maker({divisionCode: '440300'});
   var m2 = new shai.Maker({divisionCode: '440200'});
@@ -150,4 +156,4 @@ describe('数据生成测试 shai maker', function () {
       console.dir(tpl2);
   });
 
-});
+}); */
