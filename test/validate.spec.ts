@@ -5,7 +5,7 @@ import Validator from '../src/validator/';
 describe('单项数据，各规则方法测试 validator test', function () {
   var v = new Validator();
 
-  it('require no passed test', function () {
+ it('require no passed test', function () {
     assert(!v.check('', 'require'));
   });
   it('require passed test', function () {
@@ -87,7 +87,7 @@ describe('单项数据，各规则方法测试 validator test', function () {
     assert(!v.check('111', 'decimal'));
   });
   it('decimal passed test', function () {
-    assert(v.check('111.11 ', 'decimal'));
+    assert(v.check('111.11', 'decimal'));
   });
   it('chinese no passed test', function () {
     assert(!v.check('ddfa', 'chinese'));
@@ -120,16 +120,16 @@ describe('单项数据，各规则方法测试 validator test', function () {
     assert(v.check('qdRdf@121', 'password'));
   });
   it('safe no passed test', function () {
-    assert(!v.check('dsafds', 'safe'));
+    assert(!v.check('$^&*;\/~\|', 'safe'));
   });
   it('safe passed test', function () {
-    assert(v.check('ds$%`"\'', 'safe'));
-  });
-  it('dbc no passed test', function () {
-    assert(!v.check('fdsa', 'dbc'));
+    assert(v.check('dsafds', 'safe'));
   });
   it('dbc passed test', function () {
-    assert(v.check('ｄｄｄ', 'dbc'));
+    assert(v.check('fdsa', 'nodbc'));
+  });
+  it('dbc no passed test', function () {
+    assert(!v.check('ｄｄｄ', 'nodbc'));
   });
   it('hex no passed test', function () {
     assert(!v.check('asdfkkl', 'hex'));
@@ -376,6 +376,7 @@ describe('单项数据，各规则方法测试 validator test', function () {
   });
   it('between passed test', function () {
     assert(v.check('3', 'between', 2, 4));
+    assert(v.check(new Date('2012/02/12'), 'between', new Date('2010/02/12'), new Date('2019/02/12')));
   });
   it('min no passed test', function () {
     assert(!v.check(2, 'min', 1, 2, 3));
@@ -396,27 +397,50 @@ describe('单项数据，各规则方法测试 validator test', function () {
     assert(v.check('test', 'length', 4));
   });
   it('minlength no passed test', function () {
-    assert(!v.check('test', 'minlength', 4));
+    assert(!v.check('test', 'minlength', 6));
   });
   it('minlength passed test', function () {
-    assert(v.check('test', 'minlength', 6));
+    assert(v.check('test', 'minlength', 4));
+    assert(v.check('test', 'minlength', 3));
   });
   it('maxlength no passed test', function () {
-    assert(!v.check('test', 'maxlength', 5));
+    assert(!v.check('test', 'maxlength', 3));
   });
   it('maxlength passed test', function () {
-    assert(v.check('test', 'maxlength', 2));
+    assert(v.check('test', 'maxlength', 6));
+    assert(v.check('test', 'maxlength', 4));
+  });
+  it('bitmax no passed test', function () {
+    assert(!v.check('汉字12', 'bitmax', 4));
+  });
+  it('bitmax passed test', function () {
+    assert(v.check('汉字12', 'bitmax', 8));
   });
   it('in no passed test', function () {
     assert(!v.check('abcd', 'in', 'abc'));
   });
   it('in passed test', function () {
     assert(v.check('ab', 'in', 'abc'));
+    assert(v.check(1, 'in', [1,2,3]));
+    assert(v.check('abc', 'in', {'abc': 1}));
   });
+  it('has test', function () {
+    assert(v.check('abcd','has','abc'));
+    assert(v.check([1,2,3], 'has', 1));    
+    assert(v.check({'abc': 1}, 'has', 'abc'));
+  });
+  it('tag test', function () {
+    assert(v.check('<dda>dd</dda>', 'tag'));
+  });  
   it('custom test', function () {
-    var testv = (target:string) => target.indexOf('aaabbb') > -1;
-    assert(v.check('aaabbbccc', 'custom', testv));
-    assert(!v.check('aaab', 'custom', testv));
+    v.add('testv', (t1:string, t2:string) => {
+      return t1.indexOf(t2) > -1
+    });
+    assert(v.check('aaabbbccc', 'custom', 'testv', 'aaa'));
+    assert(!v.check('aaab', 'custom', 'testv'));
+
+    assert(v.check([1,2,3,4], 'custom', (str:number[]) => str.length === 4));
+
   });
   it('base test', function () {
     assert(v.check({}, 'object', ));

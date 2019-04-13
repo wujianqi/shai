@@ -1,4 +1,4 @@
-import SpecificRules, { SettingOption, RuleFunction, rulesName } from './SpecificRules';
+import SpecificRules, { SettingOption, RuleFunction, rulesName } from './specificRules';
 
 export { SettingOption, RuleFunction as MethodFuction }
 
@@ -22,14 +22,11 @@ export default class Maker extends SpecificRules {
     */
     get(methodName: rulesName, ...args: any[]): string | number | boolean {
         let result = '';
-
         const rule = this.__rules[methodName];
+
         if (rule) {            
             if (rule instanceof RegExp) result = this.__rules.regexp(rule);
-            else {
-                if (methodName === 'custom' && args.length > 1) this.__methods[args[0]].args = args.slice(1);
-                result = (<RuleFunction>rule)(...args) as string;
-            }
+            else if (typeof rule === "function") result = (<RuleFunction>rule)(...args) as string;
         } else throw new TypeError(`没有找到“${methodName}”相关生成数据的方法！`);
 
         return result;
@@ -68,8 +65,8 @@ export default class Maker extends SpecificRules {
         const makedata = ():void => {
             level--;
             if (level < 0) return void 0;
-            newstr = newstr.replace(/(?<=_@@).*(?=_##)/,($0):any => {
-                return `${$0},${keyName}:${this.bulk(`_@@${$0}_##`, num )}`;
+            newstr = newstr.replace(/(?<=@@).*(?=##)/,($0):any => {
+                return `${$0},${keyName}:${this.bulk(`@@${$0}##`, num )}`;
             })
             makedata();
         };
@@ -106,8 +103,8 @@ export default class Maker extends SpecificRules {
      */
     private findBlock(content: string):string {
         let s1 = content;
-        const rpb = (str:string) => str.replace(/\{/g,'_@@').replace(/\}/g, '_##'); // 转换子对象标识，便于获取父对象
-        const unrpb  = (str:string) => str.replace(/_@@/g,'{').replace(/_##/g, '}'); // 子对象标识转换回来
+        const rpb = (str:string) => str.replace(/\{/g,'@@').replace(/\}/g, '##'); // 转换子对象标识，便于获取父对象
+        const unrpb  = (str:string) => str.replace(/@@/g,'{').replace(/##/g, '}'); // 子对象标识转换回来
          
         const callfn = ():void => { // 递归获取子对象块 
             if (s1.indexOf(this.__OptPropKey) === -1) return void 0; 
@@ -136,7 +133,7 @@ export default class Maker extends SpecificRules {
                     else if (/^false$/.test(item)) args[i] = false;
                     else if (/^(\-|\+)?\d+(\.\d+)?$/.test(item)) args[i] = +item;
                 });
-                if (args.length > 0)  return this.get(args.shift(), ...args);
+                return this.get(args.shift(), ...args);
             } else {
                 return this.get($1);
             }
@@ -176,6 +173,7 @@ export default class Maker extends SpecificRules {
 
             return isobject ? JSON.parse(data) : data;
         } catch (error) {
+            console.dir(error);
             throw new SyntaxError(`请检查模板格式！${error.message}`);
         }        
     }

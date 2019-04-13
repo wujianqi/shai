@@ -2,17 +2,7 @@ export interface RuleFunction {
 	(...values: any[]): boolean;
 }
 
-export type rulesName = 'string' | 'number' | 'boolean' | 'object' | 'null' | 'array' | 'regexp' | 'custom'
-	| 'require' | 'english' | 'qq' | 'age' | 'zipcode' | 'ip' | 'port' | 'bizcode' | 'invoice' | 'bankcard'
-	| 'currency' | 'float' | 'int' | 'decimal' | 'chinese' | 'mail' | 'url' | 'account' | 'password'
-	| 'safe' | 'dbc' | 'hex' | 'color' | 'ascii' | 'base64' | 'md5' | 'uuid' | 'mobile' | 'telphone' | 'phone'
-	| 'percent' | 'year' | 'month' | 'day' | 'hour' | 'minute' | 'time' | 'date' | 'datetime' | 'file' | 'image'
-	| 'word' | 'lon' | 'lat' | 'approval' | 'citycode' | 'address' | 'upper' | 'lower' | 'isbn:' | 'htmltag'
-	| 'even' | 'odd' | 'ipv6' | 'bodycard' | 'autocard' | 'not' | 'eq' | 'gt' | 'gte' | 'lt' | 'lte' 
-	| 'between' | 'min' | 'max' | 'length' | 'minlength' | 'maxlength' | 'in' | 'empty';
-
-export interface RulesInterface {
-	[key: string]: RegExp | RuleFunction;
+export interface RulesMap {
 	string(arg: any): boolean;
 	number(arg: any): boolean;
 	boolean(arg: any): boolean;
@@ -21,6 +11,9 @@ export interface RulesInterface {
 	null(arg: any): boolean;
 	require: RegExp;
 	english: RegExp;
+	alphanumeric: RegExp;
+	nospace: RegExp;
+	nodbc: RegExp;
 	qq: RegExp;
 	age: RegExp;
 	zipcode: RegExp;
@@ -39,7 +32,6 @@ export interface RulesInterface {
 	account: RegExp;
 	password: RegExp;
 	safe: RegExp;
-	dbc: RegExp;
 	hex: RegExp;
 	color: RegExp;
 	ascii: RegExp;
@@ -69,14 +61,17 @@ export interface RulesInterface {
 	upper: RegExp;
 	lower: RegExp;
 	isbn: RegExp;
-	htmltag:RegExp;
+	tag: RegExp;
+	jwt: RegExp;
+	objectid: RegExp;
+	maca: RegExp;
 	even(arg: string | number): boolean;
 	odd(arg: string | number): boolean;
 	ipv6(arg: string): boolean;
 	bodycard(arg: string | number): boolean;
 	autocard(arg: string): boolean;
-	not<T extends string | number | Date>(arg1: T, arg2: T): boolean;
-	eq<T extends string | number | Date>(arg1: T, arg2: T): boolean;
+	not(arg1: any, arg2: any): boolean;
+	eq(arg1: any, arg2: any): boolean;
 	gt<T extends string | number | Date>(arg1: T, arg2: T): boolean;
 	gte<T extends string | number | Date>(arg1: T, arg2: T): boolean;
 	lt<T extends string | number | Date>(arg1: T, arg2: T): boolean;
@@ -84,13 +79,19 @@ export interface RulesInterface {
 	between<T extends string | number | Date>(arg1: T, arg2: T, arg3: T): boolean;
 	min<T extends string | number | Date>(arg1: T, ...args: T[]): boolean;
 	max<T extends string | number | Date>(arg1: T, ...args: T[]): boolean;
-	length<T extends string | number>(arg1: T, arg2: T): boolean;
-	minlength<T extends string | number>(arg1: T, arg2: T): boolean;
-	maxlength<T extends string | number>(arg1: T, arg2: T): boolean;
-	in<T extends string | number | any[] | {}>(arg1: T, arg2: T): boolean;	
+	length(arg1: string | number | any[], arg2: string | number): boolean;
+	minlength(arg1: string | number | any[], arg2: string | number): boolean;
+	maxlength(arg1: string | number | any[], arg2: string | number): boolean;
+	bitmax(arg1: string | number | any[], arg2: string | number): boolean;
+	in<T extends string | number | any[] | object>(arg1: T, arg2: T): boolean;
+	has<T extends string | number | any[] | object>(arg1: T, arg2: T): boolean;	
 	empty(arg: any): boolean;
 	regexp: (arg: any, arg2: RegExp | string ) => boolean;
-	custom: (arg: any, arg2: RuleFunction ) => boolean;
+	custom: (arg: any, arg2: string|RuleFunction, ...args:Array<any>) => boolean;
+}
+
+export interface RulesInterface extends RulesMap {
+	[key: string]: RegExp | RuleFunction;
 }
 
 /**
@@ -105,6 +106,13 @@ export const rules: RulesInterface = {
 	array: (arg: any) => Array.isArray(arg),	
 	require: /.+/,
 	english: /^[A-Za-z]+$/,
+	chinese: /^[\u2E80-\uFE4F]+$/,
+	alphanumeric: /^[a-zA-Z0-9]+$/,	
+	upper: /[A-Z]/,
+	lower: /[a-z]/,
+	nospace: /^\S+$/,
+	nodbc: /^[^\uFF01-\uFF60\uFF0A-\uFF5F\u3000-\u3003]+$/,
+	safe: /[^><,\[\]\{\}\?\/\+=\|\'\\\':;\~\!\@\#\*\$\%\^\&\(\)`]/,
 	qq: /^[1-9]\d{4,10}$/,
 	age: /^(0|[1-9]\d?|1[0-2]\d)$/,
 	zipcode: /^(\d[1-7]|[1-9][0-7])\d{4}$/,
@@ -113,27 +121,24 @@ export const rules: RulesInterface = {
 	bizcode: /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/,
 	invoice: /^(((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12]))\d{5}[1-9][1-7][0-4])$/,
 	bankcard: /^(10|30|35|37|4\d||5[0-6]|58|60|62|6[8-9]|84|8[7-8]|9[0-2]|9[4-6]|9[8-9])\d{14,17}$/,
-	currency: /(^[-]?[1-9]\d{0,2}($|(\,\d{3})*($|(\.\d{1,2}$))))|((^[0](\.\d{1,2})?)|(^[-][0]\.\d{1,2}))$/,
+	currency: /(^-?[1-9]\d{0,2}($|(\,\d{3})*($|(\.\d{1,2}$))))|((^0(\.\d{1,2})?)|(^-0\.\d{1,2}))$/,
 	float: /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/,
 	int: /^-?\d+$/,
-	decimal: /^-?\d+\.\d{1,}$/,
-	chinese: /^[\u2E80-\uFE4F]+$/,
+	decimal: /^-?\d+\.\d+$/,
+	percent: /^-?\d+(\.\d+)?%$/,
 	mail: /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
 	url: /(http|ftp|https|ws|wss):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/,
-	account: /^[A-Za-z0-9]+(_[A-Za-z0-9]+)*[A-Za-z0-9]+$/,
-	password: /^(?![a-zA-Z]+$)(?![A-Z0-9]+$)(?![A-Z\W_]+$)(?![a-z0-9]+$)(?![a-z\W_]+$)(?![0-9\W_]+$)[a-zA-Z0-9\W_]{8,}$/,
-	safe: />|<|,|\[|\]|\{|\}|\?|\/|\+|=|\||\'|\\|\'|:|;|\~|\!|\@|\#|\*|\$|\%|\^|\&|\(|\)|`/i,
-	dbc: /[\uFF01-\uFF60\uFF0A-\uFF5F\u3000-\u3003]/,
+	account: /^[A-Za-z0-9]+\w*[A-Za-z0-9]+$/,
+	password: /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z]{1,})(?=.*[a-z]{1,})(?=.*[!@#$%^&*?\(\)]).*$/,
 	hex: /^[0-9A-F]+$/i,
-	color: /^#?[a-fA-F0-9]{6}$/i,
+	color: /^#?([0-9A-F]{3}|[0-9A-F]{6})$/i,
 	ascii: /^[\u0000-\u007F]+$/,
 	base64: /^(?:[A-Z0-9+\/]{4})*(?:[A-Z0-9+\/]{2}==|[A-Z0-9+\/]{3}=|[A-Z0-9+\/]{4})$/i,
 	md5: /^(([0-9A-F]{16})|([0-9A-F]{32}))$/i,
-	uuid: /^[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}$/i,
+	uuid: /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i,
 	mobile: /^((\+86)|(86))?(13\d|(14[5-7])|(15([0-3]|[5-9]))|166|17(0|1|8])|18\d|19(8|9))\d{8}$/,
 	telphone: /^[+]{0,1}\d{1,3}[ ]?([-]?(\d|[ ]){1,12})+$/,
 	phone: /^((\+86)|(86))?((\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$)/,
-	percent: /^-?\d+(\.\d{2})?%$/,
 	year: /^(19|20)\d{2}$/,
 	month: /^(0?[1-9]|1[0-2])$/,
 	day: /^(([1-9])|([1-2]\d)|(3[0-1]))$/,
@@ -151,9 +156,10 @@ export const rules: RulesInterface = {
 	citycode: /^((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12]))\d{4}$/,
 	address: /^[\u2E80-\uFE4F]+(\u5e02|\u53BF|\u533A|\u65D7|\u4E61|\u9547|\u8857\u9053|\u5DDE)\S{3,}$/,
 	isbn: /^(978\-\d\-\d{3}\-\d{5}\-[a-z0-9]$)|(978\d{9}[a-z0-9])$/i,
-	upper: /[A-Z]/,
-	lower: /[a-z]/,
-	htmltag:/^<([a-z1-6]+)([^<]+)*(?:>(.*)<\/\1>| *\/>)$/,
+	tag:/^<([a-z1-6]+)([^<]+)*(?:>(.*)<\/\1>| *\/>)$/,
+	jwt:/^([A-Za-z0-9\-_~+\/]+[=]{0,2})\.([A-Za-z0-9\-_~+\/]+[=]{0,2})(?:\.([A-Za-z0-9\-_~+\/]+[=]{0,2}))?$/,
+	objectid: /^[0-9a-fA-F]{24}$/,
+	maca: /^[0-9A-F]{2}(\-|\:)[0-9A-F]{2}\1[0-9A-F]{2}\1[0-9A-F]{2}\1[0-9A-F]{2}\1[0-9A-F]{2}$/i,
 	even: (arg: string | number) => ((+arg) & 1) === 0,
 	odd: (arg: string | number) => ((+arg) & 1) !== 0,
 	ipv6: (arg: string) => {
@@ -192,31 +198,60 @@ export const rules: RulesInterface = {
 
 		return reg1.test(arg) && matc && matc.length < 4 || reg2.test(arg);
 	},
-	not: <T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) != (+arg2),
-	eq: <T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) == (+arg2),
+	not: (arg1: any, arg2: any) => arg1 != arg2,
+	eq: (arg1: any, arg2: any) => arg1 == arg2,
 	gt: <T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) > (+arg2),
-	gte: <T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) >= (+arg2),
-	lt: <T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) < (+arg2),
+	gte: <T extends string |number | Date>(arg1: T, arg2: T) => (+arg1) >= (+arg2),
+	lt: <T extends  string | number | Date>(arg1: T, arg2: T) => (+arg1) < (+arg2),
 	lte: <T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) <= (+arg2),
 	between: <T extends string | number | Date>(arg1: T, arg2: T, arg3: T) => (+arg1) > (+arg2) && (+arg1) < (+arg3),
 	min: <T extends string | number | Date>(arg1: T, ...args: T[]) => (+arg1) === Math.min(...args.map(item => (+item))),
 	max: <T extends string | number | Date>(arg1: T, ...args: T[]) => (+arg1) === Math.max(...args.map(item => (+item))),
-	length: <T extends string | number>(arg1: T, arg2: T) => (arg1 + '').length == (+arg2),
-	minlength: <T extends string | number>(arg1: T, arg2: T) => (arg1 + '').length < (+arg2),
-	maxlength: <T extends string | number>(arg1: T, arg2: T) => (arg1 + '').length > (+arg2),
-	in: (arg1: any, arg2: any):boolean => {
+	length: (arg1: string | number | any[], arg2: string | number) => {
+		let v1 = (typeof arg1 === 'number') ? (arg1 + '') : arg1,
+			v2 = (typeof arg2 === 'string') ? (+arg2) : arg2;
+
+		return v1.length === v2;
+	},
+	minlength: (arg1: string | number | any[], arg2: string | number) => {
+		let v1 = (typeof arg1 === 'number') ? (arg1 + '') : arg1,
+			v2 = (typeof arg2 === 'string') ? (+arg2) : arg2;
+
+		return v1.length >= v2;
+	},
+	maxlength: (arg1: string | number | any[], arg2: string | number) => {
+		let v1 = (typeof arg1 === 'number') ? (arg1 + '') : arg1, 
+			v2 = (typeof arg2 === 'string') ? (+arg2) : arg2;
+
+		return v1.length <= v2;
+	},
+	bitmax: (arg1: string | number, arg2: string | number)=>{
+		let v1 = (typeof arg1 === 'number') ? (arg1 + '') : arg1, 
+			v2 = (typeof arg2 === 'string') ? (+arg2) : arg2,
+			realLength = 0, len = v1.length, charCode = -1;
+
+        for (var i = 0; i < len; i++) {
+            charCode = v1.charCodeAt(i);
+            if (charCode >= 0 && charCode <= 128)
+                realLength += 1;
+            else
+                realLength += 2;
+        }
+		return realLength <= v2;
+	},
+	in: <T extends string | number | any[] | object>(arg1: T, arg2: T):boolean => {
 		if ((typeof arg1 === 'number'|| typeof arg1 === 'string') && (typeof arg2 === 'number'|| typeof arg2 === 'string')) {
 			return (arg2 + '').indexOf(arg1 + '') > -1;
 		} else if (Array.isArray(arg2)) return arg2.indexOf(arg1) > -1;
-		else if (rules.object(arg2) && typeof arg1 === 'string') return arg2.hasOwnProperty(arg1);
-		else if (rules.object(arg2) && typeof rules.object(arg1)) {
-			let hasProp = [];
-
-			for (const key in arg2) {
-				if (arg2.hasOwnProperty(key)) hasProp.push(arg1.hasOwnProperty(key));
-			}
-			return hasProp.indexOf(false) === -1;
-		}
+		else if (rules.object(arg2) && typeof arg1 === 'string') return Object.keys(arg2).indexOf(arg1) > -1;
+		return false;
+	},
+	has: <T extends string | number | any[] | object>(arg1: T, arg2: T):boolean => {
+		if ((typeof arg1 === 'number'|| typeof arg1 === 'string') && (typeof arg2 === 'number'|| typeof arg2 === 'string')) {
+			return (arg1 + '').indexOf(arg2 + '') > -1;
+		} 
+		else if (Array.isArray(arg1)) return arg1.indexOf(arg2) > -1;
+		else if (rules.object(arg1) && typeof arg2 === 'string') return Object.keys(arg1).indexOf(arg2) > -1;		
 		return false;
 	},
 	empty: (arg: any) => {
@@ -233,5 +268,5 @@ export const rules: RulesInterface = {
 		return ret;
 	},
 	regexp: (arg: any, arg2: RegExp | string) => new RegExp(arg2).test(arg),
-	custom: (arg: any, arg2: RuleFunction) => arg2(arg)
+	custom: (arg: any, arg2: string|RuleFunction, ...args:Array<any>) => true // 空函数占位
 }

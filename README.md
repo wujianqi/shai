@@ -1,10 +1,22 @@
 <div align=center>
 
-![shai.js](https://github.com/wujianqi/shai/raw/master/logo.svg?sanitize=true)
+![shai.js](https://github.com/wujianqi/shai/raw/master/svg/logo.svg?sanitize=true) <br>
+
+数据生成模拟、验证工具库
 
 </div>
 
-# 数据生成模拟、验证工具库
+------
+
+“晒.JS” 简介： 
+
+- [x] 前后台通用，浏览器IE9+ （即支持ES5） <br>
+- [x] 针对国人国情定制、使用简单、易扩展 <br>
+- [x] 模拟生成（maker）特色：让数据看起来更真实，不用记过多约束规则，内置数据生成方法60项 <br>
+- [x] 验证（validator）特色：文件小功能多，更纯粹的链式，优化了多项通用正则，内置验证方法85项，较全！ <br>
+- [x] 区划更新到 2019.2 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
+
+------
 
 安装：
 
@@ -12,23 +24,9 @@
 npm i shai
 ```
 
-简介： 
-
-> 前后台通用，浏览器IE9+ ； <br>
-> 针对国人国情定制、使用简单、易扩展，改进了部分通用验证正则； <br>
-> 内置数据生成方法60项，验证方法78项； <br>
-> 区划更新到 2019.2 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/) <br>
-
 ------
 
-## 数据生成与模拟
-
-模拟数据的特色：让数据看起来更真实
-
-- [x] 使用简单，较少的约束，不用记太多的字符规则，模版支持标准JSON配置；<br>
-- [x] 以设定的区划，生成关联的电话号码、经纬度坐标、车牌号、身份证等；<br>
-- [x] 以行业统计热门、频次高的词汇，生成姓、名、公司名、国名、地址等；<br>
-
+## 数据生成与模拟 ![maker.js](https://github.com/wujianqi/shai/raw/master/svg/maker.svg?sanitize=true) 
 
 ```javascript
 import shai from 'shai';
@@ -97,20 +95,20 @@ var m = new shai.Maker({
 
 ```json
 {
-    "realname": "<% cnName %>",
-    "address": "<% address %>",
+  "realname": "<% cnName %>",
+  "address": "<% address %>",
+  "log": {
+    "makerOption": [2],
+    "id_<% increment %>": "<% int, 0, 200 %>",
+    "condition": "<% enum,开始,启用,停止 %>",
     "log": {
-        "makerOption": [2],
-        "id_<% increment %>": "<% int, 0, 200 %>",
-        "condition": "<% enum,开始,启用,停止 %>",
-        "log": {
-            "makerOption": [2, 3, "items"],
-            "time": "<% datetime %>",
-            "msg": {
-                "code": "<% int %>"
-            }
+        "makerOption": [2, 3, "items"],
+        "time": "<% datetime %>",
+        "msg": {
+          "code": "<% int %>"
         }
     }
+  }
 }
 
 ```
@@ -118,31 +116,37 @@ var m = new shai.Maker({
 ##### 用法例子：
 
 ```javascript
-    import shai from 'shai'; 
-    // ES5使用 const shai = require('shai');
+  import shai from 'shai';
+  // ES5使用 const shai = require('shai');
 
-    var m = new shai.Maker();
+  // 引用独立模块（不含数据验证）
+  // ES5方式 const Maker = require('shai/lib/maker');
+  // ES6方式 import Maker from 'shai/lib/maker.esm'; 
+  // var m = new Maker(); 
 
-    m.get('cnName') // 返回 张伟
-    m.get('bodycard') // 返回 120101199901011693  
-    m.get('enum','是','否') // 返回 是
-    m.get('province') //返回 北京市
-  
-    // 使用自定义函数生成数据
-    m.add('test1', () => 123 + 2);
-    m.get('custom', 'test1');
+  var m = new shai.Maker();
+
+  m.get('cnName') // 返回 张伟
+  m.get('bodycard') // 返回 120101199901011693  
+  m.get('enum','是','否') // 返回 是
+  m.get('province') //返回 北京市
+
+  // 扩展
+  m.add('test1', foo => 123 + foo);  // 方式一
+  m.get('custom', 'test1', '234'); 
+  m.get('custom', foo => 123 + foo, '234'); // 方式二，但模板中无法使用
 
   // 使用文本模板生成JSON数据
   var user = m.make(`{
-        "realname": "<% cnName %>",
-        "address": "<% address %>",
-        "log": {
-            "makerOption": [1, 3],
-            "id_<% increment %>": "<% int, 0, 200 %>",
-            "date": <% date %>,
-            "condition": "<% enum, 开始, 启用, 停止 %>"
-        }
-      }`);
+    "realname": "<% cnName %>",
+    "address": "<% address %>",
+    "log": {
+      "makerOption": [1, 3],
+      "id_<% increment %>": "<% int, 0, 200 %>",
+      "date": <% date %>,
+      "condition": "<% enum, 开始, 启用, 停止 %>"
+    }
+  }`);
 
     console.log(user);
 
@@ -152,43 +156,28 @@ var m = new shai.Maker({
   })
 
   var user = m.make({
-        realname: "<% cnName %>",
-        address: "<% address %>"
-        avatar: "<% custom, image, 80, 80 %>"
-      });
-
-    console.log(user);
+    realname: "<% cnName %>",
+    address: "<% address %>"
+    avatar: "<% custom, image, 80, 80 %>"
+  });
+  console.log(user);
 
 
   // 仅使用单项数据生成，不使用模板
   var user = {
-        realname: m.get('cnName'),
-        address: m.get('address'),
-        log: []
-    };
-    for (let i = 0; i < 3; i++) {
-        user.log.push({
-            "id_" +  m.get('increment'): m.get('int', 0, 200)
-            date: m.get('date'),
-            condition: m.get('enum','开始','启用','停止')
-        });
-    }
-    console.log(user);
+    realname: m.get('cnName'),
+    address: m.get('address'),
+    log: []
+  };
+  for (let i = 0; i < 3; i++) {
+    user.log.push({
+      "id_" +  m.get('increment'): m.get('int', 0, 200)
+      date: m.get('date'),
+      condition: m.get('enum','开始','启用','停止')
+    });
+  }
+  console.log(user);
 
-```
-
-
-#### 模块单独使用
-
-可不使用验证模块，仅使用数据生成与模拟模块。
-
-```javascript
-  import Maker from 'shai/lib/maker';
-  // ES5使用 const Maker = require('shai/lib/maker');
-
-  var m = new Maker();
-  console.log(m.get('cnName'));
-  // ……
 ```
 
 #### 数据生成方法类型：
@@ -197,11 +186,9 @@ var m = new shai.Maker({
 | --------------------- | --------------------- |
 | **基本数据生成**  |   | 
 | uuid                  | UUID，以时间为因子。可选1个参数，为指定分隔符号，默认为-符号 |
-| md5                   | MD5，可选2个参数，参数1为指定生成密码内容，参数2为是否为16位，默认32位 |
+| md5                   | MD5，可选2个参数，参数1为是否为16位，默认32位，参数2为指定生成密码内容 |
 | now                   | 当前时间，可选1个参数，为指定格式，如now('yyyy-MM-dd hh:mm:ss') |
 | increment             | 递增整数，可选2个参数，参数1为是否保持增长，false为仅引用上一增长值, 参数2为步长 |
-| regexp                | 自定义正则，可选参数为字符串表达式，写在模版中请使用string类型，注意转义 |
-| custom                | 自定义方法，参数为通过add方法函数进行索引的key名，string |
 | **简单随机**|   | 
 | enum                  | 自定义范围随机取值，参数为枚举，如enum('a','b','c'), 参数N个 |
 | bool                  | 布尔，true或false |
@@ -262,27 +249,24 @@ var m = new shai.Maker({
 | english               | 英文，可选2个参数，参数1为长度，参数2为备选随机英文字串 |
 | upper                 | 大写字母，可选参数1，指定转换的文本 |
 | lower                 | 小写字母，可选参数1，指定转换的文本 |
-| chinese               | 中文，可选2个参数，参数1为备选随机中文字串，参数2为长度 |
-| text                  | 文本填充，可选3个参数，参数1为文本，参数2为显示次数或为随机下限值，参数3为随机上限值 |
+| chinese               | 中文，可选2个参数，参数1为长度，参数2为备选随机中文字串， |
+| text                  | 文本填充，可选3个参数，参数1为显示次数或为随机下限值，参数2为指定文本，参数3为随机上限值 |
+| **自定义** |   | 
+| regexp                | 自定义正则，可选参数为字符串表达式，写在模版中请使用string类型，注意转义 |
+| custom                | 自定义方法，参数为string或函数，string为add添加的key名，模板中仅限string使用 |
 
 
 ---------
 
-#### 补充说明
+#### 配套功能补充说明（结合其它库）
 
-Http请求拦截、API模拟、二进制数据等，可结合其它库来使用：<br>
-
-* [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
-* [json-server](https://github.com/typicode/json-server) <br>
-* [holder](https://github.com/imsky/holder) <br>
-* [dummyimage](https://dummyimage.com/) <br>
-* [JsBarcode](https://github.com/lindell/JsBarcode) <br>
-* [qrcode](https://github.com/PaulKinlan/qrcode) <br>
-
+* Http请求拦截: [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
+* API服务模拟:[json-server](https://github.com/typicode/json-server) <br>
+* 图片数据：[holder](https://github.com/imsky/holder) <br>
 
 ------
 
-## 数据验证
+## 数据验证模块 ![validator.js](https://github.com/wujianqi/shai/raw/master/svg/validator.svg?sanitize=true) 
 
 ```javascript
 import shai from 'shai';
@@ -297,8 +281,7 @@ var v = new shai.Valitator();
 
 > 参数1为验证目标数据，参数2为规则，可选，默认为最少一个任意字符 
 
-
-**v.checkItem(option:{value:string, foramt:object, callback:Function, rquire:boolean})**  单项数据，组合规则验证，返回值为是否通过(boolean)
+**v.checkItem(option:{value:string, format:object, callback:Function, require:boolean})**  单项数据，组合规则验证，返回值为是否通过(boolean)
 
 
 ###### checkItem 参数选项(option)说明：
@@ -306,14 +289,14 @@ var v = new shai.Valitator();
 > 属性 ***value***，**必须**。 <br>
 > 属性 ***format***，链式检查。见v.string, v.number…… 等相关用法<br>
 > 属性 ***callback***，验证回调函数，可选，参数为未通过的项的数组。 <br>
-> 属性 ***rquire***，可选，值为false时，值为空或null,验证结果为true。 <br>
-> 例：{ value:'password1', format: password.eq('password2').minlength(6).maxlength(20) }
+> 属性 ***require***，可选，值为false时，值为空或null,验证结果均为true。<br>
+> 例：{ value:'password1', format: v.string.password.eq('password2').minlength(6).maxlength(20) } <br>
 
 **v.checkItems(itemsArray)**  多项数据，组合规则验证，返回值为是否通过(boolean)
 
-**v.checkJSON(json:string|object, struct:object, callback:Function)**  JSON数据验证，返回值为是否通过(boolean)
+**v.verify(json:string|object, struct:object, callback:Function)**  JSON数据或对象验证，返回值为是否通过(boolean)
 
-###### checkJSON 参数选项(json, struct, callback)说明：
+###### verify 参数选项(json, struct, callback)说明：
 
 > 参数1为数据，文本或对象均可，**必须** <br>
 > 参数2为数据类型结构，参考代码示例，**必须** <br>
@@ -321,109 +304,106 @@ var v = new shai.Valitator();
 
 **v.string | v.number | v.object | v.array | v.boolean | v.null**  链式验证对象。
 
-> 使用的规则为正则或函数，形参长度1的，如例：v.string.chinese <br>
-> 使用的规则为函数2形参的，例：v.number.eq(123456); <br>
-> 多于2形参，值为数组,例：v.number.between([10,20]) <br>
+> eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp，有一个参数的调用方式：v.string.eq('foo') <br>
+> between、min、max、custom，有多个参数的调用方式：v.number.between(10,20).min(12,34,26,47) <br>
+> 除以上规则，均为直接使用属性方式：v.string.english.upper <br>
+> 链式验证对象支持所有规则任意搭配，但不建议无意义的组合，例：v.null<del>.length(10)</del> <br>
+
+**v.add(key:string, fn:Function)** 添加验证数据的方法，见custom规则说明。
+
 
 ##### 用法例子：
 
 ```javascript
-    import shai from 'shai';
-    // ES5使用 const shai = require('shai');
+  import shai from 'shai';
+  var v = new shai.Valitator();
 
-    var v = new shai.Valitator();
+  // 引用独立模块（不含数据模拟）
+  // ES5方式 const Valitator = require('shai/lib/valitator');
+  // ES6方式 import Valitator from 'shai/lib/valitator.esm'; 
+  // var m = new Valitator();
 
-    // 单项单规则验证
-    v.check('password1','eq','password2'); // 返回false
-    v.check('120101199901011693','bodycard'); // 返回true
+  // 单项单规则验证
+  v.check('password1','eq','password2'); // 返回false
+  v.check('120101199901011693','bodycard'); // 返回true
 
-    // 自定义验证规则，函数要求有返回值
-    v.check('3', 'custom', val => val.length > 1 && val.length < 5);
+  // 扩展
+  v.add('foo', (val, val2) => val.length === val2.length) // 方式一
+  v.check('123', 'custom', 'foo', '456'); 
+  v.check('123', 'custom', (val, val2) => val.length === val2.length, '456'); // 方式二
+  v.string.custom('foo', '456') // 链式
 
-    // 单项组合规则验证，链式
-    v.checkItem({
-        value: 'yr qw2{O',
-        format: v.string.eq('yr qw2{O'),
-        callback: faults => {
-          if (faults.indexOf('eq') === -1) console.log('密码二次验证OK！');
-          faults.forEach(f => {
-            if (f === 'eq') console.log('二次密码错误');
-            if (f === 'myfnc') console.log('不在值6与10之间');
-          });
-        }
+  // 单项组合规则验证，链式
+  v.checkItem({
+    value: 'yr qw2{O',
+    format: v.string.eq('yr qw2{O').minlength(8),
+    callback: faults => {
+      if (faults.indexOf('eq') === -1) console.log('密码二次验证OK！');
+      faults.forEach(f => {
+        if (f === 'eq') console.log('二次密码错误');
+        if (f === 'minlength') console.log('密码长度最少8位');
       });
+    }
+  });
 
-    // 多项组合规则验证
-    v.checkItems([
-        {value: 1234, format: v.number.int},
-        {value:'password1', format: v.string.password.eq('password2')}
-    ]);
+  // 多项组合规则验证
+  v.checkItems([
+    {value: 1234, format: v.number.int},
+    {value:'password1', format: v.string.password.eq('password2')}
+  ]);
 
-    // JSON数据类型验证，链式，可任意层级。
-    var json = `{
-      "name": "张航",
-      "address": "深圳市南山区后海大道110号",
-      "age":30,      
-      "hobby":["tour","sing"],
-      "looks":{
-        "size": {
-          "foot": 41
-        },
-        "weight":60
+  // JSON数据或对象验证，链式，可任意层级。
+  var json = `{
+    "name": "张航",
+    "address": "深圳市南山区后海大道110号",
+    "age":30,      
+    "hobby":["tour","sing"],
+    "looks":{
+      "size": {
+        "foot": 41
       },
-      "notes":[
-        {
-          "content": "testdsafsdf",
-          "log": [{
-            "local.time": "2012-12-02"
-          }]
-        },
-        {
-          "content": "fdafsd22",
-          "log": [{
-            "local.time": "2016-15-06"
-          }]
-        }
-      ]
-    }`;
-
-    var struct = { // 定义类型结构
-      name: v.string.chinese.address,
-      address: v.string,
-      age: v.number.int.eq(30),
-      looks: {
-        size: {
-          foot: v.number.int
-        }
+      "weight":60
+    },
+    "notes":[
+      {
+        "content": "testdsafsdf",
+        "log": [{
+          "local.time": "2012-12-02"
+        }]
       },
-      hobby: v.array,
-      notes: [
-        { content: v.number,
-          log: [
-            {
-              'local.time': v.string.date
-            }
-          ]
-        }
-      ]
-    };
+      {
+        "content": "fdafsd22",
+        "log": [{
+          "local.time": "2016-15-06"
+        }]
+      }
+    ]
+  }`;
 
-    var result = v.checkJSON(json, struct);
-    console.log(result);
+  var struct = { // 定义类型结构
+    name: v.string.chinese.address,
+    address: v.string,
+    age: v.number.int.eq(30),
+    looks: {
+      size: {
+        foot: v.number.int
+      }
+    },
+    hobby: v.array,
+    notes: [
+      { content: v.number,
+        log: [
+          {
+            'local.time': v.string.date
+          }
+        ]
+      }
+    ]
+  };
 
-```
+  var result = v.verify(json, struct);
+  console.log(result);
 
-#### 模块单独使用
-
-可不使用生成模拟数据模块，仅使用数据验证模块。
-
-```javascript
-  import Validator from 'shai/lib/validator';
-  // ES5使用 const Validator = require('shai/lib/validator');
-
-  var v = new Validator();
-  console.log(v.check('abc'));
-  // ……
 ```
 
 #### 数据验证规则类型
@@ -431,31 +411,32 @@ var v = new shai.Valitator();
 
 | Key Name  | 说明  | 
 | -------------------- | -------------------- |
-| **基本类型验证**  |  | 
+| **基本数据类型**     | *默认链式对象属性* | 
 | object               | 是否为对象 |   
 | array                | 是否为数组 | 
 | number               | 是否为数字 | 
 | string               | 是否为文本 | 
 | boolean              | 是否为布尔 | 
 | null                 | 是否为null值 |
-| **数据格式验证**|  | 
+| **字符基本格式**|  | 
 | require              | 非空任意字符 |  
-| english              | 英文字母 | 
-| chinese              | 中文|
-| file                 | 合法文件名 |
-| image                | 合法图像文件名 |
-| word                 | 合法文档文件名 |
+| english              | 纯英文字母 |
+| chinese              | 纯中文 |
+| alphanumeric         | 字母和数字组合 |
 | upper                | 有大写 |
 | lower                | 有小写 |
-| **数字类**|  | 
-| currency             | 货币，2小数，带分号|
+| nospace              | 不含有空格 |
+| safe                 | 不含安全敏感字符 |
+| nodbc                | 不含全角特殊字符 |
+| **数字格式**|  | 
 | float                | 数字 |
 | int                  | 整数 |
 | decimal              | 小数点1位及以上 |
-| percent              | 百分数，可两位小数点 |
+| currency             | 货币，2小数，带分号|
+| percent              | 百分数 |
 | even                 | 偶数 |
 | odd                  | 奇数 |
-| **时间类** |  | 
+| **时间格式** |  | 
 | date                 | 日期 2017-7-7或2017/7/7，0补位非必须，含大小月、闰月检测  |
 | time                 | 时间 12:12:12，分秒个位须0补位 |
 | datetime             | 日期 + 时间 如2017-07-07 12:02:02, 0补位非必须 |
@@ -464,43 +445,48 @@ var v = new shai.Valitator();
 | day                  | 日 1-31 |
 | hour                 | 小时 0-23 |
 | minute               | 分钟 0-59 |
-| **账号/网络类** |  | 
+| **账号与区域** |  | 
 | qq                   | QQ号 5-11位 | 
 | age                  | 年龄 0-129岁 | 
 | zipcode              | 邮编 | 
-| mail                 | 邮箱地址 |
-| url                  | 网址 |
-| account              | 账号名 |
-| password             | 密码 |
-| safe                 | 安全敏感字符 |
+| account              | 账号名，字母数字组合，中间允许_连接线 |
+| password             | 密码，6-16位，最少1大小写字母、1小写字母、1数字、1特殊字符 |
 | mobile               | 手机13700000000，融合2017新号规则, +86、86可选 |
 | telphone             | 电话手机混合 |
 | phone                | 固话，可带分机, +86、86可选 |
 | bodycard             | 身份证，含地区、生日、验证数等规则 |
 | address              | 住址 |
-| ip                   | IP地址 |
+| citycode             | 6位地区代码
+| autocard             | 车牌号码，支持新能源车牌号及港澳等 |
+| lon                  | 地理位置——经度，小数点1~15位 |
+| lat                  | 地理位置——纬度，小数点1~15位 |
+| **网络类** |  | 
+| mail                 | 邮箱地址 |
+| url                  | 网址 |
+| ip                   | IPv4地址 |
 | ipv6                 | IPV6地址 |
 | port                 | 端口 |
+| maca                 | MAC地址 |
 | **商业类** |  | 
 | bizcode              | 统一信用代码  |
 | invoice              | 增值税发票代码 |
 | bankcard             | 银行卡号（仅限国内卡）|
 | isbn                 | 书号（仅限13位）|
 | approval             | 审批文号 政字〔2004〕第18号 或 政字[2004] 18号 |
-| **区域类**|  | 
-| citycode             | 地区代码
-| autocard             | 车牌号码，支持新能源车牌号及港澳等 |
-| lon                  | 地理位置——经度，小数点1~15位 |
-| lat                  | 地理位置——纬度，小数点1~15位 |
-| **编码类**|  | 
+| **编码格式**|  | 
 | ascii                | ASCII码 |
 | base64               | BASE64码 |
 | md5                  | md5码 |
 | uuid                 | UUID码 |
-| dbc                  | 全角 |
 | hex                  | HEX码 |
 | color                | 颜色码，16进制 |
-| htmltag              | 是否为Html标签|
+| jwt                  | JSON Web Token字符串|
+| objectid             | Mongodb ObjectID |
+| tag                  | 闭合标签元素|
+| **文件扩展名**|  | 
+| file                 | 合法文件名 |
+| image                | 合法图像文件名 |
+| word                 | 合法文档文件名 |
 | **比较**  |  | 
 | not                  | 不等于 |
 | eq                   | 等于 |
@@ -511,14 +497,16 @@ var v = new shai.Valitator();
 | between              | 之间，大于并小于 |
 | min                  | 最小 |
 | max                  | 最大 |
-| minlength            | 最小长度 |
-| maxlength            | 最大长度 |
-| length               | 等于长度 |
-| in                   | 是否包含，字符、数组元素、对象属性 |
-| empty                | 是否为空，数字则判断是否为0 |
+| minlength            | 字符、数组最小长度 |
+| maxlength            | 字符、数组最大长度 |
+| length               | 字符、数组长度等于 |
+| bitmax               | 字节最大长度，一般汉字为2字节，英文1字节 |
+| in                   | 是否为字符、数组元素、对象所包含 |
+| has                  | 是否包含字符、数组元素、对象属性，与in相反 |
+| empty                | 字符、对象、数组是否为空，数字则判断是否为0 |
 | **自定义**  |  | 
 | regexp               | 自定义正则判断 |
-| custom               | 自定义函数方法判断，函数允许一个参数，即要判断的值 |
+| custom               | 自定义方法，参数为string或函数，string为add添加的key名，函数最少1个带检测值的参数 |
 
 
 ------
@@ -546,4 +534,3 @@ var v = new shai.Valitator();
 </body>
 </html>
 ```
-

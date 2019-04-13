@@ -7,16 +7,8 @@ export interface RuleFunction {
     (...values: any[]): boolean | string | number;
 }
 
-export type baseRuleName = 'md5' | 'uuid' | 'now' | 'regexp' | 'enum' | 'alpha' | 'rgb' | 'hsl'
-    | 'int' | 'number' | 'bool' | 'month' | 'day' | 'minute' | 'validcode' | 'mid' | 'upper' | 'lower'
-    | 'account' | 'password' | 'color' | 'url' | 'mail' | 'mobile' | 'port' | 'bizcode'
-    | 'bankcard' | 'qq' | 'english' | 'chinese' | 'ip' | 'text' | 'price' | 'enName'
-    | 'enMaleName' | 'enFemaleName' | 'surname' | 'cnName' | 'cnMaleName' | 'cnFemaleName'
-    | 'enState' | 'cnState' | 'company' | 'address' ;
-
-export interface RulesInterface {
-    [key: string]: RegExp | RuleFunction;
-    md5(arg?: string, arg2?: boolean): string;
+export interface RulesMap {
+    md5(arg2?: boolean, arg?: string, ): string;
     uuid(arg?: string): string;
     now(arg?: string): string;
     regexp(arg?: string | RegExp): string;
@@ -47,7 +39,7 @@ export interface RulesInterface {
     lower(arg?: string): string;
     chinese(num?: number, arg?: string): string;
     ip(local?: boolean): string;
-    text(arg?: string, n1?: number, n2?: number): string;
+    text(n1?: number, arg?: string, n2?: number): string;
     price(arg1?: number, arg2?: number, arg3?: boolean): string;
     enName(): string;
     enMaleName(): string;
@@ -59,8 +51,12 @@ export interface RulesInterface {
     enState(): string;
     cnState(): string;
     company(): string;
-    address(): string;    
+    address(): string;
 }
+
+export interface RulesInterface extends RulesMap{
+    [key: string]: RegExp | RuleFunction;
+};
 
 const lw = 'abcdefghijklmnopqrstuvwxyz',
     uw = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -68,7 +64,7 @@ const lw = 'abcdefghijklmnopqrstuvwxyz',
     randText = (arg: string, num?: number): string => util.getItems(arg.split(''), num ? num : util.getInt(1, 9)).join('');
 
 export const rules: RulesInterface = {
-    md5: (arg: string = new Date().getTime() + '', is16b: boolean = false): string => md5(arg, is16b),
+    md5: (is16b: boolean = false, arg: string = new Date().getTime() + ''): string => md5(arg, is16b),
     uuid: (arg: string = '-'): string => {
         let d = new Date().getTime(),
             str = ['xxxxxxxx','xxxx','4xxx','yxxx','xxxxxxxxxxxx'].join(arg),
@@ -135,7 +131,7 @@ export const rules: RulesInterface = {
             return new RandExp([limit255, limit255, limit255, limit255].join('\\.')).gen();
         }
     },
-    text: (arg: string = '填充文本样式', n1?: number, n2?: number): string => {
+    text: (n1?: number, arg: string = '填充文本样式', n2?: number): string => {
         let d = 40;
 
         if (typeof n1 === 'number' && typeof n2 === 'number') d = util.getInt(n1, n2);

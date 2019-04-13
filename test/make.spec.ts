@@ -157,4 +157,11 @@ describe('单项数据生成与模拟测试 maker test', function () {
         console.log(m.get('lat'));
     });
 
+    it('rgb', function () {
+        console.log(m.get('rgb'));
+    });
+    it('hsl', function () {
+        console.log(m.get('hsl'));
+    });
+
 });

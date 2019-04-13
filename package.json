@@ -1,8 +1,9 @@
 {
   "name": "shai",
-  "version": "0.2.0",
+  "version": "0.2.6",
   "description": "前后台通用，数据验证、模拟、生成库",
   "main": "lib/shai.js",
+  "module": "lib/shai.esm.js",
   "types": "lib/index.d.ts",
   "files": [
     "lib",
@@ -12,10 +13,12 @@
     "build": "set NODE_ENV=production && rollup -c -m",
     "dev": "rollup -c",
     "test": "mocha --require espower-typescript/guess ./test/*.spec.ts",
-    "test:index": "mocha --require espower-typescript/guess ./test/index.spec.ts",
-    "test:make": "mocha --require espower-typescript/guess ./test/make.spec.ts",
-    "test:validate": "mocha --require espower-typescript/guess ./test/validate.spec.ts",
-    "test:lib": "mocha ./test/lib.spec.js"
+    "test:vi": "mocha --require espower-typescript/guess ./test/validate.index.spec.ts",
+    "test:mi": "mocha --require espower-typescript/guess ./test/make.index.spec.ts",
+    "test:m": "mocha --require espower-typescript/guess ./test/make.spec.ts",
+    "test:v": "mocha --require espower-typescript/guess ./test/validate.spec.ts",
+    "test:lib": "mocha ./test/lib.spec.js",
+    "copy": "node esm.dts.js"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.6",
@@ -40,10 +43,12 @@
   },
   "keywords": [
     "data utils",
-    "string utils",
-    "validator",
     "mock",
-    "make"
+    "generator",
+    "schema",
+    "validate",
+    "validator",
+    "validation"
   ],
   "author": "wujianqi",
   "license": "MIT",

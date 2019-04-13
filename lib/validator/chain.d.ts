@@ -1,5 +1,4 @@
-import { rules, RuleFunction } from './rules';
-
+import { RuleFunction } from './rules';
 export interface ChainInterface {
     __caches: any[];
     readonly string?: this;
@@ -85,46 +84,10 @@ export interface ChainInterface {
     bitmax?(arg: string | number): this;
     in?(arg: string | number | any[] | object): this;
     has?(arg: string | number | any[] | object): this;
-    regexp?(arg: RegExp | string ): this;
-    custom?(arg: string|RuleFunction, ...args:Array<any>): this;
+    regexp?(arg: RegExp | string): this;
+    custom?(arg: string | RuleFunction, ...args: Array<any>): this;
 }
-
-var props:PropertyDescriptorMap = {} , that:ChainInterface;
-
-/**
- * @class 验证链
- */
-export class Chain implements ChainInterface{
-    /**
-     * 缓存规则名称
-     */
-    __caches: any[] = [];
-    constructor() {
-        that = this;
-    }
+export declare class Chain implements ChainInterface {
+    __caches: any[];
+    constructor();
 }
-
-Object.keys(rules).forEach(key => {
-    let rule = rules[key];
-
-    if (rule instanceof RegExp || (typeof rule === 'function' && rule.length === 1)) {
-        props[key] = {
-            get: () => {
-                that.__caches.push(key);
-                return that;
-            }
-        }
-    } else if (typeof rule === 'function') {
-        props[key] = {
-            value: (...args: any[]) => {
-                let obj: any = {};
-
-                obj[key] = args;
-                that.__caches.push(obj);
-                return that;
-            }
-        }
-    }
-});
-
-Object.defineProperties(Chain.prototype, props);
