@@ -110,6 +110,8 @@ export default class Division {
     region(index:number = 0): RegionInterface {
         const d = this.division;
 
+        if(!d.prefecture && d.province) d.prefecture = d.province;
+        if(!d.county && d.prefecture) d.county = d.prefecture;
         return {
             'province': this.regions[d.province][index] as string,
             'prefecture': this.regions[d.prefecture][index] as string,

@@ -5,30 +5,28 @@ import shai from '../src/index';
 describe('数据验证测试 shai valid', function () {
   var v = new shai.Validator();
 
-  it('function_rule 比较1', function () {
-    assert(v.check(1,'eq', 1));
-  });
-
-  it('function_rule 比较2', function () {
-    assert(v.check(1,'not', 2));
-  });
-
-  it('check 可选项', function () {
-    assert(v.check(1) || !v.check(''));
-  });
-
-  it('扩展规则', function () {
-    assert(v.check(123,'custom', (arg:any) => arg.toString()=== '123'));
-  });
-
-  it('checkItem 链式', function () {
-    assert(!v.checkItem({
-      value: '23',
-      format: v.number.age.int.lt(20),
-      callback: function(faults: string[]){
-        console.log(faults);
+  it('get 方式', function () {
+    var json = {
+      "name": "张三",
+      "age":30,
+      "looks":{
+        "size": {
+          "foot": 41.2
+        }
       }
-    }));
+    }
+
+    var chain = v.get(json, 'looks.size.foot').number.int.on('int',res =>{
+      if(res) console.log('整数验证通过');
+      else  console.log('整数验证没有通过');
+    }).on( faults => {
+      if (faults.indexOf('int') === -1) console.log('整数验证通过！');
+      faults.forEach(f => {
+        if (f === 'int') console.log('整数验证没有通过');
+      });
+    });
+
+    assert(!chain.result);
   });
 
   it('verify 数据验证', function () {

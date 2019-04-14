@@ -13,7 +13,7 @@
 - [x] 前后台通用，浏览器IE9+ （即支持ES5） <br>
 - [x] 针对国人国情定制、使用简单、易扩展 <br>
 - [x] 模拟生成（maker）特色：让数据看起来更真实，不用记过多约束规则，内置数据生成方法60项 <br>
-- [x] 验证（validator）特色：文件小功能多，更纯粹的链式，优化了多项通用正则，内置验证方法85项，较全！ <br>
+- [x] 验证（validator）特色：让链式校对数据更容易，优化了多项通用正则，内置验证方法85项，较全！ <br>
 - [x] 区划更新到 2019.2 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
 
 ------
@@ -49,7 +49,7 @@ var m = new shai.Maker({
 
 > ***endTime***  全局时间范围的结束时间，默认当前时间 <br>
 
-**m.get(key:string, ...args:Array)** 生成数据，包括md5、uuid, 及模拟数据等。
+**m.get(key:string, ...args:array)** 生成数据，包括md5、uuid, 及模拟数据等。
 
 ###### get 参数说明：
 
@@ -57,7 +57,7 @@ var m = new shai.Maker({
 
 > 参数2 ***args*** 为可选，方法中的更多参数。
 
-**m.add(key:string, fn:Function)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
+**m.add(key:string, fn:function)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
 
 ###### add 参数说明：
 
@@ -256,7 +256,7 @@ var m = new shai.Maker({
 | custom                | 自定义方法，参数为string或函数，string为add添加的key名，模板中仅限string使用 |
 
 
----------
+------
 
 #### 配套功能补充说明（结合其它库）
 
@@ -275,24 +275,21 @@ var v = new shai.Valitator();
 // ……
 ```
 
-**v.check(value:any, ruleName:string, ...args:Array)** 单项数据，单规则验证，返回值为是否通过(boolean)
+**v.check(value:any)** 单项数据验证，返回值为链式对象，详见链式对象说明。
 
-###### check 参数说明：
+**v.get(obj:object, path(string|array))** 指定对象路径验证，返回值为链式对象，见示例。
 
-> 参数1为验证目标数据，参数2为规则，可选，默认为最少一个任意字符 
+**v.string | v.number | v.object | v.array | v.boolean | v.null**  直接使用链式验证对象。
 
-**v.checkItem(option:{value:string, format:object, callback:Function, require:boolean})**  单项数据，组合规则验证，返回值为是否通过(boolean)
+###### 链式对象说明：
 
-
-###### checkItem 参数选项(option)说明：
-
-> 属性 ***value***，**必须**。 <br>
-> 属性 ***format***，链式检查。见v.string, v.number…… 等相关用法<br>
-> 属性 ***callback***，验证回调函数，可选，参数为未通过的项的数组。 <br>
-> 属性 ***require***，可选，值为false时，值为空或null,验证结果均为true。<br>
-> 例：{ value:'password1', format: v.string.password.eq('password2').minlength(6).maxlength(20) } <br>
-
-**v.checkItems(itemsArray)**  多项数据，组合规则验证，返回值为是否通过(boolean)
+> *chain.result*，所有链节点都是索引，只有调用result，即验证结果（布尔值），才真正生效。 <br>
+> *chain.valuable*，表示值为空或null时，可以通过，只有具体的设值内容时，验证项才生效。<br>
+> chain.on(rule:string|function, function)，验证过程回调函数（可选），见示例。<br>
+> chain.eq('foo')，单参数的规则项：eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp <br>
+> chain.between(10,20)，多参数的规则项：between、min、max、custom <br>
+> 除以上规则，均为直接使用属性方式：v.string.english.upper <br>
+> 链式验证对象支持所有规则任意搭配，但不建议无意义的组合，例：v.null<del>.length(10)</del> <br>
 
 **v.verify(json:string|object, struct:object, callback:Function)**  JSON数据或对象验证，返回值为是否通过(boolean)
 
@@ -300,17 +297,9 @@ var v = new shai.Valitator();
 
 > 参数1为数据，文本或对象均可，**必须** <br>
 > 参数2为数据类型结构，参考代码示例，**必须** <br>
-> 参数3为可选，回调方法，含2参数，未通过项的组、数据层级路径组。
-
-**v.string | v.number | v.object | v.array | v.boolean | v.null**  链式验证对象。
-
-> eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp，有一个参数的调用方式：v.string.eq('foo') <br>
-> between、min、max、custom，有多个参数的调用方式：v.number.between(10,20).min(12,34,26,47) <br>
-> 除以上规则，均为直接使用属性方式：v.string.english.upper <br>
-> 链式验证对象支持所有规则任意搭配，但不建议无意义的组合，例：v.null<del>.length(10)</del> <br>
+> 参数3为可选回调方法，含2参数，未通过项的组、数据层级路径组，如要保持链内on，可忽略此参数。<br>
 
 **v.add(key:string, fn:Function)** 添加验证数据的方法，见custom规则说明。
-
 
 ##### 用法例子：
 
@@ -323,36 +312,40 @@ var v = new shai.Valitator();
   // ES6方式 import Valitator from 'shai/lib/valitator.esm'; 
   // var m = new Valitator();
 
-  // 单项单规则验证
-  v.check('password1','eq','password2'); // 返回false
-  v.check('120101199901011693','bodycard'); // 返回true
+  // 单数据验证
+  v.check('password1').eq('password2').result; // 返回false
+  v.check('120101199901011693').bodycard.length(18).result; // 返回true
 
-  // 扩展
+  // 扩展规则方法
   v.add('foo', (val, val2) => val.length === val2.length) // 方式一
-  v.check('123', 'custom', 'foo', '456'); 
-  v.check('123', 'custom', (val, val2) => val.length === val2.length, '456'); // 方式二
-  v.string.custom('foo', '456') // 链式
+  v.check('123').custom('foo', '456'); 
+  v.check('123').custom((val, val2) => val.length === val2.length, '456'); // 方式二
 
-  // 单项组合规则验证，链式
-  v.checkItem({
-    value: 'yr qw2{O',
-    format: v.string.eq('yr qw2{O').minlength(8),
-    callback: faults => {
+  // 绑定回调
+  var chain = v.check('yrPqw2{O').password.eq('yr qw2{O').minlength(8)
+    .on('password', res => {  // 执行单个规则验证回调
+      if(res) console.log('密码验证通过');
+      else console.log('密码验证没有通过');
+    })
+    .on(faults => { // 执行所有验证项后一起回调
       if (faults.indexOf('eq') === -1) console.log('密码二次验证OK！');
       faults.forEach(f => {
         if (f === 'eq') console.log('二次密码错误');
         if (f === 'minlength') console.log('密码长度最少8位');
       });
-    }
-  });
+    });
+  var result = chain.result;
+  console.log(result);
 
-  // 多项组合规则验证
-  v.checkItems([
-    {value: 1234, format: v.number.int},
-    {value:'password1', format: v.string.password.eq('password2')}
-  ]);
+  // 对指定对象值路径判断
+  var obj = {notes:[{
+      "content": "testdsafsdf"
+    }]};
+  var chain = v.get(obj, 'notes.0.content').string.maxlength(255);
+  var result = chain.result;
+  console.log(result);
 
-  // JSON数据或对象验证，链式，可任意层级。
+  // 完整JSON数据或对象验证，可任意层级。
   var json = `{
     "name": "张航",
     "address": "深圳市南山区后海大道110号",
@@ -411,7 +404,7 @@ var v = new shai.Valitator();
 
 | Key Name  | 说明  | 
 | -------------------- | -------------------- |
-| **基本数据类型**     | *默认链式对象属性* | 
+| **基本数据类型**     |  | 
 | object               | 是否为对象 |   
 | array                | 是否为数组 | 
 | number               | 是否为数字 | 
@@ -507,7 +500,6 @@ var v = new shai.Valitator();
 | **自定义**  |  | 
 | regexp               | 自定义正则判断 |
 | custom               | 自定义方法，参数为string或函数，string为add添加的key名，函数最少1个带检测值的参数 |
-
 
 ------
 

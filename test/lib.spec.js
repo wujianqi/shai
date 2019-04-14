@@ -4,7 +4,7 @@ const shai = require('../lib/shai');
 
 describe('Validator库测试', function () {
   it('validator test', function () {
-    console.log((new Validator()).check('23451234','qq'));
+    console.log((new Validator()).check('23451234').qq.result);
   });
 
 });
@@ -23,7 +23,7 @@ describe('完整库测试', function () {
   var m = new shai.Maker();
 
   it('validator test', function () {
-    console.log(v.check('23451234aaa','qq'));
+    console.log(v.check('23451234aaa').qq.result);
   });
 
   it('maker test', function () {

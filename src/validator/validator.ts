@@ -1,141 +1,67 @@
-import { rules, RuleFunction, RulesMap, RulesInterface} from './rules';
-import { Chain, ChainInterface } from './chain';
+import { Chain, RuleFunction, ChainInterface, OnFaultsFunction, CallbackFunction } from './chain';
 import { objectPath } from './objectPath';
 
-type rulesName = keyof RulesMap;
+type rulefnc = { [key:string]: RuleFunction } ;
 
-export { RuleFunction };
-
-export interface Item {
-    value: any;
-    format?: ChainInterface;
-    require?: boolean;
-    callback?: (faults: string[]) => void;
-};
+export { RuleFunction, OnFaultsFunction, CallbackFunction };
 
 /**
  * @module 验证器
  */
 export default class Validator {
-    private __methods: { [key:string]: RuleFunction } = {};
-    private __rules:RulesInterface;
-
-    constructor() {
-        this.__rules = (<any>Object).assign(Object.create(null), rules, {
-            'custom': (arg: any, key: string|RuleFunction, ...args:Array<any>) => {
-                if (typeof key === 'string' && this.__methods[key]) return this.__methods[key](arg, ...args);
-                else if (typeof key === "function") return key(arg, ...args);
-            }
-        });
-    }
+    private methods: rulefnc = {};
+    private newrule: rulefnc = {
+        'custom': (arg: any, key: string|RuleFunction, ...args:Array<any>) => {
+            if (typeof key === 'string' && this.methods[key]) return this.methods[key](arg, ...args);
+            else if (typeof key === "function") return key(arg, ...args);
+        }
+    };
     
     /**
      * 添加函数引用，在custom规则中作为参数调用
      * @param func
      */
     add(key:string, func:RuleFunction): void {
-        this.__methods[key] = func;
+        this.methods[key] = func;
     }
 
     /**
      * 链式规则调用
      */
     get string(): ChainInterface {
-        return (<ChainInterface>new Chain()).string;
+        return (<ChainInterface>new Chain(this.newrule)).string;
     }
     get number(): ChainInterface {
-        return (<ChainInterface>new Chain()).number;
+        return (<ChainInterface>new Chain(this.newrule)).number;
     }
     get object(): ChainInterface {
-        return (<ChainInterface>new Chain()).object;
+        return (<ChainInterface>new Chain(this.newrule)).object;
     }
     get array(): ChainInterface {
-        return (<ChainInterface>new Chain()).array;
+        return (<ChainInterface>new Chain(this.newrule)).array;
     }
     get boolean(): ChainInterface {
-        return (<ChainInterface>new Chain()).boolean;
+        return (<ChainInterface>new Chain(this.newrule)).boolean;
     }
     get null(): ChainInterface {
-        return (<ChainInterface>new Chain()).null;
+        return (<ChainInterface>new Chain(this.newrule)).null;
     }
 
     /**
-   * 单项单规则验证
-   * @param {*} value 检测的值，必含
-   * @param {string} [ruleStr] 规则属性，默认为判断是否为空，可选
-   * @param {...*} args 对比值、参考值等自定义验证方法扩展参数，可选
-   * @returns {boolean} 是否验证通过
-   * @example
-   * check('password1','==','password2')
-   */
-    check(value: any, ruleName: rulesName = 'require', ...args: any[]): boolean {
-        let passed = false, r = this.__rules[ruleName];
-
-        if (r) {
-            if (r instanceof RegExp) passed = (<RegExp>r).test(value);
-            else if (typeof r === 'function')  passed = (<RuleFunction>r)(value, ...args);
-        } else throw new TypeError(`没有找到“${ruleName}”相关验证规则！`);
-
-        return passed;
-    }
-
-    /**
-   * 单项组合规则验证，对象方式
-   * @param {object} options 属性对象。
-   * @prop {*} value 必备选项，验证目标数据
-   * @prop {boolean} require 可选, 值不为空才检测
-   * @prop {type} format 使用链式表达式检查，可选
-   * @prop {function} callback 默认验证结果处置方法，可选，参数faults为没通过的项的集合
-   * @returns {boolean} 是否验证通过
-   * @example
-   * checkItem({value:'password1', format: string.password.eq:'password2'})
-   */
-    checkItem(option: Item): boolean {
-        let passed = false;
-        const cb = option.callback, val = option.value,
-            hasVal = !val || (typeof val === 'string' && val.trim() === '');     
-
-        if(hasVal && option.require) return true;
-
-        if (val !== void 0 && option.format) {
-            let checkeds: boolean[] = [], faults: string[] = [], rs:boolean;
-
-            option.format.__caches.forEach(t => {
-                if (t instanceof Object) {
-                    let key:rulesName = <rulesName>Object.keys(t)[0], args:any[] = t[key];
-
-                    rs = this.check(val, key, ...args);
-                    if (rs === false) faults.push(key);          
-                } else {
-                    rs = this.check(val, t);
-                    if (rs === false) faults.push(t);
-                }               
-                checkeds.push(rs);
-            });
-
-            if (typeof cb === 'function') cb(faults); // 执行回调
-            if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
-        }
-
-        return passed;
-    }
-
-    /**
-     * 多项组合规则验证
-     * @param {array} items 组对象
-     * @returns {boolean} 是否验证通过
+     * 链式组合规则验证
+     * @param value
      */
-    checkItems(items: Item[]): boolean {
-        let passed = false, checkeds: boolean[] = [];
+    check(value: any):ChainInterface {        
+        return new Chain(this.newrule).$set({ value: value });
+    }
 
-        if (Array.isArray(items) && items.length > 0) {
-            items.forEach(item => {
-                if (item instanceof Object && item.hasOwnProperty('value')) checkeds.push(this.checkItem(item));
-                else throw new TypeError('验证组内容不合要求!');
-            });
-            if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
-        }
-        return passed;
+    /**
+     * 按对象路径查找值进行链式验证
+     * @param obj
+     * @param path
+     */
+    get(obj:object, path:Array<number | string> | number | string) {
+        return this.check(objectPath(obj, path));
     }
 
     /**
@@ -150,15 +76,10 @@ export default class Validator {
         const dataObj = typeof JSONData === 'string' ? JSON.parse(JSONData) : JSONData;
 
         const checkValue = (dt: string | number | object, rule: ChainInterface, p: (string | number)[]) => {
-            let item = {
-                value: dt,
-                format: rule,
-                callback: (faults: string[]) => {
-                    if (callback) callback(faults, p);
-                    else faults.forEach(f => console.error(`${p.join('.')}的值，不符合“${f}”项的要求！`) );
-                }
-            };
-            checkeds.push(this.checkItem(item));
+            checkeds.push(rule.$set({value: dt}).on((faults: string[]) => {
+                if (callback) callback(faults, p);
+                else faults.forEach(f => console.error(`${p.join('.')}的值，不符合“${f}”项的要求！`) );
+            }).result);
         };
         const findMany = (path: (string | number)[], rule: ChainInterface): void => {
             let ids: number[] = [],

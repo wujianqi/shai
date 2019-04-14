@@ -1,6 +1,21 @@
-import { RuleFunction } from './rules';
+import { RulesMap, RuleFunction } from './rules';
+export { RuleFunction };
+declare type ruleNames = keyof RulesMap;
+declare type OptionType = {
+    value?: any;
+    label?: string | object;
+};
+export interface CallbackFunction {
+    (result: boolean): void;
+}
+export interface OnFaultsFunction {
+    (faults: ruleNames[]): void;
+}
 export interface ChainInterface {
-    __caches: any[];
+    $set?(arg: OptionType): this;
+    on(str: keyof RulesMap | OnFaultsFunction, fnc?: CallbackFunction): this;
+    readonly result: boolean;
+    readonly valuable: this;
     readonly string?: this;
     readonly number?: this;
     readonly boolean?: this;
@@ -76,8 +91,8 @@ export interface ChainInterface {
     lt?(arg: string | number | Date): this;
     lte?(arg: string | number | Date): this;
     between?<T extends string | number | Date>(arg1: T, arg2: T): this;
-    min?(...args: Array<string | number | Date>): this;
-    max?(...args: Array<string | number | Date>): this;
+    min?<T extends string | number | Date>(arg1: T, ...args: T[]): this;
+    max?<T extends string | number | Date>(arg1: T, ...args: T[]): this;
     length?(arg: string | number): this;
     minlength?(arg: string | number): this;
     maxlength?(arg: string | number): this;
@@ -88,6 +103,18 @@ export interface ChainInterface {
     custom?(arg: string | RuleFunction, ...args: Array<any>): this;
 }
 export declare class Chain implements ChainInterface {
-    __caches: any[];
-    constructor();
+    private __rls;
+    private __lbs;
+    private __val;
+    private __next;
+    private __cbs;
+    private __allcb;
+    constructor(override?: {
+        [key: string]: RuleFunction;
+    });
+    $set(opt: OptionType): this;
+    readonly valuable: this;
+    on(key: keyof RulesMap | OnFaultsFunction, fnc?: CallbackFunction): this;
+    private checkFunc;
+    readonly result: boolean;
 }

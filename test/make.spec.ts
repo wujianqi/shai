@@ -3,9 +3,7 @@ import 'mocha';
 import Maker from '../src/maker/';
 
 describe('单项数据生成与模拟测试 maker test', function () {
-    var m = new Maker({
-        divisionCode: '350205'
-    });
+    var m = new Maker();
     
     it('now', function () {
         console.log(m.get('now'));

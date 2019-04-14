@@ -205,8 +205,8 @@ export const rules: RulesInterface = {
 	lt: <T extends  string | number | Date>(arg1: T, arg2: T) => (+arg1) < (+arg2),
 	lte: <T extends string | number | Date>(arg1: T, arg2: T) => (+arg1) <= (+arg2),
 	between: <T extends string | number | Date>(arg1: T, arg2: T, arg3: T) => (+arg1) > (+arg2) && (+arg1) < (+arg3),
-	min: <T extends string | number | Date>(arg1: T, ...args: T[]) => (+arg1) === Math.min(...args.map(item => (+item))),
-	max: <T extends string | number | Date>(arg1: T, ...args: T[]) => (+arg1) === Math.max(...args.map(item => (+item))),
+	min: <T extends string | number | Date>(arg1: T, arg2:T, ...args: T[]) => (+arg1) === Math.min(...[arg2].concat(args).map(i => (+i))),
+	max: <T extends string | number | Date>(arg1: T, arg2:T, ...args: T[]) => (+arg1) === Math.max(...[arg2].concat(args).map(i => (+i))),
 	length: (arg1: string | number | any[], arg2: string | number) => {
 		let v1 = (typeof arg1 === 'number') ? (arg1 + '') : arg1,
 			v2 = (typeof arg2 === 'string') ? (+arg2) : arg2;
@@ -268,5 +268,5 @@ export const rules: RulesInterface = {
 		return ret;
 	},
 	regexp: (arg: any, arg2: RegExp | string) => new RegExp(arg2).test(arg),
-	custom: (arg: any, arg2: string|RuleFunction, ...args:Array<any>) => true // 空函数占位
+	custom: (arg: any, arg2: string|RuleFunction) => true // 空函数占位
 }
