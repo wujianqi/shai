@@ -4,6 +4,7 @@ declare type ruleNames = keyof RulesMap;
 declare type OptionType = {
     value?: any;
     label?: string | object;
+    isdev?: boolean;
 };
 export interface CallbackFunction {
     (result: boolean): void;
@@ -109,6 +110,7 @@ export declare class Chain implements ChainInterface {
     private __next;
     private __cbs;
     private __allcb;
+    private __dev;
     constructor(override?: {
         [key: string]: RuleFunction;
     });

@@ -3,6 +3,7 @@ export { RuleFunction, OnFaultsFunction, CallbackFunction };
 export default class Validator {
     private methods;
     private newrule;
+    isdev: boolean;
     add(key: string, func: RuleFunction): void;
     readonly string: ChainInterface;
     readonly number: ChainInterface;

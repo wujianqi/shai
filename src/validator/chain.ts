@@ -4,9 +4,10 @@ import { RulesInterface } from 'src/maker/rules';
 export { RuleFunction }
 
 type ruleNames = keyof RulesMap;
-type OptionType = { 
+type OptionType = {
     value?: any; // 设置检查的值内容
     label?: string | object; // 缓存验证规则标识
+    isdev?: boolean;
 };
 
 export interface CallbackFunction {
@@ -123,6 +124,7 @@ export class Chain implements ChainInterface{
     private __next:boolean = false;
     private __cbs: { [key:string]: CallbackFunction; } = {};
     private __allcb: OnFaultsFunction;
+    private __dev = false;
     
     constructor(override?:{ [key: string]:RuleFunction }) {
         this.__rls = (<any>Object).assign(Object.create(null), rules, override);
@@ -132,6 +134,7 @@ export class Chain implements ChainInterface{
     $set(opt: OptionType) {
         if (opt.value !== void 0) this.__val = opt.value;
         if (opt.label && this.__lbs.indexOf(opt.label) === -1) this.__lbs.push(opt.label);
+        if (opt.isdev === true) this.__dev = opt.isdev;
         return this;
     }
 
@@ -189,11 +192,17 @@ export class Chain implements ChainInterface{
                     let key:ruleNames = <ruleNames>Object.keys(t)[0], args:any[] = t[key];
 
                     rs = this.checkFunc(val, key, ...args);
-                    if (rs === false) faults.push(key);
+                    if (rs === false) {
+                        faults.push(key);
+                        if (this.__dev) console.error(`${val.toString()}未证通过${key}项验证！`);
+                    }
                     if (this.__cbs[key]) this.__cbs[key](rs);
                 } else {
                     rs = this.checkFunc(val, t);
-                    if (rs === false) faults.push(t);
+                    if (rs === false) {
+                        faults.push(t);
+                        if (this.__dev) console.error(`${val.toString()}未证通过${t}项验证！`);
+                    }
                     if (this.__cbs[t]) this.__cbs[t](rs);
                 }
                 checkeds.push(rs);

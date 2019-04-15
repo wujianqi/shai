@@ -4,6 +4,7 @@ import shai from '../src/index';
 
 describe('数据验证测试 shai valid', function () {
   var v = new shai.Validator();
+  v.isdev = true;
 
   it('get 方式', function () {
     var json = {

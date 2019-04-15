@@ -8,7 +8,7 @@ export { RuleFunction, OnFaultsFunction, CallbackFunction };
 /**
  * @module 验证器
  */
-export default class Validator {
+export default class Validator {    
     private methods: rulefnc = {};
     private newrule: rulefnc = {
         'custom': (arg: any, key: string|RuleFunction, ...args:Array<any>) => {
@@ -16,7 +16,12 @@ export default class Validator {
             else if (typeof key === "function") return key(arg, ...args);
         }
     };
-    
+
+    /**
+     *  将未通过验证的信息打印出来
+     */
+    isdev:boolean = false;
+
     /**
      * 添加函数引用，在custom规则中作为参数调用
      * @param func
@@ -51,8 +56,8 @@ export default class Validator {
      * 链式组合规则验证
      * @param value
      */
-    check(value: any):ChainInterface {        
-        return new Chain(this.newrule).$set({ value: value });
+    check(value: any):ChainInterface {      
+        return new Chain(this.newrule).$set({ value: value, isdev: this.isdev });
     }
 
     /**
@@ -76,10 +81,13 @@ export default class Validator {
         const dataObj = typeof JSONData === 'string' ? JSON.parse(JSONData) : JSONData;
 
         const checkValue = (dt: string | number | object, rule: ChainInterface, p: (string | number)[]) => {
-            checkeds.push(rule.$set({value: dt}).on((faults: string[]) => {
-                if (callback) callback(faults, p);
-                else faults.forEach(f => console.error(`${p.join('.')}的值，不符合“${f}”项的要求！`) );
-            }).result);
+            let chain = rule.$set({value: dt});
+
+            if (typeof callback === 'function' ) chain = chain.on((faults: string[]) => callback(faults, p));
+            else if (this.isdev) chain = chain.on((faults: string[]) => {
+                faults.forEach(f => console.error(`${p.join('.')}的值，不符合“${f}”项的要求！`) );
+            });
+            checkeds.push(chain.result);
         };
         const findMany = (path: (string | number)[], rule: ChainInterface): void => {
             let ids: number[] = [],

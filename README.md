@@ -301,6 +301,8 @@ var v = new shai.Valitator();
 
 **v.add(key:string, fn:Function)** 添加验证数据的方法，见custom规则说明。
 
+**v.isdev = true** 默认false，true为将未通过验证的信息打印输出。
+
 ##### 用法例子：
 
 ```javascript
