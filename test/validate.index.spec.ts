@@ -6,7 +6,7 @@ describe('数据验证测试 shai valid', function () {
   var v = new shai.Validator();
   v.isdev = true;
 
-  it('get 方式', function () {
+  it('属性路径方式', function () {
     var json = {
       "name": "张三",
       "age":30,
@@ -17,7 +17,7 @@ describe('数据验证测试 shai valid', function () {
       }
     }
 
-    var chain = v.get(json, 'looks.size.foot').number.int.on('int',res =>{
+    var chain = v.check(json, 'looks.size.foot').number.int.on('int',res =>{
       if(res) console.log('整数验证通过');
       else  console.log('整数验证没有通过');
     }).on( faults => {

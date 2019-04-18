@@ -32,6 +32,7 @@ export interface ChainInterface {
     readonly zipcode?: this;
     readonly ip?: this;
     readonly port?: this;
+    readonly domain?: this;
     readonly maca?: this;
     readonly bizcode?: this;
     readonly invoice?: this;

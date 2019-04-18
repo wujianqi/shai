@@ -8,7 +8,7 @@ type rulesName = keyof RulesMap | keyof SpecificRulesMap;
 export { RuleFunction, rulesName };
 
 export interface SettingOption {
-    'divisionCode'?: string;
+    'divisionCode'?: string | number;
     'beginTime'?: Date;
     'endTime'?: Date;
 }
@@ -44,12 +44,7 @@ export default class SpecificRules {
         'beginTime': new Date('1970/01/01'),
         'endTime': new Date()
     };
-    private baseinc: number = 0;
-    private is8b: string[] = [ // 电话号码 8位
-        '010', '021', '022', '023', '024', '025', '027', '028', '029', '020', '0311', '0371', '0377',
-        '0379', '0411', '0451', '0512', '0513', '0516', '0510', '0531', '0532', '0571', '0574', '0577',
-        '0591', '0595', '0755', '0757', '0769', '0898', '0431'
-    ];
+    private baseinc: number = 0;    
     private getRndTime = () => {
         let bt = this.config.beginTime ? this.config.beginTime : new Date('1970/01/01'),
             et = this.config.endTime ? this.config.endTime : new Date();
@@ -85,9 +80,14 @@ export default class SpecificRules {
         prefecture: () => this.division.region().prefecture,
         county: () => this.division.region().county,
         phone: () => {
+            const is8b = [ // 电话号码 8位
+                '010', '021', '022', '023', '024', '025', '027', '028', '029', '020', '0311', '0371', '0377',
+                '0379', '0411', '0451', '0512', '0513', '0516', '0510', '0531', '0532', '0571', '0574', '0577',
+                '0591', '0595', '0755', '0757', '0769', '0898', '0431'
+            ];
             let cd = this.division.region(1).county, ps;
 
-            if (this.is8b.indexOf(cd) > -1) ps = cd + '-' + rules.regexp(/[268]\d{7}/);
+            if (is8b.indexOf(cd) > -1) ps = cd + '-' + rules.regexp(/[268]\d{7}/);
             else ps = cd + '-' + rules.regexp(/[268]\\d{6}/);
             return ps;
         },

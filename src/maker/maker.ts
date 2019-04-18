@@ -173,7 +173,6 @@ export default class Maker extends SpecificRules {
 
             return isobject ? JSON.parse(data) : data;
         } catch (error) {
-            console.dir(error);
             throw new SyntaxError(`请检查模板格式！${error.message}`);
         }        
     }

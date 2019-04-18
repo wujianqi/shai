@@ -1,7 +1,7 @@
-import Validator, { RuleFunction, OnFaultsFunction, CallbackFunction } from './validator';
+import Validator, { RuleFunction, OnFaultsFunction, CallbackFunction, ChainInterface } from './validator';
 import Maker, { SettingOption, MethodFuction } from './maker';
 import { objectPath } from './validator/objectPath';
-export { RuleFunction, SettingOption, MethodFuction, OnFaultsFunction, CallbackFunction };
+export { RuleFunction, SettingOption, MethodFuction, OnFaultsFunction, CallbackFunction, ChainInterface };
 declare const _default: {
     Validator: typeof Validator;
     Maker: typeof Maker;

@@ -13,7 +13,7 @@
 - [x] 前后台通用，浏览器IE9+ （即支持ES5） <br>
 - [x] 针对国人国情定制、使用简单、易扩展 <br>
 - [x] 模拟生成（maker）：内置方法60项，让数据看起来更真实，规则简单 <br>
-- [x] 验证（validator）：内置方法85项，链式，结构即类型<br>
+- [x] 验证（validator）：内置方法86项，链式，结构即类型<br>
 - [x] 区划更新到 2019.2 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
 
 ------
@@ -275,21 +275,26 @@ var v = new shai.Valitator();
 // ……
 ```
 
-**v.check(value:any)** 单项数据验证，返回值为链式对象，详见链式对象说明。
+**v.check(data:any, path(string|array))** 单项数据验证，返回值为链式对象，详见链式对象说明。
 
-**v.get(obj:object, path(string|array))** 指定对象路径验证，返回值为链式对象，见示例。
+###### check 参数选项(data, path)说明：
+
+> 参数1为数据，文本或对象均可，**必须** <br>
+> 参数2为对象属性路径，当参数1为对象时有效，可选，参考代码示例 <br>
 
 **v.string | v.number | v.object | v.array | v.boolean | v.null**  直接使用链式验证对象。
 
 ###### 链式对象说明：
 
-> **chain.result**，所有链节点都是索引，只有调用result，即验证结果（布尔值），才真正生效。 <br>
+> **chain.result**，所有链节点都是索引，只有调用result，即验证结果（boolean），才真正生效。 <br>
 > **chain.on(rule:string|function, function)**，验证过程回调函数（可选），见示例。<br>
 > chain.eq('foo')，1位参数的规则项：eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp <br>
 > chain.between(10,20)，2位参数的规则项：between <br>
 > 可变参数长度，1位以上参数的规则项：min、max、custom <br>
 > 除以上规则，均为直接使用属性方式：v.string.english.upper <br>
 > 链式验证对象支持所有规则任意搭配，但不建议无意义的组合，例：v.null<del>.length(10)</del> <br>
+
+**v.checkItems(chain:array)** 多项数据验证，返回值为是否通过(boolean)，参数为链式对象chain数组。
 
 **v.verify(json:string|object, struct:object, callback:Function)**  JSON数据或对象验证，返回值为是否通过(boolean)
 
@@ -299,7 +304,7 @@ var v = new shai.Valitator();
 > 参数2为数据类型结构，为链式对象组合（不要调result，会改变对象类型），参考代码示例，**必须** <br>
 > 参数3为可选回调方法，含2参数，未通过项的组、数据层级路径组，如要保持链内on，可忽略此参数。<br>
 
-**v.add(key:string, fn:Function)** 添加验证数据的方法，见custom规则说明。
+**v.add(key:string, fn:Function)** 添加验证数据的方法，便于复用，见custom规则说明。
 
 **v.isdev = true** 默认false，true为将未通过验证的信息打印输出。
 
@@ -342,7 +347,17 @@ var v = new shai.Valitator();
   var obj = {notes:[{
       "content": "testdsafsdf"
     }]};
-  var chain = v.get(obj, 'notes.0.content').string.maxlength(255);
+  var chain = v.check(obj, 'notes.0.content').string.maxlength(255);
+  console.log(chain.result);
+
+  // 多项数据组合验证
+  var result = v.checkItems([
+    v.check('username').account.length(6),
+    v.check('password').password.on('password', res=> {
+      if(res === false) console.log('密码格式错误!') ;
+    })
+  ]);
+
   console.log(chain.result);
 
   // 完整JSON数据或对象验证，可任意层级。
@@ -412,7 +427,7 @@ var v = new shai.Valitator();
 | boolean              | 是否为布尔 | 
 | null                 | 是否为null值 |
 | **字符基本格式**|  | 
-| required             | 必需有值！没有required，空值可在链对象中直接通过，设值后才会一一判断。| 
+| required             | 必需有值！如果没required，空值可在链对象中直接通过，设值后才会一一判断。| 
 | english              | 纯英文字母 |
 | chinese              | 纯中文 |
 | alphanum             | 字母和数字组合 |
@@ -460,6 +475,7 @@ var v = new shai.Valitator();
 | ipv6                 | IPV6地址 |
 | port                 | 端口 |
 | maca                 | MAC地址 |
+| domain               | 合法域名 |
 | **商业类** |  | 
 | bizcode              | 统一信用代码  |
 | invoice              | 增值税发票代码 |

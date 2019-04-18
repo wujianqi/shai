@@ -15,7 +15,7 @@ export default class Division {
     private prefectureHistoryMap;
     private countyHistoryMap;
     division: RegionInterface;
-    constructor(code: string, datas: RegionData);
+    constructor(code: string | number, datas: RegionData);
     private extract;
     private getRnddivision;
     region(index?: number): RegionInterface;

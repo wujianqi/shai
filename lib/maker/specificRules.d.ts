@@ -2,7 +2,7 @@ import { RuleFunction, RulesMap, RulesInterface } from './rules';
 declare type rulesName = keyof RulesMap | keyof SpecificRulesMap;
 export { RuleFunction, rulesName };
 export interface SettingOption {
-    'divisionCode'?: string;
+    'divisionCode'?: string | number;
     'beginTime'?: Date;
     'endTime'?: Date;
 }
@@ -30,7 +30,6 @@ export interface SpecificRulesMap {
 export default class SpecificRules {
     private config;
     private baseinc;
-    private is8b;
     private getRndTime;
     private division;
     protected __methods: {

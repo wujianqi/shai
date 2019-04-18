@@ -1,5 +1,5 @@
 import { RuleFunction, ChainInterface, OnFaultsFunction, CallbackFunction } from './chain';
-export { RuleFunction, OnFaultsFunction, CallbackFunction };
+export { RuleFunction, ChainInterface, OnFaultsFunction, CallbackFunction };
 export default class Validator {
     private methods;
     private newrule;
@@ -11,7 +11,7 @@ export default class Validator {
     readonly array: ChainInterface;
     readonly boolean: ChainInterface;
     readonly null: ChainInterface;
-    check(value: any): ChainInterface;
-    get(obj: object, path: Array<number | string> | number | string): ChainInterface;
+    check(data: any, path?: Array<number | string> | number | string): ChainInterface;
+    checkItems(chains: ChainInterface[]): boolean;
     verify(JSONData: string | object, struct: object, callback?: (faults: string[], path: (string | number)[]) => void): boolean;
 }

@@ -37,6 +37,7 @@ export interface ChainInterface {
     readonly zipcode?: this;
     readonly ip?: this;
     readonly port?: this;
+    readonly domain?: this;
     readonly maca?: this;
     readonly bizcode?: this;
     readonly invoice?: this;
@@ -172,6 +173,9 @@ export class Chain implements ChainInterface{
         return passed;
     }
 
+    /**
+     * 验证结果
+     */
     get result():boolean { // 取最终验证结果
         let passed = false, val = this.__val,
             hasVal = !val || (typeof val === 'string' && val.trim() === '');
@@ -207,7 +211,7 @@ export class Chain implements ChainInterface{
             }
             if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
         } else {
-            throw new Error(`没有设定要检查的内容！`);
+            throw new TypeError(`没有设定要检查的内容！`);
         }
         return passed;
     }

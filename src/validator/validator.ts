@@ -3,12 +3,12 @@ import { objectPath } from './objectPath';
 
 type rulefnc = { [key:string]: RuleFunction } ;
 
-export { RuleFunction, OnFaultsFunction, CallbackFunction };
+export { RuleFunction, ChainInterface, OnFaultsFunction, CallbackFunction };
 
 /**
  * @module 验证器
  */
-export default class Validator {    
+export default class Validator {
     private methods: rulefnc = {};
     private newrule: rulefnc = {
         'custom': (arg: any, key: string|RuleFunction, ...args:Array<any>) => {
@@ -53,20 +53,21 @@ export default class Validator {
     }
 
     /**
-     * 链式组合规则验证
+     * 链式组合规则验证，按对象路径查找值进行链式验证
      * @param value
      */
-    check(value: any):ChainInterface {      
-        return new Chain(this.newrule).$set({ value: value, isdev: this.isdev });
+    check(data: any, path?:Array<number | string> | number | string):ChainInterface {
+        if (path && typeof data === 'object' && (typeof path === 'string' || typeof path === 'number' || Array.isArray(path)))
+            data = objectPath(data, path);
+
+        return new Chain(this.newrule).$set({ value: data, isdev: this.isdev });
     }
 
-    /**
-     * 按对象路径查找值进行链式验证
-     * @param obj
-     * @param path
-     */
-    get(obj:object, path:Array<number | string> | number | string) {
-        return this.check(objectPath(obj, path));
+    checkItems(chains:ChainInterface[]):boolean {
+        let results:Array<boolean> = [];
+
+        chains.forEach(o => results.push(o.result));
+        return results.indexOf(false) === -1;
     }
 
     /**
@@ -77,7 +78,7 @@ export default class Validator {
      * @returns {boolean} 是否验证通过
      */
     verify(JSONData: string | object, struct: object, callback?: (faults: string[], path: (string | number)[]) => void): boolean {
-        let passed = false, checkeds: boolean[] = [];
+        let checkeds: boolean[] = [];
         const dataObj = typeof JSONData === 'string' ? JSON.parse(JSONData) : JSONData;
 
         const checkValue = (dt: string | number | object, rule: ChainInterface, p: (string | number)[]) => {
@@ -145,7 +146,6 @@ export default class Validator {
         };
 
         itemCheck(struct, []);
-        if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
-        return passed;
+        return checkeds.length > 0 ? checkeds.indexOf(false) === -1 : false;
     }
 }

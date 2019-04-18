@@ -18,6 +18,7 @@ export interface RulesMap {
     zipcode: RegExp;
     ip: RegExp;
     port: RegExp;
+    domain: RegExp;
     bizcode: RegExp;
     invoice: RegExp;
     bankcard: RegExp;

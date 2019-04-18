@@ -19,6 +19,7 @@ export interface RulesMap {
 	zipcode: RegExp;
 	ip: RegExp;
 	port: RegExp;
+	domain:RegExp;
 	bizcode: RegExp;
 	invoice: RegExp;
 	bankcard: RegExp;
@@ -118,6 +119,7 @@ export const rules: RulesInterface = {
 	zipcode: /^(\d[1-7]|[1-9][0-7])\d{4}$/,
 	ip: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
 	port: /^([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5]{2}[0-3][0-5])$/,
+	domain:/^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/i,
 	bizcode: /^[0-9A-HJ-NPQRTUWXY]{2}\d{6}[0-9A-HJ-NPQRTUWXY]{10}$/,
 	invoice: /^(((1[1-5])|(2[1-3])|(3[1-7])|(4[1-6])|(5[0-4])|(6[1-5])|71|(8[12]))\d{5}[1-9][1-7][0-4])$/,
 	bankcard: /^(10|30|35|37|4\d||5[0-6]|58|60|62|6[8-9]|84|8[7-8]|9[0-2]|9[4-6]|9[8-9])\d{14,17}$/,

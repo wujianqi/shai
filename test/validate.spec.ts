@@ -112,6 +112,12 @@ describe('单项数据，各规则方法测试 validator test', function () {
   it('url passed test', function () {
     assert(v.check('http://sdaf.com').url.result);
   });
+  it('domain no passed test', function () {
+    assert(!v.check('&111.com').domain.result);
+  });
+  it('domain passed test', function () {
+    assert(v.check('www.11.com').domain.result);
+  });
   it('account no passed test', function () {
     assert(!v.check('0111.abc').account.result);
   });
