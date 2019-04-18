@@ -16,18 +16,17 @@ export interface ChainInterface {
     $set?(arg: OptionType): this;
     on(str: keyof RulesMap | OnFaultsFunction, fnc?: CallbackFunction): this;
     readonly result: boolean;
-    readonly valuable: this;
     readonly string?: this;
     readonly number?: this;
     readonly boolean?: this;
     readonly object?: this;
     readonly array?: this;
     readonly null?: this;
-    readonly require?: this;
+    readonly required?: this;
     readonly english?: this;
     readonly nospace?: this;
     readonly nodbc?: this;
-    readonly alphanumeric?: this;
+    readonly alphanum?: this;
     readonly qq?: this;
     readonly age?: this;
     readonly zipcode?: this;
@@ -107,7 +106,6 @@ export declare class Chain implements ChainInterface {
     private __rls;
     private __lbs;
     private __val;
-    private __next;
     private __cbs;
     private __allcb;
     private __dev;
@@ -115,7 +113,6 @@ export declare class Chain implements ChainInterface {
         [key: string]: RuleFunction;
     });
     $set(opt: OptionType): this;
-    readonly valuable: this;
     on(key: keyof RulesMap | OnFaultsFunction, fnc?: CallbackFunction): this;
     private checkFunc;
     readonly result: boolean;

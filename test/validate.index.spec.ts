@@ -124,7 +124,7 @@ describe('数据验证测试 shai valid', function () {
 
   it('normal test', function () {
     assert(!v.verify(d,{
-      txtusername: v.string.require,
+      txtusername: v.string.required,
       txtpassword: v.null
     }));
   });

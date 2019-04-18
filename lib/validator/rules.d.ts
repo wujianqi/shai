@@ -8,9 +8,9 @@ export interface RulesMap {
     object(arg: any): boolean;
     array(arg: any): boolean;
     null(arg: any): boolean;
-    require: RegExp;
+    required: RegExp;
     english: RegExp;
-    alphanumeric: RegExp;
+    alphanum: RegExp;
     nospace: RegExp;
     nodbc: RegExp;
     qq: RegExp;

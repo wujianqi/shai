@@ -12,8 +12,8 @@
 
 - [x] 前后台通用，浏览器IE9+ （即支持ES5） <br>
 - [x] 针对国人国情定制、使用简单、易扩展 <br>
-- [x] 模拟生成（maker）特色：让数据看起来更真实，不用记过多约束规则，内置数据生成方法60项 <br>
-- [x] 验证（validator）特色：让链式校对数据更容易，优化了多项通用正则，内置验证方法85项，较全！ <br>
+- [x] 模拟生成（maker）：内置方法60项，让数据看起来更真实，规则简单 <br>
+- [x] 验证（validator）：内置方法85项，链式，结构即类型<br>
 - [x] 区划更新到 2019.2 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
 
 ------
@@ -283,11 +283,11 @@ var v = new shai.Valitator();
 
 ###### 链式对象说明：
 
-> *chain.result*，所有链节点都是索引，只有调用result，即验证结果（布尔值），才真正生效。 <br>
-> *chain.valuable*，表示值为空或null时，可以通过，只有具体的设值内容时，验证项才生效。<br>
-> chain.on(rule:string|function, function)，验证过程回调函数（可选），见示例。<br>
-> chain.eq('foo')，单参数的规则项：eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp <br>
-> chain.between(10,20)，多参数的规则项：between、min、max、custom <br>
+> **chain.result**，所有链节点都是索引，只有调用result，即验证结果（布尔值），才真正生效。 <br>
+> **chain.on(rule:string|function, function)**，验证过程回调函数（可选），见示例。<br>
+> chain.eq('foo')，1位参数的规则项：eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp <br>
+> chain.between(10,20)，2位参数的规则项：between <br>
+> 可变参数长度，1位以上参数的规则项：min、max、custom <br>
 > 除以上规则，均为直接使用属性方式：v.string.english.upper <br>
 > 链式验证对象支持所有规则任意搭配，但不建议无意义的组合，例：v.null<del>.length(10)</del> <br>
 
@@ -296,7 +296,7 @@ var v = new shai.Valitator();
 ###### verify 参数选项(json, struct, callback)说明：
 
 > 参数1为数据，文本或对象均可，**必须** <br>
-> 参数2为数据类型结构，参考代码示例，**必须** <br>
+> 参数2为数据类型结构，为链式对象组合（不要调result，会改变对象类型），参考代码示例，**必须** <br>
 > 参数3为可选回调方法，含2参数，未通过项的组、数据层级路径组，如要保持链内on，可忽略此参数。<br>
 
 **v.add(key:string, fn:Function)** 添加验证数据的方法，见custom规则说明。
@@ -336,16 +336,14 @@ var v = new shai.Valitator();
         if (f === 'minlength') console.log('密码长度最少8位');
       });
     });
-  var result = chain.result;
-  console.log(result);
+  console.log(chain.result);
 
   // 对指定对象值路径判断
   var obj = {notes:[{
       "content": "testdsafsdf"
     }]};
   var chain = v.get(obj, 'notes.0.content').string.maxlength(255);
-  var result = chain.result;
-  console.log(result);
+  console.log(chain.result);
 
   // 完整JSON数据或对象验证，可任意层级。
   var json = `{
@@ -414,10 +412,10 @@ var v = new shai.Valitator();
 | boolean              | 是否为布尔 | 
 | null                 | 是否为null值 |
 | **字符基本格式**|  | 
-| require              | 非空任意字符 |  
+| required             | 必需有值！没有required，空值可在链对象中直接通过，设值后才会一一判断。| 
 | english              | 纯英文字母 |
 | chinese              | 纯中文 |
-| alphanumeric         | 字母和数字组合 |
+| alphanum             | 字母和数字组合 |
 | upper                | 有大写 |
 | lower                | 有小写 |
 | nospace              | 不含有空格 |
@@ -444,8 +442,8 @@ var v = new shai.Valitator();
 | qq                   | QQ号 5-11位 | 
 | age                  | 年龄 0-129岁 | 
 | zipcode              | 邮编 | 
-| account              | 账号名，字母数字组合，中间允许_连接线 |
-| password             | 密码，6-16位，最少1大小写字母、1小写字母、1数字、1特殊字符 |
+| account              | 账号名，字母数字组合，中间允许连接线，首位是字母 |
+| password             | 密码，最少1大小写字母、1小写字母、1数字、1特殊字符 |
 | mobile               | 手机13700000000，融合2017新号规则, +86、86可选 |
 | telphone             | 电话手机混合 |
 | phone                | 固话，可带分机, +86、86可选 |
@@ -520,7 +518,7 @@ var v = new shai.Valitator();
       v = new shai.Validator(); 	
 	  // 如果引用为http://www.175.io/lib/validator.js，则为v = new Validator() ，类推;
 	  
-      console.log(v.check('1111'));
+      console.log(v.check('1111').required);
 	  
     </script>
 </head>

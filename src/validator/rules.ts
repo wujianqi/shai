@@ -9,9 +9,9 @@ export interface RulesMap {
 	object(arg: any): boolean;
 	array(arg: any): boolean;
 	null(arg: any): boolean;
-	require: RegExp;
+	required: RegExp;
 	english: RegExp;
-	alphanumeric: RegExp;
+	alphanum: RegExp;
 	nospace: RegExp;
 	nodbc: RegExp;
 	qq: RegExp;
@@ -103,11 +103,11 @@ export const rules: RulesInterface = {
 	boolean: (arg: any) => typeof arg === 'boolean',
 	string: (arg: any) => typeof arg === 'string',
 	number: (arg: any) => typeof arg === 'number',
-	array: (arg: any) => Array.isArray(arg),	
-	require: /.+/,
+	array: (arg: any) => Array.isArray(arg),
+	required: /.+/,
 	english: /^[A-Za-z]+$/,
 	chinese: /^[\u2E80-\uFE4F]+$/,
-	alphanumeric: /^[a-zA-Z0-9]+$/,	
+	alphanum: /^[a-zA-Z0-9]+$/,	
 	upper: /[A-Z]/,
 	lower: /[a-z]/,
 	nospace: /^\S+$/,
@@ -128,8 +128,8 @@ export const rules: RulesInterface = {
 	percent: /^-?\d+(\.\d+)?%$/,
 	mail: /\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*/,
 	url: /(http|ftp|https|ws|wss):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&:/~\+#]*[\w\-\@?^=%&/~\+#])?/,
-	account: /^[A-Za-z0-9]+\w*[A-Za-z0-9]+$/,
-	password: /^.*(?=.{6,16})(?=.*\d)(?=.*[A-Z]{1,})(?=.*[a-z]{1,})(?=.*[!@#$%^&*?\(\)]).*$/,
+	account: /^[A-Za-z]+[\w\-_]*[A-Za-z0-9]+$/,
+	password: /^(?=.*\d)(?=.*[A-Z]{1,})(?=.*[a-z]{1,})(?=.*[!@#$%^&*?\(\)]).*$/,
 	hex: /^[0-9A-F]+$/i,
 	color: /^#?([0-9A-F]{3}|[0-9A-F]{6})$/i,
 	ascii: /^[\u0000-\u007F]+$/,

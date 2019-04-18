@@ -1,6 +1,6 @@
 {
   "name": "shai",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "前后台通用，数据验证、模拟、生成库",
   "main": "lib/shai.js",
   "module": "lib/shai.esm.js",

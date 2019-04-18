@@ -6,8 +6,8 @@ export { RuleFunction }
 type ruleNames = keyof RulesMap;
 type OptionType = {
     value?: any; // 设置检查的值内容
-    label?: string | object; // 缓存验证规则标识
-    isdev?: boolean;
+    label?: string | object; // 标记验证规则
+    isdev?: boolean; // 调试输出模式
 };
 
 export interface CallbackFunction {
@@ -21,18 +21,17 @@ export interface ChainInterface {
     $set?(arg: OptionType): this;
     on(str:keyof RulesMap|OnFaultsFunction, fnc?: CallbackFunction):this;
     readonly result: boolean;
-    readonly valuable:this;
     readonly string?: this;
     readonly number?: this;
     readonly boolean?: this;
     readonly object?: this;
     readonly array?: this;
     readonly null?: this;
-    readonly require?: this;
+    readonly required?: this;
     readonly english?: this;
     readonly nospace?: this;
     readonly nodbc?: this;
-    readonly alphanumeric?: this;
+    readonly alphanum?: this;
     readonly qq?: this;
     readonly age?: this;
     readonly zipcode?: this;
@@ -121,7 +120,6 @@ export class Chain implements ChainInterface{
     private __rls:RulesInterface;
     private __lbs: any[] = [];
     private __val: any;
-    private __next:boolean = false;
     private __cbs: { [key:string]: CallbackFunction; } = {};
     private __allcb: OnFaultsFunction;
     private __dev = false;
@@ -135,11 +133,6 @@ export class Chain implements ChainInterface{
         if (opt.value !== void 0) this.__val = opt.value;
         if (opt.label && this.__lbs.indexOf(opt.label) === -1) this.__lbs.push(opt.label);
         if (opt.isdev === true) this.__dev = opt.isdev;
-        return this;
-    }
-
-    get valuable() {
-        this.__next = true;
         return this;
     }
 
@@ -167,7 +160,7 @@ export class Chain implements ChainInterface{
      * @example
      * check('password1','==','password2')
      */
-    private checkFunc(value: any, ruleName: ruleNames = 'require', ...args: any[]): boolean {
+    private checkFunc(value: any, ruleName: ruleNames = 'required', ...args: any[]): boolean {
         let passed = false, r = this.__rls[ruleName],
             v = typeof value === 'string' ? value.trim() : value;
 
@@ -182,33 +175,36 @@ export class Chain implements ChainInterface{
     get result():boolean { // 取最终验证结果
         let passed = false, val = this.__val,
             hasVal = !val || (typeof val === 'string' && val.trim() === '');
-            
-        if (hasVal && this.__next) return true; // 无值终止判断
+
+        if (hasVal && this.__lbs.indexOf('required') === -1) return true; // 非必需，无值终止判断
         if (val !== void 0) {
             let checkeds: boolean[] = [], faults: ruleNames[] = [], rs:boolean;
 
             this.__lbs.forEach(t => { // 遍历要判断的项
-                if (t instanceof Object) {                    
+                if (t instanceof Object) {
                     let key:ruleNames = <ruleNames>Object.keys(t)[0], args:any[] = t[key];
 
                     rs = this.checkFunc(val, key, ...args);
                     if (rs === false) {
                         faults.push(key);
-                        if (this.__dev) console.error(`${val.toString()}未证通过${key}项验证！`);
+                        if (this.__dev) console.error(`${val.toString()}未通过${key}验证！`);
                     }
                     if (this.__cbs[key]) this.__cbs[key](rs);
                 } else {
                     rs = this.checkFunc(val, t);
                     if (rs === false) {
                         faults.push(t);
-                        if (this.__dev) console.error(`${val.toString()}未证通过${t}项验证！`);
+                        if (this.__dev) console.error(`${val.toString()}未通过${t}验证！`);
                     }
                     if (this.__cbs[t]) this.__cbs[t](rs);
                 }
                 checkeds.push(rs);
             });
 
-            if (this.__allcb) this.__allcb(faults);
+            if (this.__allcb) {
+                this.__allcb(faults);
+                if (this.__dev) console.error(`${val.toString()}未通过${faults.join(',')}验证！`);
+            }
             if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
         } else {
             throw new Error(`没有设定要检查的内容！`);

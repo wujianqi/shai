@@ -6,10 +6,15 @@ describe('单项数据，各规则方法测试 validator test', function () {
   var v = new Validator();
 
  it('require no passed test', function () {
-    assert(!v.check('').require.result);
+    assert(!v.check('').required.result);
+    assert(!v.check('').required.string.result);
+    assert(!v.check(null).required.object.result);
   });
   it('require passed test', function () {
-    assert(v.check('dafds').require.result);
+    assert(v.check('dafds').required.result);
+    assert(v.check('').string.result);
+    assert(v.check('dddd').string.result);
+    assert(v.check(null).object.result);
   });
   it('english no passed test', function () {
     assert(!v.check('测试').english.result);
@@ -445,8 +450,7 @@ describe('单项数据，各规则方法测试 validator test', function () {
   it('base test', function () {
     assert(v.check({}).object.result);
     assert(!v.check('aaab').object.result);
+    assert(v.check(12222).number.result);
     assert(v.check(null).null.result);
-    assert(!v.check('').null.result);
-
   });
 });
