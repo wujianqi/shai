@@ -4,7 +4,7 @@ import Maker from '../src/maker/';
 
 describe('单项数据生成与模拟测试 maker test', function () {
     var m = new Maker();
-    
+ 
     it('now', function () {
         console.log(m.get('now'));
     });
@@ -141,10 +141,7 @@ describe('单项数据生成与模拟测试 maker test', function () {
     });
     it('autocard', function () {
         console.log(m.get('autocard'));
-    });
-    it('address', function () {
-        console.log(m.get('address'));
-    });
+    });    
     it('company', function () {
         console.log(m.get('company'));
     });
@@ -161,5 +158,24 @@ describe('单项数据生成与模拟测试 maker test', function () {
     it('hsl', function () {
         console.log(m.get('hsl'));
     });
+
+    it('chinese', function () {
+        console.log(m.get('chinese'));
+        console.log(m.get('chinese', 15, '测试啊发撒地方'));
+    });
+    it('english', function () {
+        console.log(m.get('english', 15));
+        console.log(m.get('english', 15, 'abcdef'));
+    });
+    it('road', function () {
+        console.log(m.get('road'));
+    });
+    it('build', function () {
+        console.log(m.get('build'));
+    });
+    it('address', function () {
+        console.log(m.get('address'));
+    });
+
 
 });

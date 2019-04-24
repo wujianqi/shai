@@ -45,7 +45,8 @@ export interface RulesMap {
     enState(): string;
     cnState(): string;
     company(): string;
-    address(): string;
+    road(): string;
+    build(): string;
 }
 export interface RulesInterface extends RulesMap {
     [key: string]: RegExp | RuleFunction;

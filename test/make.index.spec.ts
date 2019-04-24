@@ -28,6 +28,7 @@ describe('数据生成测试 shai maker', function () {
          var tpl1 = m2.make({
             data:{
               makerOption:[3],
+              id: "<% uuid, %>",
               b: "<% int, 2, 10 %>",
               "c<% increment %>": "<% increment, false %>",
               items: {

@@ -113,7 +113,9 @@ export default class SpecificRules {
 
             return pf + rules.regexp(/\d{3}[A-HJ-NP-UW-Z]{2}|[A-HJ-NP-UW-Z]\d{4}/);
         },
-        address: () => this.division.region().county.replace('县', '县城') + rules.address(),
+        address: () => this.division.region().county.replace('县', '县城') 
+            + rules.road() + rules.build()
+            + rules.regexp(/[A-F](栋((一|二|三|四|五)单元)|座)?[1-8]0[1-6]室/),
         company: () => this.division.region().prefecture + rules.company(),
         lon: () => this.division.region(3).county + rules.regexp(/\d{8}/),
         lat: () => this.division.region(4).county + rules.regexp(/\d{8}/),

@@ -51,7 +51,8 @@ export interface RulesMap {
     enState(): string;
     cnState(): string;
     company(): string;
-    address(): string;
+    road(): string;
+    build(): string;
 }
 
 export interface RulesInterface extends RulesMap{
@@ -123,7 +124,10 @@ export const rules: RulesInterface = {
     english: (num?: number, arg?: string) => randText((arg ? arg : uw + lw), num),
     upper: (arg?: string) => typeof arg === 'string' ? arg.toUpperCase(): randText(uw),
     lower: (arg?: string) => typeof arg === 'string' ? arg.toLowerCase(): randText(lw),
-    chinese: (num?: number, arg?: string) => randText(arg ? arg : String.fromCharCode(util.getInt(19968, 40869)), num),
+    chinese: (num?: number, arg?: string) => {
+        if (typeof arg === 'string') return randText(arg, num);
+        else return util.getItems(names.commonWord, typeof num ==='number' ? num : util.getInt(1, 9) ).join('');
+    },
     ip: (local: boolean = false) => {
         if (local) {
             return new RandExp(`((192\\.168)|(172\\.0)|(10\.0))\\.${limit255}\\.${limit255}`).gen();
@@ -156,10 +160,6 @@ export const rules: RulesInterface = {
     enState: () => util.getItem(names.eStates),
     cnState: () => util.getItem(names.cStates),
     company: () => util.getItems(names.commonWord, 2).join('') + util.getItem(names.companyNature) + '有限公司',
-    address: () => {
-        return util.getItem(names.road)
-            + new RandExp(/(路|街)(1\d{3}|[1-9]\d{2})号/).gen()
-            + new RandExp(/[A-F](栋((一|二|三|四|五)单元)|座)?[1-8]0[1-6]室/).gen()
-            + util.getItems(names.commonWord, 2).join('') + util.getItem(names.buildNature);
-    }    
+    road:() => util.getItem(names.road) + new RandExp(/(路|街|大道)(1\d{3}|[1-9]\d{2})号/).gen(),
+    build:() => util.getItems(names.commonWord, 2).join('') + util.getItem(names.buildNature)
 }
