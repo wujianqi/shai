@@ -19,7 +19,6 @@ export interface RulesMap {
     month(): number;
     day(): number;
     minute(): number;
-    alpha(): number;
     rgb(arg?: boolean): string;
     hsl(arg?: boolean): string;
     validcode(arg?: number): string;
@@ -34,6 +33,7 @@ export interface RulesMap {
     bizcode: RegExp;
     bankcard: RegExp;
     qq: RegExp;
+    alphanum: RegExp;
     english(num?: number, arg?: string): string;
     upper(arg?: string): string;
     lower(arg?: string): string;
@@ -53,6 +53,9 @@ export interface RulesMap {
     company(): string;
     road(): string;
     build(): string;
+    job():string;
+    file(...exts:string[]):string;
+    fieldType(str?:'mysql'|'sqlserver'|'oracle'|'sqlite'):string;
 }
 
 export interface RulesInterface extends RulesMap{
@@ -61,7 +64,7 @@ export interface RulesInterface extends RulesMap{
 
 const lw = 'abcdefghijklmnopqrstuvwxyz',
     uw = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    limit255 =  "(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])",
+    limit255 =  "([1-9]{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])",
     randText = (arg: string, num?: number): string => util.getItems(arg.split(''), num ? num : util.getInt(1, 9)).join('');
 
 export const rules: RulesInterface = {
@@ -92,8 +95,8 @@ export const rules: RulesInterface = {
     minute: () => util.getInt(1, 59),
     validcode: (arg = 4) => new RandExp('[A-Z0-9]{' + arg + '}').gen(),
     mid: /[1-9A-Z][0-9A-Z]{1,7}(\-[0-9A-Z]{2,6}){0,2}/,
-    account: /[a-zA-Z]{1,3}[a-zA-Z0-9]{3,6}/,
-    password: /[a-zA-Z0-9][a-zA-Z0-9\W_]{7}/,
+    account: /[a-zA-Z]{1,3}[a-zA-Z0-9]{6,8}/,
+    password: /([a-z][A-Z][`~!@#$%^&*]\d){2}/,
     color: /#[A-F0-9]{6}/,
     url: /http(s?):\/\/www\.[a-z]{3,8}\.(com|cn|net|org|com\.cn)(\/[a-z]{3,5})?/,
     mail: /([a-z0-9]{3,6}[-_]?[a-z0-9]{3,6})@[a-z]{3,8}\.(com|cn|net|org)/,
@@ -101,13 +104,13 @@ export const rules: RulesInterface = {
     port: /[1-9]\d{3}/,
     bizcode: /91[1-4]\d{5}[0-9A-HJ-NPQRTUWXY]{10}/,
     bankcard: /62(([0-3]\d)(4[0-5])|5([0-3]|5|8|9)|70|8[2-3])\d{12,15}/,
-    qq: /[1-9]\d{4,10}/,    
-    alpha: () => + new RandExp(/0\.\d{1,9}/).gen(),
+    qq: /([1-2]\d{10})|([1-9]\d{4,9})/,
+    alphanum: /[a-zA-A0-9]{4,12}/,
     rgb: (arg:boolean = false) => {
         if (arg) {
-            return new RandExp(`rgb(${limit255},${limit255},${limit255})`).gen();
+            return new RandExp(`rgb\\(${limit255},${limit255},${limit255}\\)`).gen();
         } else {
-            return new RandExp(`rgba(${limit255},${limit255},${limit255},0\\.\\d)`).gen();
+            return new RandExp(`rgba\\(${limit255},${limit255},${limit255},0\\.\\d\\)`).gen();
         } 
     },
     hsl: (arg:boolean = false) => {
@@ -159,7 +162,32 @@ export const rules: RulesInterface = {
     cnFemaleName: () => util.getItem(names.cSurname) + util.getItem(names.cFemaleName),
     enState: () => util.getItem(names.eStates),
     cnState: () => util.getItem(names.cStates),
-    company: () => util.getItems(names.commonWord, 2).join('') + util.getItem(names.companyNature) + '有限公司',
-    road:() => util.getItem(names.road) + new RandExp(/(路|街|大道)(1\d{3}|[1-9]\d{2})号/).gen(),
-    build:() => util.getItems(names.commonWord, 2).join('') + util.getItem(names.buildNature)
+    company: () => util.getItems(names.commonWord, util.getInt(2, 3)).join('') 
+        + util.getItem(names.companyNature) + '有限公司',
+    road: () => util.getItem(names.road) + new RandExp(/(路|街|大道)(1\d{3}|[1-9]\d{2})号/).gen(),
+    build: () => util.getItems(names.commonWord, 2).join('') + util.getItem(names.buildNature),
+    job: () => util.getItem(names.jobs),
+    file: (...exts) => {
+        let ext, name = new RandExp(/[a-zA-Z][-_]*[a-zA-Z0-9]{1,9}/).gen();
+
+        if (exts)  ext = (exts.length > 1) ? util.getItem(exts) : exts;            
+        else ext = util.getItem(['mp3','doc','txt']);
+        return  `${name}.${ext}`;
+    },
+    fieldType: (str:'mysql'|'sqlserver'|'oracle'|'sqlite' = 'mysql') => {
+        let ds = ['VARCHAR', 'TEXT', 'INTEGER', 'FLOAT', 'BLOB', 'DATETIME'];
+
+        switch (str) {
+            case 'sqlserver':
+                ds = ['nvarchar', 'ntext', 'decimal', 'datetime', 'bit', 'int'];
+                break;
+            case 'oracle':
+                ds = ['NVARCHAR2', 'BLOB', 'INTEGER', 'DATE', 'RAW', 'LONG'];
+                break;
+            case 'sqlite':
+                ds = ['INTEGER', 'REAL', 'INTEGER', 'TEXT', 'BLOB'];
+                break;
+        }
+        return util.getItem(ds);
+    }
 }

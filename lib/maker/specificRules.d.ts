@@ -21,6 +21,8 @@ export interface SpecificRulesMap {
     zipcode(): string;
     bodycard(): string;
     autocard(): string;
+    road(): string;
+    build(): string;
     address(): string;
     company(): string;
     lon(): string;
@@ -32,6 +34,7 @@ export default class SpecificRules {
     private baseinc;
     private getRndTime;
     private division;
+    private historyRom;
     protected __methods: {
         [key: string]: RuleFunction;
     };

@@ -191,14 +191,14 @@ export class Chain implements ChainInterface{
                     rs = this.checkFunc(val, key, ...args);
                     if (rs === false) {
                         faults.push(key);
-                        if (this.__dev) console.error(`${val.toString()}未通过${key}验证！`);
+                        if (this.__dev) console.warn(`${val.toString()}未通过${key}单项验证！`);
                     }
                     if (this.__cbs[key]) this.__cbs[key](rs);
                 } else {
                     rs = this.checkFunc(val, t);
                     if (rs === false) {
                         faults.push(t);
-                        if (this.__dev) console.error(`${val.toString()}未通过${t}验证！`);
+                        if (this.__dev) console.warn(`${val.toString()}未通过${t}单项验证！`);
                     }
                     if (this.__cbs[t]) this.__cbs[t](rs);
                 }
@@ -207,7 +207,7 @@ export class Chain implements ChainInterface{
 
             if (this.__allcb) {
                 this.__allcb(faults);
-                if (this.__dev) console.error(`${val.toString()}未通过${faults.join(',')}验证！`);
+                if (this.__dev) console.warn(`${val.toString()}未通过${faults.join(',')}组合验证！`);
             }
             if (checkeds.length > 0) passed = checkeds.indexOf(false) === -1;
         } else {

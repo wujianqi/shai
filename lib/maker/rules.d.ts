@@ -13,7 +13,6 @@ export interface RulesMap {
     month(): number;
     day(): number;
     minute(): number;
-    alpha(): number;
     rgb(arg?: boolean): string;
     hsl(arg?: boolean): string;
     validcode(arg?: number): string;
@@ -28,6 +27,7 @@ export interface RulesMap {
     bizcode: RegExp;
     bankcard: RegExp;
     qq: RegExp;
+    alphanum: RegExp;
     english(num?: number, arg?: string): string;
     upper(arg?: string): string;
     lower(arg?: string): string;
@@ -47,6 +47,9 @@ export interface RulesMap {
     company(): string;
     road(): string;
     build(): string;
+    job(): string;
+    file(...exts: string[]): string;
+    fieldType(str?: 'mysql' | 'sqlserver' | 'oracle' | 'sqlite'): string;
 }
 export interface RulesInterface extends RulesMap {
     [key: string]: RegExp | RuleFunction;

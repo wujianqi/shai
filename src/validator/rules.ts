@@ -87,8 +87,8 @@ export interface RulesMap {
 	in<T extends string | number | any[] | object>(arg1: T, arg2: T): boolean;
 	has<T extends string | number | any[] | object>(arg1: T, arg2: T): boolean;	
 	empty(arg: any): boolean;
-	regexp: (arg: any, arg2: RegExp | string ) => boolean;
-	custom: (arg: any, arg2: string|RuleFunction, ...args:Array<any>) => boolean;
+	regexp(arg: any, arg2: RegExp | string ): boolean;
+	custom(arg: any, arg2: string|RuleFunction, ...args:Array<any>):boolean;
 }
 
 export interface RulesInterface extends RulesMap {
@@ -137,7 +137,7 @@ export const rules: RulesInterface = {
 	ascii: /^[\u0000-\u007F]+$/,
 	base64: /^(?:[A-Z0-9+\/]{4})*(?:[A-Z0-9+\/]{2}==|[A-Z0-9+\/]{3}=|[A-Z0-9+\/]{4})$/i,
 	md5: /^(([0-9A-F]{16})|([0-9A-F]{32}))$/i,
-	uuid: /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i,
+	uuid: /^[0-9A-F]{8}(-?)[0-9A-F]{4}\1[0-9A-F]{4}\1[0-9A-F]{4}\1[0-9A-F]{12}$/i,
 	mobile: /^((\+86)|(86))?(13\d|(14[5-7])|(15([0-3]|[5-9]))|166|17(0|1|8])|18\d|19(8|9))\d{8}$/,
 	telphone: /^[+]{0,1}\d{1,3}[ ]?([-]?(\d|[ ]){1,12})+$/,
 	phone: /^((\+86)|(86))?((\d{11})|^((\d{7,8})|(\d{4}|\d{3})-(\d{7,8})|(\d{4}|\d{3})-(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1})|(\d{7,8})-(\d{4}|\d{3}|\d{2}|\d{1}))$)/,

@@ -18,7 +18,7 @@ export default class Validator {
     };
 
     /**
-     *  将未通过验证的信息打印出来
+     *  将未通过验证的信息警告输出
      */
     isdev:boolean = false;
 
@@ -86,7 +86,7 @@ export default class Validator {
 
             if (typeof callback === 'function' ) chain = chain.on((faults: string[]) => callback(faults, p));
             else if (this.isdev) chain = chain.on((faults: string[]) => {
-                faults.forEach(f => console.error(`${p.join('.')}的值，不符合“${f}”项的要求！`) );
+                faults.forEach(f => console.warn(`${p.join('.')}的值，不符合“${f}”项的要求！`) );
             });
             checkeds.push(chain.result);
         };

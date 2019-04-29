@@ -86,8 +86,8 @@ export interface RulesMap {
     in<T extends string | number | any[] | object>(arg1: T, arg2: T): boolean;
     has<T extends string | number | any[] | object>(arg1: T, arg2: T): boolean;
     empty(arg: any): boolean;
-    regexp: (arg: any, arg2: RegExp | string) => boolean;
-    custom: (arg: any, arg2: string | RuleFunction, ...args: Array<any>) => boolean;
+    regexp(arg: any, arg2: RegExp | string): boolean;
+    custom(arg: any, arg2: string | RuleFunction, ...args: Array<any>): boolean;
 }
 export interface RulesInterface extends RulesMap {
     [key: string]: RegExp | RuleFunction;

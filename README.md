@@ -12,7 +12,7 @@
 
 - [x] 前后台通用，浏览器IE9+ （即支持ES5） <br>
 - [x] 针对国人国情定制、使用简单、易扩展 <br>
-- [x] 模拟生成（maker）：内置方法62项，让数据看起来更真实，规则简单 <br>
+- [x] 模拟生成（maker）：内置方法65项，让数据看起来更真实，规则简单 <br>
 - [x] 验证（validator）：内置方法86项，链式，结构即类型<br>
 - [x] 区划更新到 2019.2 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
 
@@ -195,7 +195,6 @@ var m = new shai.Maker({
 | **数字类**|   | 
 | int                   | 整数，可选2个参数，参数1为下限值，参数2位上限值 |
 | number                | 数字，可选3个参数，参数1为下限值(整数)，参数2位上限值(整数)，参数3为小数位数(整数) |
-| alpha                 | 数字，0.1~0.9 |
 | **颜色类**|   | 
 | color                 | 颜色，如 #000FFF |
 | rgb                   | 颜色，如 rgb(255,0,0)，可选1个参数，是否带alpha值，默认false |
@@ -220,8 +219,8 @@ var m = new shai.Maker({
 | lon                   | 地理位置，经度，（依据全局区划） |
 | lat                   | 地理位置，纬度，（依据全局区划） |
 | autocard              | 车牌号码（依据全局区划） |
-| road                  | 路 |
-| build                 | 建筑物 |
+| road                  | 路名 |
+| build                 | 建筑物名 |
 | address               | 地址，当前县/区+路+号+...等 （依据全局区划） |
 | phone                 | 固定电话（依据全局区划，自动识别8位或7位） |
 | **商业类** |   |
@@ -229,7 +228,8 @@ var m = new shai.Maker({
 | bizcode               | 统一信用编码 |
 | bankcard              | 银行卡号 |
 | price                 | 价格，可选参数1为下限数，可选参数2为上限数，可选参数3为是否带分号, true或false |
-| mid                   | 型号，货号、编号 |
+| mid                   | 型号货号编号，数字字母、中间小横杠组合 |
+| job                   | 工作、职业 |
 | **账号网络类**|   | 
 | enName                | 英文姓名 |
 | enMaleName            | 英文姓名 男 |
@@ -239,7 +239,7 @@ var m = new shai.Maker({
 | cnMaleName            | 中文姓名 男 |
 | cnFemaleName          | 中文姓名 女 |
 | bodycard              | 身份证（依据全局区划、全局时间段） |
-| account               | 账号名 |
+| account               | 账号名，字母+数字+连接线，开头字母 |
 | password              | 密码 |
 | validcode             | 验证随机数，可选1个参数，位数 |
 | mobile                | 手机 |
@@ -247,7 +247,11 @@ var m = new shai.Maker({
 | mail                  | 邮箱 |
 | ip                    | IP，可选参数1，是否为局域网IP |
 | port                  | 端口 |
+| **系统类** |   | 
+| file                  | 文件名，参数为指定候选后缀，可选 |
+| fieldType              | 常见数据库字段类型，可选参数字符串：mysql或oracle、sqlserver、sqlite |
 | **文本块类** |   | 
+| alphanum              | 字母+数字组合 |
 | english               | 英文，可选2个参数，参数1为长度，参数2为备选随机英文字串 |
 | upper                 | 大写字母，可选参数1，指定转换的文本 |
 | lower                 | 小写字母，可选参数1，指定转换的文本 |
@@ -263,7 +267,7 @@ var m = new shai.Maker({
 #### 配套功能补充说明（结合其它库）
 
 * Http请求拦截: [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter) <br>
-* API服务模拟:[json-server](https://github.com/typicode/json-server) <br>
+* API服务模拟: [json-server](https://github.com/typicode/json-server) <br>
 * 图片数据：[holder](https://github.com/imsky/holder) <br>
 
 ------
@@ -459,14 +463,14 @@ var v = new shai.Valitator();
 | qq                   | QQ号 5-11位 | 
 | age                  | 年龄 0-129岁 | 
 | zipcode              | 邮编 | 
-| account              | 账号名，字母数字组合，中间允许连接线，首位是字母 |
-| password             | 密码，最少1大小写字母、1小写字母、1数字、1特殊字符 |
+| account              | 账号名，字母数字下划线连接线组合，首位字母，同**微信号**规则, 但没限制长度 |
+| password             | 密码，最少1大小写字母、1小写字母、1数字、1特殊字符，没限制长度 |
 | mobile               | 手机13700000000，融合2017新号规则, +86、86可选 |
 | telphone             | 电话手机混合 |
 | phone                | 固话，可带分机, +86、86可选 |
 | bodycard             | 身份证，含地区、生日、验证数等规则 |
 | address              | 住址 |
-| citycode             | 6位地区代码
+| citycode             | 6位地区代码 |
 | autocard             | 车牌号码，支持新能源车牌号及港澳等 |
 | lon                  | 地理位置——经度，小数点1~15位 |
 | lat                  | 地理位置——纬度，小数点1~15位 |
@@ -483,12 +487,12 @@ var v = new shai.Valitator();
 | invoice              | 增值税发票代码 |
 | bankcard             | 银行卡号（仅限国内卡）|
 | isbn                 | 书号（仅限13位）|
-| approval             | 审批文号 政字〔2004〕第18号 或 政字[2004] 18号 |
+| approval             | 文号 政字〔2004〕第18号 或 政字[2004] 18号 |
 | **编码格式**|  | 
 | ascii                | ASCII码 |
 | base64               | BASE64码 |
 | md5                  | md5码 |
-| uuid                 | UUID码 |
+| uuid                 | UUID码，连接线-号可选 |
 | hex                  | HEX码 |
 | color                | 颜色码，16进制 |
 | jwt                  | JSON Web Token字符串|

@@ -28,6 +28,8 @@ export interface SpecificRulesMap {
     zipcode(): string;
     bodycard(): string;
     autocard(): string;
+    road(): string;
+    build(): string;
     address(): string;
     company(): string;
     lon(): string;
@@ -44,13 +46,14 @@ export default class SpecificRules {
         'beginTime': new Date('1970/01/01'),
         'endTime': new Date()
     };
-    private baseinc: number = 0;    
+    private baseinc: number = 0;
     private getRndTime = () => {
         let bt = this.config.beginTime ? this.config.beginTime : new Date('1970/01/01'),
             et = this.config.endTime ? this.config.endTime : new Date();
         return new Date(util.getInt(bt.getTime(), et.getTime()));
     };    
     private division: Division;
+    private historyRom: string[]= new Array(2);
     protected __methods: { [key:string]:  RuleFunction } = {};
     protected __rules: RulesInterface & SpecificRulesMap;
 
@@ -88,7 +91,7 @@ export default class SpecificRules {
             let cd = this.division.region(1).county, ps;
 
             if (is8b.indexOf(cd) > -1) ps = cd + '-' + rules.regexp(/[268]\d{7}/);
-            else ps = cd + '-' + rules.regexp(/[268]\\d{6}/);
+            else ps = cd + '-' + rules.regexp(/[268]\d{6}/);
             return ps;
         },
         zipcode: () => this.division.region(2).county,
@@ -113,8 +116,16 @@ export default class SpecificRules {
 
             return pf + rules.regexp(/\d{3}[A-HJ-NP-UW-Z]{2}|[A-HJ-NP-UW-Z]\d{4}/);
         },
+        road: ():string => {
+            if(this.historyRom[0]) return <string>this.historyRom[0];
+            else return this.historyRom[0] = rules.road();             
+        },
+        build: () => {
+            if(this.historyRom[1]) return <string>this.historyRom[1];
+            else return this.historyRom[1] = rules.build();
+        },
         address: () => this.division.region().county.replace('县', '县城') 
-            + rules.road() + rules.build()
+            + this.maps.road() + this.maps.build()
             + rules.regexp(/[A-F](栋((一|二|三|四|五)单元)|座)?[1-8]0[1-6]室/),
         company: () => this.division.region().prefecture + rules.company(),
         lon: () => this.division.region(3).county + rules.regexp(/\d{8}/),
