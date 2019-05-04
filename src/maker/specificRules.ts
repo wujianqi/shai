@@ -11,10 +11,10 @@ export interface SettingOption {
     'divisionCode'?: string | number;
     'beginTime'?: Date;
     'endTime'?: Date;
+    'incrementBase'?: number;
 }
 
 export interface SpecificRulesMap {
-    [key: string]: RegExp | RuleFunction;
     increment(arg1?: boolean, arg2?: number): number;
     datetime(arg?: string): string;
     date(): string;
@@ -44,16 +44,16 @@ export default class SpecificRules {
     private config = {
         'divisionCode': rules.regexp(/1[1-5]|2[1-3]|3[3-7]|4[1-6]|5[1-4]|6[1-5]/) + '0000',
         'beginTime': new Date('1970/01/01'),
-        'endTime': new Date()
+        'endTime': new Date(),
+        'incrementBase': 0
     };
-    private baseinc: number = 0;
     private getRndTime = () => {
         let bt = this.config.beginTime ? this.config.beginTime : new Date('1970/01/01'),
             et = this.config.endTime ? this.config.endTime : new Date();
         return new Date(util.getInt(bt.getTime(), et.getTime()));
     };    
     private division: Division;
-    private historyRom: string[]= new Array(2);
+    private history: string[]= new Array(2); // 缓存部分数据引用记录一次
     protected __methods: { [key:string]:  RuleFunction } = {};
     protected __rules: RulesInterface & SpecificRulesMap;
 
@@ -64,16 +64,10 @@ export default class SpecificRules {
     add(key:string, makeFunc:RuleFunction): void {
         this.__methods[key] =  makeFunc;
     }
-    
-    /**
-     * 重置自增长基数
-     */
-    set increment(num: number) {
-        this.baseinc = num;
-    }
 
     private maps: SpecificRulesMap = {
-        increment: (arg1: boolean = true, arg2: number = 1): number => arg1 ? this.baseinc += arg2 : this.baseinc,
+        increment: (arg1: boolean = true, arg2: number = 1): number => 
+            arg1 ? this.config.incrementBase += arg2 : this.config.incrementBase,
         datetime: (arg?: string) => util.formatDate(this.getRndTime(), (arg ? arg : 'yyyy-MM-dd hh:mm:ss')),
         date: () => util.formatDate(this.getRndTime(), 'yyyy-MM-dd'),
         time: () => util.formatDate(this.getRndTime(), 'hh:mm:ss'),
@@ -117,12 +111,12 @@ export default class SpecificRules {
             return pf + rules.regexp(/\d{3}[A-HJ-NP-UW-Z]{2}|[A-HJ-NP-UW-Z]\d{4}/);
         },
         road: ():string => {
-            if(this.historyRom[0]) return <string>this.historyRom[0];
-            else return this.historyRom[0] = rules.road();             
+            if(this.history[0]) return <string>this.history[0];
+            else return this.history[0] = rules.road();             
         },
         build: () => {
-            if(this.historyRom[1]) return <string>this.historyRom[1];
-            else return this.historyRom[1] = rules.build();
+            if(this.history[1]) return <string>this.history[1];
+            else return this.history[1] = rules.build();
         },
         address: () => this.division.region().county.replace('县', '县城') 
             + this.maps.road() + this.maps.build()

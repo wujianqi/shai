@@ -10,5 +10,5 @@ export default class Maker extends SpecificRules {
     private convertOption;
     private findBlock;
     private parseTPL;
-    make<T extends string | object>(content: T, parseValueType?: string | boolean, optionKey?: string): T;
+    make(content: string | object, parseValueType?: string | boolean, optionKey?: string): object;
 }

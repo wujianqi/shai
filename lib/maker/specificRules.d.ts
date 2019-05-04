@@ -5,9 +5,9 @@ export interface SettingOption {
     'divisionCode'?: string | number;
     'beginTime'?: Date;
     'endTime'?: Date;
+    'incrementBase'?: number;
 }
 export interface SpecificRulesMap {
-    [key: string]: RegExp | RuleFunction;
     increment(arg1?: boolean, arg2?: number): number;
     datetime(arg?: string): string;
     date(): string;
@@ -31,16 +31,14 @@ export interface SpecificRulesMap {
 }
 export default class SpecificRules {
     private config;
-    private baseinc;
     private getRndTime;
     private division;
-    private historyRom;
+    private history;
     protected __methods: {
         [key: string]: RuleFunction;
     };
     protected __rules: RulesInterface & SpecificRulesMap;
     add(key: string, makeFunc: RuleFunction): void;
-    increment: number;
     private maps;
     constructor(option?: SettingOption);
 }

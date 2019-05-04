@@ -64,7 +64,6 @@ export interface RulesMap {
 	isbn: RegExp;
 	tag: RegExp;
 	jwt: RegExp;
-	objectid: RegExp;
 	maca: RegExp;
 	even(arg: string | number): boolean;
 	odd(arg: string | number): boolean;
@@ -160,7 +159,6 @@ export const rules: RulesInterface = {
 	isbn: /^(978\-\d\-\d{3}\-\d{5}\-[a-z0-9]$)|(978\d{9}[a-z0-9])$/i,
 	tag:/^<([a-z1-6]+)([^<]+)*(?:>(.*)<\/\1>| *\/>)$/,
 	jwt:/^([A-Za-z0-9\-_~+\/]+[=]{0,2})\.([A-Za-z0-9\-_~+\/]+[=]{0,2})(?:\.([A-Za-z0-9\-_~+\/]+[=]{0,2}))?$/,
-	objectid: /^[0-9a-fA-F]{24}$/,
 	maca: /^[0-9A-F]{2}(\-|\:)[0-9A-F]{2}\1[0-9A-F]{2}\1[0-9A-F]{2}\1[0-9A-F]{2}\1[0-9A-F]{2}$/i,
 	even: (arg: string | number) => ((+arg) & 1) === 0,
 	odd: (arg: string | number) => ((+arg) & 1) !== 0,
@@ -265,7 +263,7 @@ export const rules: RulesInterface = {
 		} else if (typeof arg === 'object') {
 			ret = Object.keys(arg).length === 0;
 		} else if(typeof arg === 'number') {
-			ret = arg === 0;
+			ret = arg < 0;
 		}
 		return ret;
 	},

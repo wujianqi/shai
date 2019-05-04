@@ -109,7 +109,7 @@ export interface ChainInterface {
     custom?(arg: string|RuleFunction, ...args:Array<any>): this;    
 }
 
-var props:PropertyDescriptorMap = {} , that:ChainInterface;
+var props:PropertyDescriptorMap = {};
 
 /**
  * @class 验证链
@@ -127,7 +127,6 @@ export class Chain implements ChainInterface{
     
     constructor(override?:{ [key: string]:RuleFunction }) {
         this.__rls = (<any>Object).assign(Object.create(null), rules, override);
-        that = this;
     }
 
     $set(opt: OptionType) {
@@ -222,20 +221,19 @@ Object.keys(rules).forEach(key => {
 
     if (rule instanceof RegExp || (typeof rule === 'function' && rule.length === 1)) {
         props[key] = {
-            get: () => {
-                that.$set({label: key});
-                return that;
+            get: function(){
+                (<ChainInterface>this).$set({label: key});
+                return this;
             }
         }
-    } else if (typeof rule === 'function') {
-        
+    } else if (typeof rule === 'function') {        
         props[key] = {
-            value: (...args: any[]) => {
+            value: function(...args: any[]){
                 let obj: any = {};
                 
                 obj[key] = args;
-                that.$set({label: obj});
-                return that;
+                (<ChainInterface>this).$set({label: obj});
+                return this;
             }
         }
     }

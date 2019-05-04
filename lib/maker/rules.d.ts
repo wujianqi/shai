@@ -7,15 +7,16 @@ export interface RulesMap {
     now(arg?: string): string;
     regexp(arg?: string | RegExp): string;
     enum<T extends boolean | string | number>(...args: T[]): T;
+    range(n1?: number, n2?: number, n3?: number): string;
     int(arg1?: number, arg2?: number): number;
     number(arg1?: number, arg2?: number, arg3?: number): number;
     bool(): boolean;
     month(): number;
     day(): number;
+    hour(): number;
     minute(): number;
     rgb(arg?: boolean): string;
     hsl(arg?: boolean): string;
-    validcode(arg?: number): string;
     mid: RegExp;
     account: RegExp;
     password: RegExp;
@@ -27,7 +28,7 @@ export interface RulesMap {
     bizcode: RegExp;
     bankcard: RegExp;
     qq: RegExp;
-    alphanum: RegExp;
+    alphanum(arg?: number): string;
     english(num?: number, arg?: string): string;
     upper(arg?: string): string;
     lower(arg?: string): string;
@@ -35,6 +36,7 @@ export interface RulesMap {
     ip(local?: boolean): string;
     text(n1?: number, arg?: string, n2?: number): string;
     price(arg1?: number, arg2?: number, arg3?: boolean): string;
+    esurname(): string;
     enName(): string;
     enMaleName(): string;
     enFemaleName(): string;

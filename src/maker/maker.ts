@@ -125,8 +125,10 @@ export default class Maker extends SpecificRules {
      */
     private parseTPL(content: string): string {
         return content.replace(/<%([^(%>)\n\r]+)%>/g, ($0, $1): any  => {
-            if ($1.indexOf(',') > -1) {
-                let args = $1.split(',');
+            const key = $1.replace(/\s+/g,'');
+
+            if (key.indexOf(',') > -1) {
+                let args = key.split(',');
 
                 args.forEach( (item:any, i:number) => {
                     if (/^true$/.test(item)) args[i] = true;
@@ -135,7 +137,7 @@ export default class Maker extends SpecificRules {
                 });
                 return this.get(args.shift(), ...args);
             } else {
-                return this.get($1);
+                return this.get(key);
             }
         })
     }
@@ -145,23 +147,20 @@ export default class Maker extends SpecificRules {
      * @param {tring | object} content JSON模版内容
      * @param {string | boolean} parseValueType 是否需要转换值的类型，默认是，即转换值类型
      * @param {string} optionKey 自定义循环输出的对象属性名，默认为makerOption
-     * @returns {tring | object} 
+     * @returns {object} 
      */
-    make <T extends string | object>(content: T, parseValueType?:string | boolean, optionKey?:string): T{
+    make (content: string | object, parseValueType?:string | boolean, optionKey?:string): object{
         try {
             let data: string, tpl:string;
-            const isobject = typeof content === 'object', 
-                cls = (str:string) => str.replace(/\s+/g,""),
-                hasParse = typeof parseValueType ==='boolean' ? parseValueType : true;
+            const hasParse = typeof parseValueType ==='boolean' ? parseValueType : true;
 
             if (typeof parseValueType ==='string') {
-                let typs = cls(parseValueType).split(',');
+                let typs = parseValueType.trim().split(',');
                 typs.forEach(item => {
-                    if (this.__parseTypes.indexOf(item) === -1 && this.__rules.hasOwnProperty(item)) 
-                        this.__parseTypes.push(item);
+                    if (this.__parseTypes.indexOf(item) === -1) this.__parseTypes.push(item);
                 });
             }
-            tpl = cls(isobject ? JSON.stringify(content) : <string>content);
+            tpl = JSON.stringify(typeof content === 'string' ? JSON.parse(content): content);            
             if (typeof optionKey == 'string' && optionKey !== '') this.__OptPropKey = optionKey;
             if (hasParse) {
                 const reg = new RegExp(`(?!:\\s*)"<%\\s*(${this.__parseTypes.join('|')})[^%>"]*%>"`,'g'),
@@ -171,7 +170,7 @@ export default class Maker extends SpecificRules {
             }
             else data= this.parseTPL(this.findBlock(tpl));
 
-            return isobject ? JSON.parse(data) : data;
+            return JSON.parse(data);
         } catch (error) {
             throw new SyntaxError(`请检查模板格式！${error.message}`);
         }        

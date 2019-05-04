@@ -13,15 +13,16 @@ export interface RulesMap {
     now(arg?: string): string;
     regexp(arg?: string | RegExp): string;
     enum<T extends boolean | string | number>(...args: T[]): T;
+    range(n1?:number, n2?:number, n3?:number):string;
     int(arg1?: number, arg2?: number): number;
     number(arg1?: number, arg2?: number, arg3?: number): number;
     bool(): boolean;
     month(): number;
     day(): number;
+    hour(): number;
     minute(): number;
     rgb(arg?: boolean): string;
     hsl(arg?: boolean): string;
-    validcode(arg?: number): string;
     mid: RegExp;
     account: RegExp;
     password: RegExp;
@@ -33,7 +34,7 @@ export interface RulesMap {
     bizcode: RegExp;
     bankcard: RegExp;
     qq: RegExp;
-    alphanum: RegExp;
+    alphanum(arg?: number): string;
     english(num?: number, arg?: string): string;
     upper(arg?: string): string;
     lower(arg?: string): string;
@@ -41,6 +42,7 @@ export interface RulesMap {
     ip(local?: boolean): string;
     text(n1?: number, arg?: string, n2?: number): string;
     price(arg1?: number, arg2?: number, arg3?: boolean): string;
+    esurname():string;
     enName(): string;
     enMaleName(): string;
     enFemaleName(): string;
@@ -55,17 +57,27 @@ export interface RulesMap {
     build(): string;
     job():string;
     file(...exts:string[]):string;
-    fieldType(str?:'mysql'|'sqlserver'|'oracle'|'sqlite'):string;
+    fieldType(str?:'mysql'|'sqlserver'|'oracle'|'sqlite'):string;    
 }
 
 export interface RulesInterface extends RulesMap{
     [key: string]: RegExp | RuleFunction;
 };
 
-const lw = 'abcdefghijklmnopqrstuvwxyz',
-    uw = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-    limit255 =  "([1-9]{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])",
-    randText = (arg: string, num?: number): string => util.getItems(arg.split(''), num ? num : util.getInt(1, 9)).join('');
+var lw = 'abcdefghijklmnopqrstuvwxyz',
+    r255 =  "([1-9]{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])",
+    rndText = (arg: string, num?: number) => util.getItems(arg.split(''), num ? num : util.getInt(1, 9)).join(''),
+    history = new Array(3), // 缓存部分数据引用记录一次
+    geth = (index:number, value:string|number) => {
+        let typ = history[index], nn:string|number;
+        
+        if(!typ) nn = value;
+        else {
+            nn = typ;
+            typ = void 0;
+        }
+        return nn;
+    };
 
 export const rules: RulesInterface = {
     md5: (is16b: boolean = false, arg: string = new Date().getTime() + ''): string => md5(arg, is16b),
@@ -86,14 +98,19 @@ export const rules: RulesInterface = {
     },
     regexp: (arg?: string | RegExp): string => arg ? new RandExp(arg).gen() : new RandExp(/.+/).gen(),
     enum: <T extends boolean | string | number>(...args: T[]): T => util.getItem(args),
-    int: (arg1: number = 0, arg2: number = 100) => util.getInt(arg1, arg2),
-    number: (arg1: number = 0, arg2: number = 10000, arg3: number = 2) => util.getNumber(arg1, arg2, arg3),
+    range: (low = 1, high = 5, step = 1) => {
+        let s = [];
+
+        for (let i = low; i <= high; i += step)  s.push(i)
+        return s.join(',');
+    },
+    int: (low = 0, high = 100) => util.getInt(low, high),
+    number: (low = 0, high = 10000, dec = 2) => util.getNumber(low, high, dec),
     bool: () => util.getItem([true, false]),
     month: () => util.getInt(1, 12),
     day: () => util.getInt(1, 31),
     hour: () => util.getInt(0, 23),
     minute: () => util.getInt(1, 59),
-    validcode: (arg = 4) => new RandExp('[A-Z0-9]{' + arg + '}').gen(),
     mid: /[1-9A-Z][0-9A-Z]{1,7}(\-[0-9A-Z]{2,6}){0,2}/,
     account: /[a-zA-Z]{1,3}[a-zA-Z0-9]{6,8}/,
     password: /([a-z][A-Z][`~!@#$%^&*]\d){2}/,
@@ -105,12 +122,12 @@ export const rules: RulesInterface = {
     bizcode: /91[1-4]\d{5}[0-9A-HJ-NPQRTUWXY]{10}/,
     bankcard: /62(([0-3]\d)(4[0-5])|5([0-3]|5|8|9)|70|8[2-3])\d{12,15}/,
     qq: /([1-2]\d{10})|([1-9]\d{4,9})/,
-    alphanum: /[a-zA-A0-9]{4,12}/,
+    alphanum: (arg = 4) => new RandExp('[A-Z0-9]{' + arg + '}').gen(),
     rgb: (arg:boolean = false) => {
         if (arg) {
-            return new RandExp(`rgb\\(${limit255},${limit255},${limit255}\\)`).gen();
+            return new RandExp(`rgb\\(${r255},${r255},${r255}\\)`).gen();
         } else {
-            return new RandExp(`rgba\\(${limit255},${limit255},${limit255},0\\.\\d\\)`).gen();
+            return new RandExp(`rgba\\(${r255},${r255},${r255},0\\.\\d\\)`).gen();
         } 
     },
     hsl: (arg:boolean = false) => {
@@ -124,18 +141,18 @@ export const rules: RulesInterface = {
             util.getInt(0, 100)+'%',
             util.getInt(0, 100)+'%'].join(',')})`;
     },
-    english: (num?: number, arg?: string) => randText((arg ? arg : uw + lw), num),
-    upper: (arg?: string) => typeof arg === 'string' ? arg.toUpperCase(): randText(uw),
-    lower: (arg?: string) => typeof arg === 'string' ? arg.toLowerCase(): randText(lw),
+    english: (num?: number, arg?: string) => rndText((arg ? arg : lw + lw.toUpperCase()), num),
+    upper: (arg?: string) => typeof arg === 'string' ? arg.toUpperCase(): rndText(lw.toUpperCase()),
+    lower: (arg?: string) => typeof arg === 'string' ? arg.toLowerCase(): rndText(lw),
     chinese: (num?: number, arg?: string) => {
-        if (typeof arg === 'string') return randText(arg, num);
+        if (typeof arg === 'string') return rndText(arg, num);
         else return util.getItems(names.commonWord, typeof num ==='number' ? num : util.getInt(1, 9) ).join('');
     },
     ip: (local: boolean = false) => {
         if (local) {
-            return new RandExp(`((192\\.168)|(172\\.0)|(10\.0))\\.${limit255}\\.${limit255}`).gen();
+            return new RandExp(`((192\\.168)|(172\\.0)|(10\.0))\\.${r255}\\.${r255}`).gen();
         } else {
-            return new RandExp([limit255, limit255, limit255, limit255].join('\\.')).gen();
+            return new RandExp([r255, r255, r255, r255].join('\\.')).gen();
         }
     },
     text: (n1?: number, arg: string = '填充文本样式', n2?: number): string => {
@@ -145,23 +162,34 @@ export const rules: RulesInterface = {
         else if (typeof n1 === 'number') d = n1;
         return Array(d + 1).join(arg);
     },
-    price: (arg1: number = 0, arg2: number = 10000, arg3: boolean = true): string => {
-        let n, d = util.getNumber(arg1, arg2, 2);
+    price: (low: number = 0, high: number = 10000, arg3: boolean = true): string => {
+        let n, d = util.getNumber(low, high, 2);
         const r1 = /\d{1,3}(?=(\d{3})+$)/g, r2 = /^(-?)(\d+)((\.\d+)?)$/;
 
         if (arg3) n = (d + '').replace(r2, ((s, s1, s2, s3) => s1 + s2.replace(r1, '$&,') + s3));
         else n = d + '';
         return n;
     },
-    enName: () => util.getItem(names.eMaleName.concat(names.eFemaleName)) + ' ' + util.getItem(names.eSurname),
-    enMaleName: () => util.getItem(names.eMaleName) + ' ' + util.getItem(names.eSurname),
-    enFemaleName: () => util.getItem(names.eFemaleName) + ' ' + util.getItem(names.eSurname),
-    surname: () => util.getItem(names.cSurname),
-    cnName: () => util.getItem(names.cSurname) + util.getItem(names.cMaleName.concat(names.cFemaleName)),
-    cnMaleName: () => util.getItem(names.cSurname) + util.getItem(names.cMaleName),
-    cnFemaleName: () => util.getItem(names.cSurname) + util.getItem(names.cFemaleName),
-    enState: () => util.getItem(names.eStates),
-    cnState: () => util.getItem(names.cStates),
+    esurname: () => history[0] = util.getItem(names.eSurname),
+    enName: () => util.getItem(names.eMaleName.concat(names.eFemaleName)) + ' ' + geth(0, rules.esurname()),
+    enMaleName: () => util.getItem(names.eMaleName) + ' ' + geth(0, rules.esurname()),
+    enFemaleName: () => util.getItem(names.eFemaleName) + ' ' + geth(0, rules.esurname()),
+    surname: () => history[1] = util.getItem(names.cSurname),
+    cnName: () => geth(1, rules.surname()) + util.getItem(names.cMaleName.concat(names.cFemaleName)),
+    cnMaleName: () => geth(1, rules.surname()) + util.getItem(names.cMaleName),
+    cnFemaleName: () => geth(1, rules.surname()) + util.getItem(names.cFemaleName),
+    enState: () => {
+        let index = util.getInt(0, names.eStates.length - 1);
+
+        if (!history[2]) history[2] = index
+        return names.eStates[geth(2, index) as number]
+    },
+    cnState: () => {
+        let index = util.getInt(0, names.cStates.length - 1);
+
+        if (!history[2]) history[2] = index
+        return names.cStates[geth(2, index) as number]
+    },  
     company: () => util.getItems(names.commonWord, util.getInt(2, 3)).join('') 
         + util.getItem(names.companyNature) + '有限公司',
     road: () => util.getItem(names.road) + new RandExp(/(路|街|大道)(1\d{3}|[1-9]\d{2})号/).gen(),
@@ -170,24 +198,18 @@ export const rules: RulesInterface = {
     file: (...exts) => {
         let ext, name = new RandExp(/[a-zA-Z][-_]*[a-zA-Z0-9]{1,9}/).gen();
 
-        if (exts)  ext = (exts.length > 1) ? util.getItem(exts) : exts;            
+        if (exts)  ext = (exts.length > 1) ? util.getItem(exts) : exts;         
         else ext = util.getItem(['mp3','doc','txt']);
         return  `${name}.${ext}`;
     },
     fieldType: (str:'mysql'|'sqlserver'|'oracle'|'sqlite' = 'mysql') => {
-        let ds = ['VARCHAR', 'TEXT', 'INTEGER', 'FLOAT', 'BLOB', 'DATETIME'];
-
-        switch (str) {
-            case 'sqlserver':
-                ds = ['nvarchar', 'ntext', 'decimal', 'datetime', 'bit', 'int'];
-                break;
-            case 'oracle':
-                ds = ['NVARCHAR2', 'BLOB', 'INTEGER', 'DATE', 'RAW', 'LONG'];
-                break;
-            case 'sqlite':
-                ds = ['INTEGER', 'REAL', 'INTEGER', 'TEXT', 'BLOB'];
-                break;
+        let ds = {
+            mysql: ['VARCHAR', 'TEXT', 'INTEGER', 'FLOAT', 'BLOB', 'DATETIME'],
+            sqlserver: ['nvarchar', 'ntext', 'decimal', 'datetime', 'bit', 'int'],
+            oracle: ['NVARCHAR2', 'BLOB', 'INTEGER', 'DATE', 'RAW', 'LONG'],
+            sqlite: ['INTEGER', 'REAL', 'INTEGER', 'TEXT', 'BLOB']
         }
-        return util.getItem(ds);
+        return util.getItem(ds[str]);
     }
+    
 }

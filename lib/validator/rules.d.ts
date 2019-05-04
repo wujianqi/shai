@@ -63,7 +63,6 @@ export interface RulesMap {
     isbn: RegExp;
     tag: RegExp;
     jwt: RegExp;
-    objectid: RegExp;
     maca: RegExp;
     even(arg: string | number): boolean;
     odd(arg: string | number): boolean;

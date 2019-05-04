@@ -18,6 +18,10 @@ describe('单项数据生成与模拟测试 maker test', function () {
     it('enum make test', () => {
         console.log(m.get('enum','aa','bb','cc'));
     });
+    it('range make test', () => {
+        console.log(m.get('range'));
+        console.log(m.get('range', 10, 15));
+    });
     it('int make test', () => {
         console.log(m.get('int'));
     });
@@ -54,8 +58,8 @@ describe('单项数据生成与模拟测试 maker test', function () {
     it('mid make test', () => {
         console.log(m.get('mid'));
     });
-    it('validcode make test', () => {
-        console.log(m.get('validcode'));
+    it('alphanum make test', () => {
+        console.log(m.get('alphanum'));
     });
     it('account make test', () => {
         console.log(m.get('account'));
