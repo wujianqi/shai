@@ -43,12 +43,12 @@ describe('数据生成测试 shai maker', function () {
         });
   
         var tpl2 = m2.make({
-            id: "<% increment %>",
-            pase: "<% custom, testv, 10 %>",            
-            test: ["<% range, 1, 5 %>","<% range, 10, 12, 2 %>"] 
-        },'range, add');
+            id: '<% increment %>',
+            pase: '<% custom, testv, 10 %>',
+            test: ['<% range, 1, 5 %>','<% range, 10, 12, 2 %>'] 
+        },'range');
   
-        console.log(JSON.stringify(jsontpl));
+        console.log(jsontpl);
         console.dir(tpl1);
         console.dir(tpl2);
     });

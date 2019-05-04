@@ -66,22 +66,22 @@ var m = new shai.Maker({
 > 参数1 ***key*** 为方法名； <br>
 > 参数2 ***fn*** 为可选，方法函数。<br>
 
-**m.make(content:string|object, parseValueType:boolean|string, optionKey:string)** 根据JSON模板，生成设值后的新对象
+**m.make(content:string|object, parseValueType:boolean|string, optionKey:string)** 根据对象或JSON文本模板，生成设值后的新对象
 
 ###### make 参数说明：
 
 > 参数1 ***content*** 为JSON模版；string或object，如果本参数是字符串则函数输出为字符串，如果是对象则输出也是对象，**必须**！<br>
-> 参数2 ***parseValueType*** 是否需要转换值的类型，默认为true，即转换，可选。注：模板静态数据内容不受此限制。适用范围：对象属性如设位"key": <% int %>则报错, 可改为"key": "<% int %>"，因此类型需要转换；parseValueType 设为false，为保留文本；设为string，则为指定的需转换的方法名，不同的方法名使用,号隔开<br>
-> 参数3 ***optionKey*** 自定义循环输出的对象属性名，默认为makerOption，string，可选，可参考JSON模板说明<br>
+> 参数2 ***parseValueType*** 是否需要转换值的类型，默认为true，即转换，可选。注：模板静态数据内容不受此限制。适用范围：对象属性如设为"key": <% int %>则报错, 可改为"key": "<% int %>"，因此类型需要转换；parseValueType 设为false，为保留文本；设为string，则为指定的需转换的方法名，不同的方法名使用,号隔开。<br>
+> 参数3 ***optionKey*** 自定义循环输出的对象属性名，默认为makerOption，string，可选，可参考JSON模板说明。<br>
 
-###### JSON模版 约束规则说明：
+###### 对象或JSON模版 约束规则说明：
 
 > 方法名、参数，使用这种方式：<% int, 0, 2 %>  <br>
 > 数组或嵌套数据输出配置，在目标对象里加属性：makerOption（也可自定义，即make的optionKey参数）, 说明如下：<br>
->> 值为“参数”数组，例："makerOption": [2,3,'childrens']。
->> ***数组元素1***，默认情况下为输出对象的个数，即数组长度，但有数组元素3的情况下，为嵌套的层数；必需项！<br>
->> ***数组元素2***，默认不设值，当设值后，无数组元素3的情况下，数组元素1变为随机数字的下限值，数组元素2为上限值；有数组元素3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
->> ***数组元素3***，默认不设值，当设值后，为嵌套对象的属性名，文本<br>
+>> 值为“参数”数组，例："makerOption": [2,3,'childrens']。<br>
+>> ***数组元素 1***，默认情况下为输出对象的个数，即数组长度，但有数组元素3的情况下，为嵌套的层数；必需项！<br>
+>> ***数组元素 2***，默认不设值，当设值后，无数组元素3的情况下，数组元素1变为随机数字的下限值，数组元素2为上限值；有数组元素3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
+>> ***数组元素 3***，默认不设值，当设值后，为嵌套对象的属性名，文本<br>
 
 > 模版示例：<br>
 
@@ -125,7 +125,7 @@ var m = new shai.Maker({
     log: {
       makerOption: [1, 3],
       "id_<% increment %>": "<% int, 0, 200 %>",
-      date: <% date %>,
+      date: "<% date %>",
       condition: "<% enum, 开始, 启用, 停止 %>"
     }
   });
