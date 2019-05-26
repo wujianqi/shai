@@ -206,8 +206,8 @@ var m = new shai.Maker({
 | hour                  | 时 |
 | minute                | 分 |
 | **区域类** |   | 
-| enState               | 英文国名 |
-| cnState               | 中文国名 |
+| enState               | 英文国名（全球GDP前50的国家） |
+| cnState               | 中文国名（全球GDP前50的国家） |
 | zipcode               | 邮编（依据全局区划） |
 | citycode              | 行政代码（依据全局区划） |
 | province              | 省（依据全局区划） |
@@ -216,26 +216,26 @@ var m = new shai.Maker({
 | lon                   | 地理位置，经度，（依据全局区划） |
 | lat                   | 地理位置，纬度，（依据全局区划） |
 | autocard              | 车牌号码（依据全局区划） |
-| road                  | 路名 |
+| road                  | 路名 （使用频次最高的路名）|
 | build                 | 建筑物名 |
 | address               | 地址，当前县/区+路+号+...等 （依据全局区划） |
-| phone                 | 固定电话（依据全局区划，自动识别8位或7位） |
+| phone                 | 固定电话（依据全局区划，自动识别所在城市电话位数，8位或7位） |
 | **商业类** |   |
-| company               | 企业名称（依据全局区划） |
+| company               | 企业名称（依据全局区划，使用频次最高的常见字） |
 | bizcode               | 统一信用编码 |
 | bankcard              | 银行卡号 |
 | price                 | 价格，可选参数1为下限数，可选参数2为上限数，可选参数3为是否带分号, true或false |
 | mid                   | 型号货号编号，数字字母、中间小横杠组合 |
 | job                   | 工作、职业 |
 | **账号网络类**|   | 
-| esurname              | 英文姓氏 |
-| enName                | 英文姓名 |
-| enMaleName            | 英文姓名 男 |
-| enFemaleName          | 英文姓名 女 |
-| surname               | 中文姓氏 |
-| cnName                | 中文姓名 |
-| cnMaleName            | 中文姓名 男 |
-| cnFemaleName          | 中文姓名 女 |
+| esurname              | 英文姓氏 （使用频次最高的英文姓）|
+| enName                | 英文姓名 （使用频次最高的英文姓+名）|
+| enMaleName            | 英文姓名 男 （使用频次最高的英文姓+男名）|
+| enFemaleName          | 英文姓名 女 （使用频次最高的英文姓+女名）|
+| surname               | 中文姓氏 （使用频次最高的中文姓） |
+| cnName                | 中文姓名 （使用频次最高的中文姓名）|
+| cnMaleName            | 中文姓名 男 （使用频次最高的中文姓+男名）|
+| cnFemaleName          | 中文姓名 女 （使用频次最高的中文姓+女名）|
 | bodycard              | 身份证（依据全局区划、全局时间段） |
 | account               | 账号名，字母+数字+连接线，开头字母，**微信号**同此 |
 | password              | 密码 |
@@ -274,11 +274,11 @@ var m = new shai.Maker({
 import shai from 'shai';
 
 // 引用独立模块（不含数据模拟）
-// ES5方式 const Valitator = require('shai/lib/valitator');
-// ES6方式 import Valitator from 'shai/lib/valitator.esm'; 
-// var v = new Valitator();
+// ES5方式 const Validator = require('shai/lib/Validator');
+// ES6方式 import Validator from 'shai/lib/Validator.esm'; 
+// var v = new Validator();
 
-var v = new shai.Valitator();
+var v = new shai.Validator();
 // ……
 ```
 
@@ -318,8 +318,8 @@ var v = new shai.Valitator();
 ##### 用法例子：
 
 ```javascript
-  import Valitator from 'shai/lib/valitator.esm';
-  var v = new Valitator();
+  import Validator from 'shai/lib/Validator.esm';
+  var v = new Validator();
 
   // 对指定的单项数据验证
   v.check('password1').eq('password2').result; // 返回false
