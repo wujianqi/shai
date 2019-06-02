@@ -3,8 +3,9 @@ import assert from 'power-assert';
 import shai from '../src/index';
 
 describe('数据验证测试 shai valid', function () {
-  var v = new shai.Validator();
-  v.isdev = true;
+  var v = new shai.Validator({
+    isdev: true
+  });
 
   it('属性路径方式', function () {
     var json = {
@@ -12,21 +13,32 @@ describe('数据验证测试 shai valid', function () {
       "age":30,
       "looks":{
         "size": {
-          "foot": 41.2
+          "foot": 41.5
         }
       }
     }
 
-    var chain = v.check(json, 'looks.size.foot').number.int.on('int',res =>{
-      if(res) console.log('整数验证通过');
-      else  console.log('整数验证没有通过');
-    }).on( faults => {
-      if (faults.indexOf('int') === -1) console.log('整数验证通过！');
-      faults.forEach(f => {
-        if (f === 'int') console.log('整数验证没有通过');
-      });
+    v.add('foo', val => {
+      return val < 30;
+    }, '必须大于30')
+
+    var chain = v.check(json, 'age').number.int
+    .ok('int',() => console.log(1,'整数验证通过'))
+    .on(fault => { // 验证成功则不执行
+        let hasInt = Object.keys(fault).includes('int');
+      
+      if (!hasInt) console.log(2,'整数验证通过');
+    });
+    assert(chain.result);
+
+  var chain = v.check(json, 'looks.size.foot').number
+    .custom('foo').name('自定义数据')
+    .on('custom',() => console.log(3, '验证没有通过'))
+    .on(fault => {
+       // console.log(4, fault);
     });
 
+    //console.log(chain.rules());
     assert(!chain.result);
   });
 
@@ -74,13 +86,13 @@ describe('数据验证测试 shai valid', function () {
     }`;
 
     var struct = {
-      name: v.string.chinese,
+      name: v.string.chinese.name('姓名').in(['李四','王五']).target('姓名组'),
       address: v.string.address,
       age: v.number.int,
-      hobby: v.string,
+      hobby: v.string.minlength(6),
       looks: {
         size: {
-          foot: v.number.int.eq(20)
+          foot: v.number.int.between(10,20)
         }
       },
       notes: [
@@ -127,6 +139,6 @@ describe('数据验证测试 shai valid', function () {
       txtusername: v.string.required,
       txtpassword: v.null
     }));
-  });
+  }); 
 
 }); 

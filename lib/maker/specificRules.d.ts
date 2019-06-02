@@ -1,11 +1,11 @@
-import { RuleFunction, RulesMap, RulesInterface } from './rules';
+import { RuleFunction, RulesMap, RulesInterface } from "./rules";
 declare type rulesName = keyof RulesMap | keyof SpecificRulesMap;
 export { RuleFunction, rulesName };
 export interface SettingOption {
-    'divisionCode'?: string | number;
-    'beginTime'?: Date;
-    'endTime'?: Date;
-    'incrementBase'?: number;
+    divisionCode?: string | number;
+    beginTime?: Date;
+    endTime?: Date;
+    incrementBase?: number;
 }
 export interface SpecificRulesMap {
     increment(arg1?: boolean, arg2?: number): number;

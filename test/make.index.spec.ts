@@ -26,7 +26,7 @@ describe('数据生成测试 shai maker', function () {
 
          var tpl1 = m2.make({
             data:{
-              makerOption:[5],
+              makerOption:[10000],
               name: "<% cnName %>",
               id: "<% uuid, %>",
               b: "<% int, 1, 20 %>",
@@ -49,7 +49,7 @@ describe('数据生成测试 shai maker', function () {
         },'range');
   
         console.log(jsontpl);
-        console.dir(tpl1);
+        console.log(tpl1);
         console.dir(tpl2);
     });
   

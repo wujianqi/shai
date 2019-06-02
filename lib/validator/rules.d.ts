@@ -91,4 +91,7 @@ export interface RulesMap {
 export interface RulesInterface extends RulesMap {
     [key: string]: RegExp | RuleFunction;
 }
+export declare var customRule: {
+    [key: string]: RuleFunction;
+};
 export declare const rules: RulesInterface;

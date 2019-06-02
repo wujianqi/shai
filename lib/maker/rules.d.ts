@@ -51,7 +51,7 @@ export interface RulesMap {
     build(): string;
     job(): string;
     file(...exts: string[]): string;
-    fieldType(str?: 'mysql' | 'sqlserver' | 'oracle' | 'sqlite'): string;
+    fieldType(str?: "mysql" | "sqlserver" | "oracle" | "sqlite"): string;
 }
 export interface RulesInterface extends RulesMap {
     [key: string]: RegExp | RuleFunction;

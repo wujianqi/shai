@@ -10,11 +10,11 @@
 
 “晒.JS” 简介： 
 
-- [x] 前后台通用，浏览器IE9+ （即支持ES5） <br>
 - [x] 针对国人国情定制、使用简单、易扩展 <br>
 - [x] 模拟生成（maker）：内置方法66项，让数据看起来更真实，规则简单 <br>
 - [x] 验证（validator）：内置方法85项，链式，结构即类型<br>
 - [x] 区划更新到 2019.3 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
+- [x] 前后台通用，0.2.x 支持ES5的版本，0.3.x后续版本为ES6 + 异步 <br>
 
 ------
 
@@ -59,7 +59,7 @@ var m = new shai.Maker({
 > 参数1 ***key*** 为方法名； <br>
 > 参数2 ***args*** 为可选，方法中的更多参数。<br>
 
-**m.add(key:string, fn:function)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
+**m.add(key:string|function, fn:function)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
 
 ###### add 参数说明：
 
@@ -114,7 +114,6 @@ var m = new shai.Maker({
 
   m.get('cnName') // 返回 张伟
   m.get('bodycard') // 返回 120101199901011693  
-  m.get('enum','是','否') // 返回 是
   m.get('province') // 返回 北京市
   m.get('range, 1, 5') // 返回 1,2,3,4,5
  
@@ -147,18 +146,18 @@ var m = new shai.Maker({
   console.log(user);
 
   // 扩展
-  m.add('test1', foo => 123 + foo);  // 方式一
+  m.add('test1', foo => 123 + foo);  // 方式一，推荐
   m.get('custom', 'test1', '234'); 
   m.get('custom', foo => 123 + foo, '234'); // 方式二，但模板中无法使用
-
-  // holder图片引用示例
-  m.add('image', (str1, str2) => { // 
-    return `<img src="holder.js/${str1}x${str2}">`;
-  })
 
   // 自引用示例
   m.add('testv', (a) => { 
     return m.get('increment', false) as number + a;
+  })
+
+  // holder图片引用示例
+  m.add('image', (str1, str2) => { // 
+    return `<img src="holder.js/${str1}x${str2}">`;
   })
 
   var user = m.make({
@@ -173,6 +172,39 @@ var m = new shai.Maker({
     test: ["<% range, 1, 5 %>","<% range, 6, 9, 2 %>"] // 字符串转数组，利用类型转换
   },'range'); 
 
+
+```
+
+##### 与 Vue React 等框架结合使用，本地API模拟示例 <br>
+
+```javascript
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import Maker from 'shai/lib/maker.esm';
+
+export default {
+  init() {
+    let mock = new MockAdapter(axios);
+    let listData = new Maker({
+      divisionCode: '440300'
+    }).make({
+      makerOption: [50],
+      id: "<% uuid %>",
+      name: "<% chinese, 10 %>",
+      longitude: "<% lon %>",
+      latitude: "<% lat %>",
+      bytime: "<% datetime %>"
+    });
+
+    mock.onGet('/project/list').reply(params => {
+      let { name } = params, mockList = listData.filter(d => 
+        (name && d.name.indexOf(name) == -1) ? false : true);
+    
+      return new Promise((resolve, reject) => 
+        setTimeout(() => resolve([200, { results: mockList }]), 1000));
+    });
+  }
+}
 
 ```
 
@@ -280,6 +312,15 @@ import shai from 'shai';
 
 var v = new shai.Validator();
 // ……
+
+// 可选配置项。
+var v = new shai.Validator({
+  isdev: true // 将未通过验证的以警告信息方式输出。  
+  message: {  // 修改默认错误消息模板，%n为name占位符，%t为target占位符。
+    eq: '%n不等于%t'
+  }
+});
+
 ```
 
 **v.check(data:any, path(string|array))** 单项数据验证，返回值为链式对象，详见链式对象说明。
@@ -293,13 +334,18 @@ var v = new shai.Validator();
 
 ###### 链式对象说明：
 
-> **chain.result**，所有链节点都是索引，只有调用result，即验证结果（boolean），才真正生效。 <br>
-> **chain.on(rule:string|function, function)**，验证过程回调函数（可选），见示例。<br>
-> chain.eq('foo')，1位参数的规则项：eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp <br>
-> chain.between(10,20)，2位参数的规则项：between <br>
-> 可变参数长度，1位以上参数的规则项：min、max、custom <br>
-> 除以上规则，均为直接使用属性方式：v.string.english.upper <br>
+> 1位参数的规则项：eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp，例：v.string.eq('foo')<br>
+> 2位参数的规则项：between，例：v.number.between(10,20)<br>
+> 最少1位以上，可变参数的规则项：min、max、custom 例：v.number.min(2,19,10,20)<br>
+> 无参数的规则项，均为直接使用属性方式：例：v.string.english.upper <br>
 > 链式验证对象支持所有规则任意搭配，但不建议无意义的组合，例：v.null<del>.length(10)</del> <br>
+> **.on(rule:string|function, string|function)**，绑定未通过验证的回调函数，用法见示例。<br>
+> **.ok(rule:string|function, string|function)**，绑定已通过验证的回调函数，用法见示例。<br>
+> **.name(fieldname:string)**，指定数据项名称，用于格式化消息。<br>
+> **.target(...targetnames:string[])**，指定比较值的名称，用于1位及以上参数规则格式化消息，见示例。<br>
+> 链所有节点仅是索引，不会立即生效的，调用result属性方法才会生效。<br>
+> **.result**，获取验证结果，值为boolean。 <br>
+> **.get(trigger:string)** 获取async-validator兼容规则，用法见示例。<br>
 
 **v.checkItems(chain:array)** 多项数据验证，返回值为是否通过(boolean)，参数为链式对象chain数组。
 
@@ -309,11 +355,9 @@ var v = new shai.Validator();
 
 > 参数1为数据，文本或对象均可，**必须** <br>
 > 参数2为数据类型结构，为链式对象组合（不要调result，会改变对象类型），参考代码示例，**必须** <br>
-> 参数3为可选回调方法，含2参数，未通过项的组、数据层级路径组，如要保持链内on，可忽略此参数。<br>
+> 参数3为可选回调方法，含2参数，未通过项的组、数据层级路径组，此方法会覆盖链内有on的集中回调的方法。<br>
 
-**v.add(key:string, fn:Function)** 添加验证数据的方法，便于复用，见custom规则说明。
-
-**v.isdev = true** 默认false，true为将未通过验证的以警告信息方式输出。
+**v.add(key:string|function, fn:Function, message:string)** 添加验证数据的方法，便于复用，见custom示例与规则说明。
 
 ##### 用法例子：
 
@@ -336,29 +380,28 @@ var v = new shai.Validator();
       note.content: "testdsafsdf"
     }];
   var chain = v.check(obj, [0, 'notes.content']).string.maxlength(255);
-  console.log(chain.result); 
+  console.log(chain.result);
+    
+  // 自定义规则方法
+  v.add('foo', (val, val2) => val.length === val2.length, '示例格式') // 方式一，推荐
+  v.check('123').custom('foo', '456');
+  v.check('123').custom((val, val2) => val.length === val2.length, '456'); // 方式二，但回调中无法使用
 
   // 绑定回调
   var chain = v.check('yrPqw2{O').password.eq('yr qw2{O').minlength(8)
-    .on('password', res => {  // 执行单个规则验证回调
-      if(res) console.log('密码验证通过');
-      else console.log('密码验证没有通过');
-    })
-    .on(faults => { // 执行所有验证项后一起回调
-      if (faults.indexOf('eq') === -1) console.log('密码二次验证OK！');
-      faults.forEach(f => {
-        if (f === 'eq') console.log('二次密码错误');
-        if (f === 'minlength') console.log('密码长度最少8位');
-      });
-    });
+    .on('password', () => console.log(...)) // 未通过验证的回调，单项
+    .on(fault => console.log(...)) // 集中回调, 回调函数可带一个参数，即未通过验证项的消息对象
+    .ok('password', () => console.log(...)) // 已通过验证的回调，只能按单项。
+    .ok(() => console.log(...),'foo') // 自定义函数的回调只要将参数调换个顺序即可，on同此。
   console.log(chain.result);
-  
-  // 自定义规则方法
-  v.add('foo', (val, val2) => val.length === val2.length) // 方式一
-  v.check('123').custom('foo', '456'); 
-  v.check('123').custom((val, val2) => val.length === val2.length, '456'); // 方式二
 
-  // 多项数据组合验证
+  //自定义消息（只要写名称就行）
+  var chain = v.check('yrPqw2{O').password.name('重复密码') // 设置名称
+    .eq('yr qw2{O').target('初始密码') // 设置比较对象名称，可多个，格式化时按顺序替换
+    .minlength(8) // 对于数字日期类型，无需写target
+  console.log(chain.result);
+
+  // 链式对象组合验证
   var result = v.checkItems([
     v.check('admin').account.length(4),
     v.check('O8g#F23gj').password.minlength(8)
@@ -368,26 +411,15 @@ var v = new shai.Validator();
   // 完整JSON数据或对象验证，可任意层级。
   var json = `{
     "name": "张航",
-    "address": "深圳市南山区后海大道110号",
     "age":30,      
     "hobby":["tour","sing"],
-    "looks":{
-      "size": {
-        "foot": 41
-      },
-      "weight":60
-    },
     "notes":[
       {
         "content": "testdsafsdf",
         "log": [{
-          "local.time": "2012-12-02"
-        }]
-      },
-      {
-        "content": "fdafsd22",
-        "log": [{
-          "local.time": "2016-15-06"
+            "local.time": "2012-12-02"
+          }, {
+            "local.time": "2012-15-02"
         }]
       }
     ]
@@ -395,13 +427,7 @@ var v = new shai.Validator();
 
   var struct = { // 定义类型结构
     name: v.string.chinese.address,
-    address: v.string,
     age: v.number.int.eq(30),
-    looks: {
-      size: {
-        foot: v.number.int
-      }
-    },
     hobby: v.array,
     notes: [
       { content: v.number,
@@ -416,6 +442,25 @@ var v = new shai.Validator();
 
   var result = v.verify(json, struct);
   console.log(result);
+
+```
+
+##### 兼容 Element、Ant design 等UI框架的 async-validator 的处理
+
+* 作用：简化过多层次的配置、减少或不使用自定义验证，仅验证链有效。
+* message，参考name/target/实例化参数的设定
+* trigger，为UI库封装，如有需要，可将change、blur写在rules参数中
+
+```javascript
+  // Element Vue：<el-form :rules="shaiRules"></el-form>
+  // Ant design React: <Form.Item>{ getFieldDecorator('age', rules: shaiRules.age) }</Form.Item>
+  setField() {
+    this.setFieldValue...
+  },
+  shaiRules: {
+    pass: v.string.required.password.length(8).get('change'),
+    age: v.number.gt(23).ok('gt', setField).get()
+  }
 
 ```
 
@@ -463,8 +508,8 @@ var v = new shai.Validator();
 | age                  | 年龄 0-129岁 | 
 | zipcode              | 邮编 | 
 | account              | 账号名，字母数字下划线连接线组合，首位字母，同**微信号**规则, 但没限制长度 |
-| password             | 密码，最少1大小写字母、1小写字母、1数字、1特殊字符，没限制长度 |
-| mobile               | 手机13700000000，融合2017新号规则, +86、86可选 |
+| password             | 密码，最少1大写字母、1小写字母、1数字、1特殊字符，没限制长度 |
+| mobile               | 手机13700000000，融合2017新号规则, 即包括16/19等开头的，+86、86可选 |
 | telphone             | 电话手机混合 |
 | phone                | 固话，可带分机, +86、86可选 |
 | bodycard             | 身份证，含地区、生日、验证数等规则 |
@@ -522,6 +567,7 @@ var v = new shai.Validator();
 | custom               | 自定义方法，参数为string或函数，string为add添加的key名，函数最少1个带检测值的参数 |
 
 ------
+
 
 ## 浏览器上使用
 

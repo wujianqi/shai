@@ -1,3 +1,3 @@
-import Validator, { RuleFunction, OnFaultsFunction, CallbackFunction, ChainInterface } from './validator';
-export { RuleFunction, OnFaultsFunction, CallbackFunction, ChainInterface };
+import Validator, { ValidatorInterface, ValidSettingOption, RuleFunction, ChainInterface } from "./validator";
+export { ValidatorInterface, ValidSettingOption, RuleFunction, ChainInterface };
 export default Validator;

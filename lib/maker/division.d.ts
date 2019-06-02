@@ -1,7 +1,7 @@
 export interface RegionInterface {
-    'province': string;
-    'prefecture': string;
-    'county': string;
+    province: string;
+    prefecture: string;
+    county: string;
 }
 interface RegionData {
     [key: string]: (string | number | null)[];

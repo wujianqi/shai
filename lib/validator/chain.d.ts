@@ -1,21 +1,21 @@
-import { RulesMap, RuleFunction } from './rules';
-export { RuleFunction };
-declare type ruleNames = keyof RulesMap;
-declare type OptionType = {
-    value?: any;
-    label?: string | object;
-    isdev?: boolean;
-};
-export interface CallbackFunction {
-    (result: boolean): void;
+import { RulesMap, RuleFunction } from "./rules";
+import { MessageInfo } from "./message";
+interface CallBackFunction {
+    [key: string]: Function;
 }
 export interface OnFaultsFunction {
-    (faults: ruleNames[]): void;
+    (faultMessage?: MessageInfo): void;
 }
-export interface ChainInterface {
-    $set?(arg: OptionType): this;
-    on(str: keyof RulesMap | OnFaultsFunction, fnc?: CallbackFunction): this;
-    readonly result: boolean;
+export interface ChainBase {
+    check(value: any): this;
+    check(value: object, path: string | number | Array<string | number>): this;
+    on(str: Function, fnc: string): this;
+    on(str: keyof RulesMap, fnc: Function): this;
+    on(str: OnFaultsFunction): this;
+    ok(str: Function, fnc: string): this;
+    ok(str: keyof RulesMap, fnc: Function): this;
+    name(fieldName: string, override?: boolean): this;
+    target(...targetNames: string[]): this;
     readonly string?: this;
     readonly number?: this;
     readonly boolean?: this;
@@ -101,20 +101,30 @@ export interface ChainInterface {
     in?(arg: string | number | any[] | object): this;
     has?(arg: string | number | any[] | object): this;
     regexp?(arg: RegExp | string): this;
-    custom?(arg: string | RuleFunction, ...args: Array<any>): this;
+    custom?(arg: RuleFunction): this;
+    custom?(arg: string, ...args: Array<any>): this;
 }
-export declare class Chain implements ChainInterface {
-    private __rls;
-    private __lbs;
-    private __val;
-    private __cbs;
-    private __allcb;
-    private __dev;
-    constructor(override?: {
-        [key: string]: RuleFunction;
-    });
-    $set(opt: OptionType): this;
-    on(key: keyof RulesMap | OnFaultsFunction, fnc?: CallbackFunction): this;
-    private checkFunc;
-    readonly result: boolean;
+interface InnerChain extends ChainBase {
+    $set(key: string, value: boolean | any[]): this;
 }
+declare class Chain implements InnerChain {
+    protected map: {
+        [key: string]: boolean | any[];
+    };
+    protected value: any;
+    protected failed: CallBackFunction;
+    protected passed: CallBackFunction;
+    protected names: {
+        [0]: string;
+        [1]: string[];
+        [2]: string[];
+    };
+    constructor();
+    $set(key: string, value: any): this;
+    check(data: any, path?: string | number | Array<string | number>): this;
+    name(fieldName: string, override?: boolean): this;
+    target(...targetNames: string[]): this;
+    on(arg1: keyof RulesMap | OnFaultsFunction | Function, arg2?: string | Function): this;
+    ok(arg1: keyof RulesMap | Function, arg2?: string | Function): this;
+}
+export { Chain };
