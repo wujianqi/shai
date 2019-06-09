@@ -1,6 +1,6 @@
 {
   "name": "shai",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "description": "前后台通用，数据验证、模拟、生成库",
   "main": "lib/shai.js",
   "module": "lib/shai.esm.js",
@@ -18,8 +18,7 @@
     "test:m": "mocha --require espower-typescript/guess ./test/make.spec.ts",
     "test:v": "mocha --require espower-typescript/guess ./test/validate.spec.ts",
     "test:av": "mocha ./test/async.validate.spec.js",
-    "test:lib": "mocha ./test/lib.spec.js",
-    "copy": "node esm.dts.js"
+    "test:lib": "mocha ./test/lib.spec.js"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.6",
