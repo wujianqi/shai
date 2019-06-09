@@ -4,12 +4,12 @@ import { message, MessageInfo, config } from "./message";
 
 type ruleNames = keyof RulesMap;
 
-export interface ChainInterface extends ChainBase {
+export interface IChain extends ChainBase {
   readonly result: boolean;
   get(trigger?: string): any[];
 }
 
-export default class ChainResult extends Chain implements ChainInterface {
+export default class ChainResult extends Chain implements IChain {
   private faults: MessageInfo; // 未通过项
 
   /**

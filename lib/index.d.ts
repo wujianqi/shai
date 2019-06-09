@@ -1,10 +1,8 @@
-import Validator, { RuleFunction, ValidSettingOption, ValidatorInterface, ChainInterface } from "./validator";
-import Maker, { SettingOption, MethodFuction } from "./maker";
-import { objectPath } from "./validator/objectPath";
-export { RuleFunction, ValidSettingOption, SettingOption, MethodFuction, ValidatorInterface, ChainInterface };
+import { IValidator, ValidSetting, RuleFunction, IChain } from "./validator";
+import { MakerSetting, IMaker, MethodFuction } from "./maker";
+export { IValidator, ValidSetting, RuleFunction, IChain, MakerSetting, IMaker, MethodFuction };
 declare const _default: {
-    Validator: typeof Validator;
-    Maker: typeof Maker;
-    objectPath: typeof objectPath;
+    validator: IValidator;
+    maker: IMaker;
 };
 export default _default;

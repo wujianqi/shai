@@ -30,19 +30,21 @@ npm i shai
 
 ```javascript
 import shai from 'shai';
-var m = new shai.Maker();
+var maker = shai.maker;
 
 // 引用独立模块（不含数据验证）
-// ES5方式 const Maker = require('shai/lib/maker');
-// ES6方式 import Maker from 'shai/lib/maker.esm'; 
-// var m = new Maker();
+// ES5方式 const maker = require('shai/lib/maker');
+// ES6方式 import maker from 'shai/lib/maker.esm'; 
+// maker.get(...)...
 
 // 如果需要设定全局选项，则可如下：
-var m = new shai.Maker({
+maker.setting = {
     divisionCode: '610000',
     beginTime: new Date('1980/06/01'),
     endTime: new Date('2018/06/01')
-});
+}
+// 或：maker.setting.divisionCode = '610000'
+...
 
 ```
 配置选项(config)：
@@ -52,21 +54,21 @@ var m = new shai.Maker({
 > ***endTime***  全局时间范围的结束时间，默认当前时间 <br>
 > ***incrementBase***  自增长基数 <br>
 
-**m.get(key:string, ...args:array)** 生成数据，包括md5、uuid, 及模拟数据等。
+**.get(key:string, ...args:array)** 生成数据，包括md5、uuid, 及模拟数据等。
 
 ###### get 参数说明：
 
 > 参数1 ***key*** 为方法名； <br>
 > 参数2 ***args*** 为可选，方法中的更多参数。<br>
 
-**m.add(key:string|function, fn:function)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
+**.add(key:string|function, fn:function)** 添加新的生成数据的方法，配合get('custom', 'key') 使用。
 
 ###### add 参数说明：
 
 > 参数1 ***key*** 为方法名； <br>
 > 参数2 ***fn*** 为可选，方法函数。<br>
 
-**m.make(content:string|object, parseValueType:boolean|string, optionKey:string)** 根据对象或JSON文本模板，生成设值后的新对象
+**.make(content:string|object, parseValueType:boolean|string, optionKey:string)** 根据对象或JSON文本模板，生成设值后的新对象
 
 ###### make 参数说明：
 
@@ -109,8 +111,7 @@ var m = new shai.Maker({
 ##### 用法例子：
 
 ```javascript
-  import Maker from 'shai/lib/maker.esm';
-  var m = new Maker();
+  import m from 'shai/lib/maker.esm';
 
   m.get('cnName') // 返回 张伟
   m.get('bodycard') // 返回 120101199901011693  
@@ -180,14 +181,14 @@ var m = new shai.Maker({
 ```javascript
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import Maker from 'shai/lib/maker.esm';
+import maker from 'shai/lib/maker.esm';
 
 export default {
   init() {
     let mock = new MockAdapter(axios);
-    let listData = new Maker({
-      divisionCode: '440300'
-    }).make({
+    maker.setting.divisionCode = '440300';
+
+    let listData = maker.make({
       makerOption: [50],
       id: "<% uuid %>",
       name: "<% chinese, 10 %>",
@@ -306,31 +307,32 @@ export default {
 import shai from 'shai';
 
 // 引用独立模块（不含数据模拟）
-// ES5方式 const Validator = require('shai/lib/Validator');
-// ES6方式 import Validator from 'shai/lib/Validator.esm'; 
-// var v = new Validator();
+// ES5方式 const validator = require('shai/lib/validator');
+// ES6方式 import validator from 'shai/lib/validator.esm'; 
+// validator.check(...)...;
 
-var v = new shai.Validator();
+var validator = shai.validator;
 // ……
 
 // 可选配置项。
-var v = new shai.Validator({
+validator.setting = {
   isdev: true // 将未通过验证的以警告信息方式输出。  
   message: {  // 修改默认错误消息模板，%n为name占位符，%t为target占位符。
     eq: '%n不等于%t'
   }
-});
+}; 
+// 或 validator.setting.isdev = true;
 
 ```
 
-**v.check(data:any, path(string|array))** 单项数据验证，返回值为链式对象，详见链式对象说明。
+**.check(data:any, path(string|array))** 单项数据验证，返回值为链式对象，详见链式对象说明。
 
 ###### check 参数选项(data, path)说明：
 
 > 参数1为数据，文本或对象均可，**必须** <br>
 > 参数2为对象属性路径，当参数1为对象时有效，可选，参考代码示例 <br>
 
-**v.string | v.number | v.object | v.array | v.boolean | v.null**  直接使用链式验证对象。
+**.string | .number | .object | .array | .boolean | .null**  直接使用链式验证对象。
 
 ###### 链式对象说明：
 
@@ -347,9 +349,9 @@ var v = new shai.Validator({
 > **.result**，获取验证结果，值为boolean。 <br>
 > **.get(trigger:string)** 获取async-validator兼容规则，用法见示例。<br>
 
-**v.checkItems(chain:array)** 多项数据验证，返回值为是否通过(boolean)，参数为链式对象chain数组。
+**.checkItems(chain:array)** 多项数据验证，返回值为是否通过(boolean)，参数为链式对象chain数组。
 
-**v.verify(json:string|object, struct:object, callback:Function)**  JSON数据或对象验证，返回值为是否通过(boolean)
+**.verify(json:string|object, struct:object, callback:function)**  JSON数据或对象验证，返回值为是否通过(boolean)
 
 ###### verify 参数选项(json, struct, callback)说明：
 
@@ -357,13 +359,12 @@ var v = new shai.Validator({
 > 参数2为数据类型结构，为链式对象组合（不要调result，会改变对象类型），参考代码示例，**必须** <br>
 > 参数3为可选回调方法，含2参数，未通过项的组、数据层级路径组，此方法会覆盖链内有on的集中回调的方法。<br>
 
-**v.add(key:string|function, fn:Function, message:string)** 添加验证数据的方法，便于复用，见custom示例与规则说明。
+**.add(key:string|function, fn:Function, message:string)** 添加验证数据的方法，便于复用，见custom示例与规则说明。
 
 ##### 用法例子：
 
 ```javascript
-  import Validator from 'shai/lib/Validator.esm';
-  var v = new Validator();
+  import v from 'shai/lib/validator.esm';
 
   // 对指定的单项数据验证
   v.check('password1').eq('password2').result; // 返回false
@@ -581,10 +582,10 @@ var v = new shai.Validator({
     <title>Document</title>
     <script src="http://www.175.io/lib/shai.js"></script>
     <script>
-      v = new shai.Validator(); 	
-	  // 如果引用为http://www.175.io/lib/validator.js，则为v = new Validator() ，类推;
+      var validator = shai.validator;	
+	  // 如果引用为http://www.175.io/lib/validator.js，则直接使用validator ，其它类推;
 	  
-      console.log(v.check('1111').required.result);
+      console.log(validator.check('1111').required.result);
 	  
     </script>
 </head>

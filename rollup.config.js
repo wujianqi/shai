@@ -37,11 +37,11 @@ var config = [
     input: './src/maker/index.ts',
     output: [{
       format: 'umd',
-      name: 'Maker',
+      name: 'maker',
       file: 'lib/maker.js'
     },{
       format: 'es',
-      name: 'Maker',
+      name: 'maker',
       file: 'lib/maker.esm.js'
     }],
     plugins: commonPlugins
@@ -50,11 +50,11 @@ var config = [
     input: './src/validator/index.ts',
     output: [{
       format: 'umd',
-      name: 'Validator',
+      name: 'validator',
       file: 'lib/validator.js'
     },{
       format: 'es',
-      name: 'Validator',
+      name: 'validator',
       file: 'lib/validator.esm.js'
     }],
     plugins: commonPlugins

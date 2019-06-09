@@ -1,9 +1,9 @@
 import { Chain, ChainBase } from "./chain";
-export interface ChainInterface extends ChainBase {
+export interface IChain extends ChainBase {
     readonly result: boolean;
     get(trigger?: string): any[];
 }
-export default class ChainResult extends Chain implements ChainInterface {
+export default class ChainResult extends Chain implements IChain {
     private faults;
     private __chk;
     private format;

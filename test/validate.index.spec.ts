@@ -3,9 +3,9 @@ import assert from 'power-assert';
 import shai from '../src/index';
 
 describe('数据验证测试 shai valid', function () {
-  var v = new shai.Validator({
-    isdev: true
-  });
+  var v = shai.validator;
+  v.setting.isdev = true;
+  //v.setting.message.minlength = '%n测试%t';
 
   it('属性路径方式', function () {
     var json = {

@@ -1,29 +1,29 @@
-import Chain, { ChainInterface } from "./chainResult";
+import Chain, { IChain } from "./chainResult";
 import { objectPath } from "./objectPath";
 import { customRule, RuleFunction } from "./rules";
 import { message, MessageInfo, config } from "./message";
 
-export { RuleFunction, ChainInterface };
+export { RuleFunction, IChain };
 
-export interface ValidSettingOption {
+export interface ValidSetting {
   isdev?: boolean;
   message?: MessageInfo;
 }
-export interface ValidatorInterface {
-  new(option?: ValidSettingOption): this;
-  check(value: any): ChainInterface;
+export interface IValidator {
+  setting: ValidSetting;
+  check(value: any): IChain;
   check(
     value: object,
     path: string | number | Array<string | number>
-  ): ChainInterface;
-  readonly string: ChainInterface;
-  readonly number: ChainInterface;
-  readonly boolean: ChainInterface;
-  readonly array: ChainInterface;
-  readonly object: ChainInterface;
-  readonly null: ChainInterface;
+  ): IChain;
+  readonly string: IChain;
+  readonly number: IChain;
+  readonly boolean: IChain;
+  readonly array: IChain;
+  readonly object: IChain;
+  readonly null: IChain;
   add(key: string, func: RuleFunction, msg?: string): void;
-  checkItems(chains: ChainInterface[]): boolean;
+  checkItems(chains: IChain[]): boolean;
   verify(
     JSONData: string | object,
     struct: object,
@@ -34,11 +34,18 @@ export interface ValidatorInterface {
 /**
  * @module 验证器
  */
-export default class Validator {
-  constructor(option?: ValidSettingOption) {
+export const validator: IValidator = {
+  set setting(option: ValidSetting) {
     if (option && !!option.isdev) config.printout = option.isdev;
     if (option && option.message) (<any>Object).assign(message, option.message);
-  }
+  },
+  get setting() {
+    return {
+      set isdev(dev:boolean) { config.printout = dev },
+      get isdev() { return config.printout },
+      message
+    }
+  },
 
   /**
    * 添加函数引用，在custom规则中作为参数调用
@@ -49,29 +56,29 @@ export default class Validator {
   add(key: string, func: RuleFunction, msg?: string): void {
     customRule[key] = func;
     if (msg) message.customItems[key] = msg;
-  }
+  },
 
   /**
    * 链式规则调用
    */
-  get string(): ChainInterface {
-    return (<ChainInterface>new Chain()).string;
-  }
-  get number(): ChainInterface {
-    return (<ChainInterface>new Chain()).number;
-  }
-  get object(): ChainInterface {
-    return (<ChainInterface>new Chain()).object;
-  }
-  get array(): ChainInterface {
-    return (<ChainInterface>new Chain()).array;
-  }
-  get boolean(): ChainInterface {
-    return (<ChainInterface>new Chain()).boolean;
-  }
-  get null(): ChainInterface {
-    return (<ChainInterface>new Chain()).null;
-  }
+  get string(): IChain {
+    return (<IChain>new Chain()).string;
+  },
+  get number(): IChain {
+    return (<IChain>new Chain()).number;
+  },
+  get object(): IChain {
+    return (<IChain>new Chain()).object;
+  },
+  get array(): IChain {
+    return (<IChain>new Chain()).array;
+  },
+  get boolean(): IChain {
+    return (<IChain>new Chain()).boolean;
+  },
+  get null(): IChain {
+    return (<IChain>new Chain()).null;
+  },
 
   /**
    * 链式组合规则验证，按对象路径查找值进行链式验证
@@ -79,15 +86,15 @@ export default class Validator {
    * @param path
    */
   check(data: any, path?: string | number | Array<string | number>) {
-    return (<ChainInterface>new Chain()).check(data, path);
-  }
+    return (<IChain>new Chain()).check(data, path);
+  },
 
-  checkItems(chains: ChainInterface[]): boolean {
+  checkItems(chains: IChain[]): boolean {
     let results: Array<boolean> = [];
 
     chains.forEach(o => results.push(o.result));
     return results.indexOf(false) === -1;
-  }
+  },
 
   /**
    * 类型与数据匹配
@@ -107,7 +114,7 @@ export default class Validator {
 
     const checkValue = (
       dt: string | number | object,
-      rule: ChainInterface,
+      rule: IChain,
       p: (string | number)[]
     ) => {
       let chain = rule.check(dt)
@@ -119,7 +126,7 @@ export default class Validator {
     };
     const findMany = (
       path: (string | number)[],
-      rule: ChainInterface
+      rule: IChain
     ): void => {
       let ids: number[] = [],
         lastRight = path.slice(path.lastIndexOf(0) + 1);
@@ -149,7 +156,7 @@ export default class Validator {
       getMany(0);
     };
     const findData = (
-      type: ChainInterface,
+      type: IChain,
       path: (string | number)[]
     ): void => { // 匹配路径数据
       let dt = objectPath(dataObj, path);

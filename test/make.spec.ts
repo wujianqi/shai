@@ -1,10 +1,8 @@
 import 'mocha';
 // import assert from 'power-assert';
-import Maker from '../src/maker/';
+import m from '../src/maker/';
 
-describe('单项数据生成与模拟测试 maker test', function () {
-    var m = new Maker();
- 
+describe('单项数据生成与模拟测试 maker test', function () { 
     it('now', function () {
         console.log(m.get('now'));
     });

@@ -7,7 +7,7 @@ type rulesName = keyof RulesMap | keyof SpecificRulesMap;
 
 export { RuleFunction, rulesName };
 
-export interface SettingOption {
+export interface MakerSetting {
   divisionCode?: string | number;
   beginTime?: Date;
   endTime?: Date;
@@ -60,15 +60,15 @@ export default class SpecificRules {
   };
   private division: Division;
   private history: string[] = new Array(2); // 缓存部分数据引用记录一次
-  protected __methods: { [key: string]: RuleFunction } = {};
-  protected __rules: RulesInterface & SpecificRulesMap;
+  private methods: { [key: string]: RuleFunction } = {};
+  rules: RulesInterface & SpecificRulesMap;
 
   /**
    * 添加函数引用，在custom规则中作为参数调用
    * @param makeFunc
    */
   add(key: string, makeFunc: RuleFunction): void {
-    this.__methods[key] = makeFunc;
+    this.methods[key] = makeFunc;
   }
 
   private maps: SpecificRulesMap = {
@@ -84,7 +84,8 @@ export default class SpecificRules {
     prefecture: () => this.division.region().prefecture,
     county: () => this.division.region().county,
     phone: () => {
-      const is8b = [ // 电话号码 8位
+      const is8b = [
+        // 电话号码 8位
         "010",
         "021",
         "022",
@@ -116,7 +117,7 @@ export default class SpecificRules {
         "0755",
         "0757",
         "0769",
-        "0898"        
+        "0898"
       ];
       let cd = this.division.region(1).county,
         ps;
@@ -172,16 +173,16 @@ export default class SpecificRules {
     lon: () => this.division.region(3).county + rules.regexp(/\d{8}/),
     lat: () => this.division.region(4).county + rules.regexp(/\d{8}/),
     custom: (key: string | RuleFunction, ...args: Array<any>) => {
-      if (typeof key === "string" && this.__methods[key])
-        return this.__methods[key](...args);
+      if (typeof key === "string" && this.methods[key])
+        return this.methods[key](...args);
       else if (typeof key === "function") return key(...args);
     }
   };
 
-  constructor(option?: SettingOption) {
+  constructor(option?: MakerSetting) {
     if (option) (<any>Object).assign(this.config, option);
 
     this.division = new Division(this.config.divisionCode, regions);
-    this.__rules = (<any>Object).assign(Object.create(null), rules, this.maps);
+    this.rules = (<any>Object).assign(Object.create(null), rules, this.maps);
   }
 }

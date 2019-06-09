@@ -1,18 +1,10 @@
-import Validator, {
+import validator, {
+  IValidator,
+  ValidSetting,
   RuleFunction,
-  ValidSettingOption,
-  ValidatorInterface,
-  ChainInterface
+  IChain
 } from "./validator";
-import Maker, { SettingOption, MethodFuction } from "./maker";
-import { objectPath } from "./validator/objectPath";
+import maker, { MakerSetting, IMaker, MethodFuction } from "./maker";
 
-export {
-  RuleFunction,
-  ValidSettingOption,
-  SettingOption,
-  MethodFuction,
-  ValidatorInterface,
-  ChainInterface
-};
-export default { Validator, Maker, objectPath };
+export { IValidator, ValidSetting, RuleFunction, IChain, MakerSetting, IMaker, MethodFuction };
+export default { validator, maker };

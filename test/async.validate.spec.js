@@ -6,8 +6,9 @@ describe('async兼容验证测试', function () {
     name: '',
     age: 40
   }
-  var ageRule = new shai.Validator({isdev: true })
-    .number.required.name('年龄').lt(30).gt(50).get();
+
+  shai.validator.setting.isdev = true;
+  var ageRule = shai.validator.number.required.name('年龄').lt(30).gt(50).get();  
 
   /* var test =  {
     type: 'number',

@@ -1,7 +1,7 @@
 import { RuleFunction, RulesMap, RulesInterface } from "./rules";
 declare type rulesName = keyof RulesMap | keyof SpecificRulesMap;
 export { RuleFunction, rulesName };
-export interface SettingOption {
+export interface MakerSetting {
     divisionCode?: string | number;
     beginTime?: Date;
     endTime?: Date;
@@ -34,11 +34,9 @@ export default class SpecificRules {
     private getRndTime;
     private division;
     private history;
-    protected __methods: {
-        [key: string]: RuleFunction;
-    };
-    protected __rules: RulesInterface & SpecificRulesMap;
+    private methods;
+    rules: RulesInterface & SpecificRulesMap;
     add(key: string, makeFunc: RuleFunction): void;
     private maps;
-    constructor(option?: SettingOption);
+    constructor(option?: MakerSetting);
 }

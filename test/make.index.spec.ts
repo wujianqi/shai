@@ -2,8 +2,8 @@ import 'mocha';
 import shai from '../src/index';
 
 describe('数据生成测试 shai maker', function () {
-    var m = new shai.Maker({divisionCode: '440300'});
-    var m2 = new shai.Maker({divisionCode: '440200'});
+    var m = shai.maker;
+    m.setting.divisionCode = '440300';    
   
     it('maker 数据生成', function() {
         var jsontpl = m.make(`{        
@@ -24,28 +24,29 @@ describe('数据生成测试 shai maker', function () {
           }
         }`);
 
-         var tpl1 = m2.make({
-            data:{
-              makerOption:[10000],
-              name: "<% cnName %>",
-              id: "<% uuid, %>",
-              b: "<% int, 1, 20 %>",
-              "c <% increment %>": "<% increment, false %>   <% english %>",
-              items: {
-                makerOption:[1, 2, 'childrens'],
-                a: "<% datetime %>"
-              }
+        m.setting.divisionCode = '440200';
+        var tpl1 = m.make({
+          data:{
+            makerOption:[10000],
+            name: "<% cnName %>",
+            id: "<% uuid, %>",
+            b: "<% int, 1, 20 %>",
+            "c <% increment %>": "<% increment, false %>   <% english %>",
+            items: {
+              makerOption:[1, 2, 'childrens'],
+              a: "<% datetime %>"
             }
-          }); 
+          }
+        }); 
   
-        m2.add('testv', (a) => {
-           return m2.get('increment', false) as number * a;
+        m.add('testv', (a) => {
+           return m.get('increment', false) as number * a;
         });
   
-        var tpl2 = m2.make({
-            id: '<% increment %>',
-            pase: '<% custom, testv, 10 %>',
-            test: ['<% range, 1, 5 %>','<% range, 10, 12, 2 %>'] 
+        var tpl2 = m.make({
+          id: '<% increment %>',
+          pase: '<% custom, testv, 10 %>',
+          test: ['<% range, 1, 5 %>','<% range, 10, 12, 2 %>'] 
         },'range');
   
         console.log(jsontpl);

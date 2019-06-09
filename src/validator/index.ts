@@ -1,9 +1,10 @@
-import Validator, {
-  ValidatorInterface,
-  ValidSettingOption,
+import {
+  validator,
+  IValidator,
+  ValidSetting,
   RuleFunction,
-  ChainInterface
+  IChain
 } from "./validator";
 
-export { ValidatorInterface, ValidSettingOption, RuleFunction, ChainInterface };
-export default Validator;
+export { IValidator, ValidSetting, RuleFunction, IChain };
+export default validator;

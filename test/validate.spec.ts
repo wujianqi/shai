@@ -1,10 +1,8 @@
 import 'mocha';
 import assert from 'power-assert';
-import Validator from '../src/validator/';
+import v from '../src/validator/';
 
 describe('单项数据，各规则方法测试 validator test', function () {
-  var v = new Validator();
-
  it('require no passed test', function () {
     assert(!v.check('').required.result);
     assert(!v.check('').required.string.result);
