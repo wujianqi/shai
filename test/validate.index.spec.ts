@@ -31,14 +31,14 @@ describe('数据验证测试 shai valid', function () {
     });
     assert(chain.result);
 
-  var chain = v.check(json, 'looks.size.foot').number
+  var chain = v.check(json, 'looks.size.foot').required.number
     .custom('foo').name('自定义数据')
     .on('custom',() => console.log(3, '验证没有通过'))
-    .on(fault => {
+    /* .on(fault => {
        // console.log(4, fault);
-    });
+    }); */
 
-    //console.log(chain.rules());
+    //console.log(chain.rule);
     assert(!chain.result);
   });
 

@@ -109,7 +109,7 @@ export interface ChainBase {
 }
 
 interface InnerChain extends ChainBase {
-  $set(key: string, value: boolean | any[]): this;
+  $set(key: string, value?: any[]): this;
 }
 
 /**
@@ -119,9 +119,7 @@ class Chain implements InnerChain {
   /**
    * 索引设定的规则及参数
    */
-  protected map: {
-    [key: string]: boolean | any[];
-  };
+  protected map: Array<string | Array<string | any[]>>;
   protected value: any;
   protected failed: CallBackFunction;
   protected passed: CallBackFunction;
@@ -132,14 +130,15 @@ class Chain implements InnerChain {
   };
 
   constructor() {
-    this.map = {};
+    this.map = [];
     this.failed = {};
     this.passed = {};
     this.names = ["", [], []];
   }
 
-  $set(key: string, value: any) {
-    this.map[key] = value;
+  $set(key: string, value?: any[]) {
+    if(value === void 0) this.map.push(key);
+    else this.map.push([key, value]);
     return this;
   }
 
@@ -212,7 +211,7 @@ Object.keys(rules).forEach(key => {
   ) {
     descriptor = {
       get: function() {
-        (<InnerChain>this).$set(key, true);
+        (<InnerChain>this).$set(key);
         return this;
       }
     };

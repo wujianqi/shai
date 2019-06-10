@@ -1,5 +1,5 @@
 import { MakerSetting, RuleFunction, rulesName } from "./specificRules";
-export { MakerSetting, RuleFunction as MethodFuction };
+export { MakerSetting, RuleFunction as MethodFuction, rulesName as MethodNames };
 export interface IMaker {
     setting: MakerSetting;
     add(key: string, func: RuleFunction): void;

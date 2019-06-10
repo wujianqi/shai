@@ -1,3 +1,3 @@
-import { maker, IMaker, MakerSetting, MethodFuction } from "./maker";
-export { MakerSetting, IMaker, MethodFuction };
+import { maker, IMaker, MakerSetting, MethodFuction, MethodNames } from "./maker";
+export { MakerSetting, IMaker, MethodFuction, MethodNames };
 export default maker;

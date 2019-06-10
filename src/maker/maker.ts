@@ -4,7 +4,11 @@ import SpecificRules, {
   rulesName
 } from "./specificRules";
 
-export { MakerSetting, RuleFunction as MethodFuction };
+export {
+  MakerSetting,
+  RuleFunction as MethodFuction,
+  rulesName as MethodNames
+};
 
 export interface IMaker {
   setting: MakerSetting;
@@ -33,7 +37,7 @@ var specificRules = new SpecificRules();
  * @param n1
  * @param n2
  */
-var bulk = (content: string, n1?: number, n2?: number): string => {
+function bulk(content: string, n1?: number, n2?: number): string {
   let num = 0;
 
   if (typeof n1 === "number" && typeof n2 === "number")
@@ -47,7 +51,7 @@ var bulk = (content: string, n1?: number, n2?: number): string => {
     for (i = 0; i < num; i++) list.push(content);
     return "[" + list.join(",") + "]";
   } else return content;
-};
+}
 
 /**
  * 递归嵌套数据--模版生成
@@ -56,12 +60,12 @@ var bulk = (content: string, n1?: number, n2?: number): string => {
  * @param keyName
  * @param num
  */
-var nested = (
+function nested(
   content: string,
   level: number,
   keyName: string,
   num?: number
-) => {
+): string {
   let newstr = content;
   const makedata = (): void => {
     level--;
@@ -77,13 +81,13 @@ var nested = (
 
   makedata();
   return newstr;
-};
+}
 
 /**
  * 批量、嵌套数据模板，选项转换
  * @param content
  */
-var convertOption = (content: string): string => {
+function convertOption(content: string): string {
   let objbody: string, n1: number, n2: number, itemsKey: string;
   const reg = new RegExp(`"${optionPropKey}":\\[([^\\]]+)\\],?`);
 
@@ -102,13 +106,13 @@ var convertOption = (content: string): string => {
   else objbody = bulk(objbody, n1, n2);
 
   return objbody;
-};
+}
 
 /**
  * 含循环输出配置的模板内容转换
  * @param content
  */
-var findBlock = (content: string): string => {
+function findBlock(content: string): string {
   let s1 = content;
   const rpb = (str: string) => str.replace(/\{/g, "@@").replace(/\}/g, "##"); // 转换子对象标识，便于获取父对象
   const unrpb = (str: string) => str.replace(/@@/g, "{").replace(/##/g, "}"); // 子对象标识转换回来
@@ -128,13 +132,13 @@ var findBlock = (content: string): string => {
   };
   callfn();
   return unrpb(s1);
-};
+}
 
 /**
  * 模版输出项解析
  * @param content
  */
-var parseTPL = (content: string): string => {
+function parseTPL(content: string): string {
   return content.replace(
     /<%([^(%>)\n\r]+)%>/g,
     ($0, $1): any => {
@@ -154,7 +158,7 @@ var parseTPL = (content: string): string => {
       }
     }
   );
-};
+}
 
 /**
  * @class 数据生成、模拟

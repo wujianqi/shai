@@ -105,12 +105,10 @@ export interface ChainBase {
     custom?(arg: string, ...args: Array<any>): this;
 }
 interface InnerChain extends ChainBase {
-    $set(key: string, value: boolean | any[]): this;
+    $set(key: string, value?: any[]): this;
 }
 declare class Chain implements InnerChain {
-    protected map: {
-        [key: string]: boolean | any[];
-    };
+    protected map: Array<string | Array<string | any[]>>;
     protected value: any;
     protected failed: CallBackFunction;
     protected passed: CallBackFunction;
@@ -120,7 +118,7 @@ declare class Chain implements InnerChain {
         [2]: string[];
     };
     constructor();
-    $set(key: string, value: any): this;
+    $set(key: string, value?: any[]): this;
     check(data: any, path?: string | number | Array<string | number>): this;
     name(fieldName: string, override?: boolean): this;
     target(...targetNames: string[]): this;

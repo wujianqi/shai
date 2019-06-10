@@ -4,7 +4,21 @@ import validator, {
   RuleFunction,
   IChain
 } from "./validator";
-import maker, { MakerSetting, IMaker, MethodFuction } from "./maker";
+import maker, {
+  MakerSetting,
+  IMaker,
+  MethodFuction,
+  MethodNames
+} from "./maker";
 
-export { IValidator, ValidSetting, RuleFunction, IChain, MakerSetting, IMaker, MethodFuction };
+export {
+  IValidator,
+  ValidSetting,
+  RuleFunction,
+  IChain,
+  MakerSetting,
+  IMaker,
+  MethodFuction,
+  MethodNames
+};
 export default { validator, maker };

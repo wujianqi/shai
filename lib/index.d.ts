@@ -1,6 +1,6 @@
 import { IValidator, ValidSetting, RuleFunction, IChain } from "./validator";
-import { MakerSetting, IMaker, MethodFuction } from "./maker";
-export { IValidator, ValidSetting, RuleFunction, IChain, MakerSetting, IMaker, MethodFuction };
+import { MakerSetting, IMaker, MethodFuction, MethodNames } from "./maker";
+export { IValidator, ValidSetting, RuleFunction, IChain, MakerSetting, IMaker, MethodFuction, MethodNames };
 declare const _default: {
     validator: IValidator;
     maker: IMaker;

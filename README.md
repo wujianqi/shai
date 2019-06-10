@@ -13,7 +13,7 @@
 - [x] 针对国人国情定制、使用简单、易扩展 <br>
 - [x] 模拟生成（maker）：内置方法66项，让数据看起来更真实，规则简单 <br>
 - [x] 验证（validator）：内置方法85项，链式，结构即类型<br>
-- [x] 区划更新到 2019.3 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
+- [x] 区划更新到 2019.4 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
 - [x] 前后台通用，0.2.x 支持ES5的版本，0.3.x后续版本为ES6 + 异步 <br>
 
 ------
@@ -47,7 +47,9 @@ maker.setting = {
 ...
 
 ```
-配置选项(config)：
+**.setting = {...}** 数据生成选项配置。
+
+###### setting 选项设置：
 
 > ***divisionCode***  设定全局的行政区划范围（行政区划代码），默认全国（不含港澳台） <br>
 > ***beginTime***  全局时间范围的开始时间，默认1970-01-01<br>
@@ -316,14 +318,21 @@ var validator = shai.validator;
 
 // 可选配置项。
 validator.setting = {
-  isdev: true // 将未通过验证的以警告信息方式输出。  
-  message: {  // 修改默认错误消息模板，%n为name占位符，%t为target占位符。
+  isdev: true // 启动控制台输出。  
+  message: {  // 修改默认错误消息模板。
     eq: '%n不等于%t'
   }
 }; 
 // 或 validator.setting.isdev = true;
 
 ```
+
+**.setting = {...}** 数据验证选项配置。
+
+###### setting 选项设置：
+
+> ***isdev***  将未通过验证的信息以警告方式在控制台输出<br>
+> ***message***  修改错误消息默认模板，%n为name占位符，%t为target占位符。<br>
 
 **.check(data:any, path(string|array))** 单项数据验证，返回值为链式对象，详见链式对象说明。
 
@@ -347,7 +356,7 @@ validator.setting = {
 > **.target(...targetnames:string[])**，指定比较值的名称，用于1位及以上参数规则格式化消息，见示例。<br>
 > 链所有节点仅是索引，不会立即生效的，调用result属性方法才会生效。<br>
 > **.result**，获取验证结果，值为boolean。 <br>
-> **.get(trigger:string)** 获取async-validator兼容规则，用法见示例。<br>
+> **.rule** 获取async-validator兼容规则，用法见示例。<br>
 
 **.checkItems(chain:array)** 多项数据验证，返回值为是否通过(boolean)，参数为链式对象chain数组。
 
@@ -448,9 +457,9 @@ validator.setting = {
 
 ##### 兼容 Element、Ant design 等UI框架的 async-validator 的处理
 
-* 作用：简化过多层次的配置、减少或不使用自定义验证，仅验证链有效。
-* message，参考name/target/实例化参数的设定
-* trigger，为UI库封装，如有需要，可将change、blur写在rules参数中
+* 作用：简化过多层次的配置、减少或不使用自定义验证，仅验证链有效；
+* message，参考name/target/setting设定，注：on的“集中回调”方式无效；
+* trigger，为UI库封装，如有需要，可将change、blur写在trigger参数中。
 
 ```javascript
   // Element Vue：<el-form :rules="shaiRules"></el-form>
@@ -459,8 +468,8 @@ validator.setting = {
     this.setFieldValue...
   },
   shaiRules: {
-    pass: v.string.required.password.length(8).get('change'),
-    age: v.number.gt(23).ok('gt', setField).get()
+    pass: v.string.required.password.length(8).trigger('change').rule,
+    age: v.number.gt(23).name('年龄').ok('gt', setField).rule
   }
 
 ```
