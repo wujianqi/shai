@@ -30,13 +30,14 @@ export interface SpecificRulesMap {
     custom(key: string | RuleFunction, ...args: Array<any>): string | number | boolean;
 }
 export default class SpecificRules {
-    private config;
-    private getRndTime;
-    private division;
     private history;
     private methods;
-    rules: RulesInterface & SpecificRulesMap;
+    private __rules;
+    private division;
+    private readonly getRndTime;
+    constructor();
     add(key: string, makeFunc: RuleFunction): void;
+    readonly rules: RulesInterface & SpecificRulesMap;
+    setOption(option?: MakerSetting): void;
     private maps;
-    constructor(option?: MakerSetting);
 }

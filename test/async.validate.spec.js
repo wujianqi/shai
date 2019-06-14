@@ -4,11 +4,11 @@ const Schema =  require('async-validator');
 describe('async兼容验证测试', function () {
   var source = {
     name: '',
-    age: 40
+    age: ''
   }
 
   shai.validator.setting.isdev = true;
-  var ageRule = shai.validator.number.required.name('年龄').lt(30).gt(50).rule;  
+  var ageRule = shai.validator.string.name('年龄').int.rule;  
 
   /* var test =  {
     type: 'number',

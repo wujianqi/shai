@@ -3,6 +3,7 @@ import SpecificRules, {
   RuleFunction,
   rulesName
 } from "./specificRules";
+import { util } from "./util";
 
 export {
   MakerSetting,
@@ -29,7 +30,8 @@ export interface IMaker {
 
 var optionPropKey = "makerOption";
 var parseTypes = ["int", "number", "increment", "bool"];
-var specificRules = new SpecificRules();
+var __specr:SpecificRules = new SpecificRules();
+var __repeat:string[] = [];
 
 /**
  * 批量数据--模版生成
@@ -41,7 +43,7 @@ function bulk(content: string, n1?: number, n2?: number): string {
   let num = 0;
 
   if (typeof n1 === "number" && typeof n2 === "number")
-    num = specificRules.rules.int(n1, n2);
+    num = util.getInt(n1, n2);
   else if (typeof n1 === "number") num = n1;
 
   if (num > 0) {
@@ -142,7 +144,8 @@ function parseTPL(content: string): string {
   return content.replace(
     /<%([^(%>)\n\r]+)%>/g,
     ($0, $1): any => {
-      const key = $1.replace(/\s+/g, "");
+      let key = $1.replace(/\s+/g, ""),
+        text:any;
 
       if (key.indexOf(",") > -1) {
         let args = key.split(",");
@@ -152,10 +155,17 @@ function parseTPL(content: string): string {
           else if (/^false$/.test(item)) args[i] = false;
           else if (/^(\-|\+)?\d+(\.\d+)?$/.test(item)) args[i] = +item;
         });
-        return maker.get(args.shift(), ...args);
+        text = maker.get(args.shift(), ...args);
       } else {
-        return maker.get(key);
+        text = maker.get(key);
       }
+      if(new RegExp('\{[^(<%)]*'+ $0).test(content)) {
+        if(__repeat.indexOf($1) > -1){ // 循环生成数据，变化取值对象
+          __repeat = [];
+          __specr = new SpecificRules();
+        } else __repeat.push($1);
+      }
+      return text;
     }
   );
 }
@@ -165,33 +175,33 @@ function parseTPL(content: string): string {
  */
 export const maker: IMaker = {
   set setting(option: MakerSetting) {
-    specificRules = new SpecificRules(option);
+    __specr.setOption(option);
   },
   get setting() {
     return {
       set divisionCode(code: string | number) {
-        specificRules = new SpecificRules({
+        __specr.setOption({
           divisionCode: code + ""
         });
       },
       set beginTime(time: Date) {
-        specificRules = new SpecificRules({
+        __specr.setOption({
           beginTime: time
         });
       },
       set endTime(time: Date) {
-        specificRules = new SpecificRules({
+        __specr.setOption({
           endTime: time
         });
       },
       set incrementBase(num: number) {
-        specificRules = new SpecificRules({
+        __specr.setOption({
           incrementBase: num
         });
       }
     };
   },
-  add: specificRules.add.bind(specificRules),
+  add: __specr.add.bind(__specr),
 
   /**
    * 生成模拟数据
@@ -200,15 +210,14 @@ export const maker: IMaker = {
    * @example
    * get('md5');
    */
-  get(methodName: rulesName, ...args: any[]): string | number | boolean {
-    let result = "";
-    const rule = specificRules.rules[methodName];
+  get(method: rulesName, ...args: any[]): string | number | boolean {
+    let result = "", rule = __specr.rules[method];
 
     if (rule) {
-      if (rule instanceof RegExp) result = specificRules.rules.regexp(rule);
+      if (rule instanceof RegExp) result = __specr.rules.regexp(rule);
       else if (typeof rule === "function")
         result = (<RuleFunction>rule)(...args) as string;
-    } else throw new TypeError(`没有找到“${methodName}”相关生成数据的方法！`);
+    } else throw new TypeError(`没有找到“${method}”相关生成数据的方法！`);
 
     return result;
   },

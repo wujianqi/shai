@@ -140,17 +140,19 @@ export default class ChainResult extends Chain implements IChain {
   get rule(): any[] {
     let types = ["string", "number", "object", "array", "boolean"],
       hasTrigger = this.eventType !== "",
+      isRequired = this.map.indexOf("required") > -1,
       rls: any[] = [
         {
-          required: this.map.indexOf("required") > -1,
+          required: isRequired,
           message: this.format(message.required)
         }
       ];
 
     if (hasTrigger) rls[0].trigger = this.eventType;
     this.map.forEach(k => {
-      if (typeof k === "string" && types.indexOf(k) > -1) rls[0].type = k;
-      else if (k !== "required") {
+      if (typeof k === "string" && types.indexOf(k) > -1) {
+        rls[0].type = k;
+      } else if (k !== "required") {
         let obj: any = {};
 
         obj.validator = (rule: any, value: any) => {

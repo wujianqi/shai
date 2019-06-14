@@ -40,28 +40,32 @@ export interface SpecificRulesMap {
   ): string | number | boolean;
 }
 
+var config = {
+  divisionCode: "",
+  beginTime: new Date("1970/01/01"),
+  endTime: new Date(),
+  incrementBase: 0
+};
+
 /**
  * @class 特定范围设置的方法集合
  */
-export default class SpecificRules {
-  private config = {
-    divisionCode:
-      rules.regexp(/1[1-5]|2[1-3]|3[3-7]|4[1-6]|5[1-4]|6[1-5]/) + "0000",
-    beginTime: new Date("1970/01/01"),
-    endTime: new Date(),
-    incrementBase: 0
-  };
-  private getRndTime = () => {
-    let bt = this.config.beginTime
-        ? this.config.beginTime
-        : new Date("1970/01/01"),
-      et = this.config.endTime ? this.config.endTime : new Date();
-    return new Date(util.getInt(bt.getTime(), et.getTime()));
-  };
-  private division: Division;
+export default class SpecificRules {  
   private history: string[] = new Array(2); // 缓存部分数据引用记录一次
   private methods: { [key: string]: RuleFunction } = {};
-  rules: RulesInterface & SpecificRulesMap;
+  private __rules: RulesInterface & SpecificRulesMap;
+  private division:Division;
+  private get getRndTime() {
+    let bt = config.beginTime
+        ? config.beginTime
+        : new Date("1970/01/01"),
+      et = config.endTime ? config.endTime : new Date();
+    return new Date(util.getInt(bt.getTime(), et.getTime()));
+  }
+
+  constructor() {
+    this.setOption();
+  }
 
   /**
    * 添加函数引用，在custom规则中作为参数调用
@@ -71,18 +75,28 @@ export default class SpecificRules {
     this.methods[key] = makeFunc;
   }
 
+  get rules() {
+    return this.__rules;
+  }
+
+  setOption(option?: MakerSetting) {
+    if(option) (<any>Object).assign(config, option);
+    this.__rules = (<any>Object).assign(Object.create(null), rules, this.maps);
+    this.division = new Division(config.divisionCode, regions);
+  }
+
   private maps: SpecificRulesMap = {
     increment: (arg1: boolean = true, arg2: number = 1): number =>
-      arg1 ? (this.config.incrementBase += arg2) : this.config.incrementBase,
+      arg1 ? (config.incrementBase += arg2) : config.incrementBase,
     datetime: (arg?: string) =>
-      util.formatDate(this.getRndTime(), arg ? arg : "yyyy-MM-dd hh:mm:ss"),
-    date: () => util.formatDate(this.getRndTime(), "yyyy-MM-dd"),
-    time: () => util.formatDate(this.getRndTime(), "hh:mm:ss"),
-    year: () => util.formatDate(this.getRndTime(), "yyyy"),
-    citycode: () => this.division.division.county,
-    province: () => this.division.region().province,
-    prefecture: () => this.division.region().prefecture,
-    county: () => this.division.region().county,
+      util.formatDate(this.getRndTime, arg ? arg : "yyyy-MM-dd hh:mm:ss"),
+    date: () => util.formatDate(this.getRndTime, "yyyy-MM-dd"),
+    time: () => util.formatDate(this.getRndTime, "hh:mm:ss"),
+    year: () => util.formatDate(this.getRndTime, "yyyy"),
+    citycode: () => this.division.code.county,
+    province: () => this.division.getData().province,
+    prefecture: () => this.division.getData().prefecture,
+    county: () => this.division.getData().county,
     phone: () => {
       const is8b = [
         // 电话号码 8位
@@ -119,18 +133,18 @@ export default class SpecificRules {
         "0769",
         "0898"
       ];
-      let cd = this.division.region(1).county,
+      let cd = this.division.getData(1).county,
         ps;
 
       if (is8b.indexOf(cd) > -1) ps = cd + "-" + rules.regexp(/[268]\d{7}/);
       else ps = cd + "-" + rules.regexp(/[268]\d{6}/);
       return ps;
     },
-    zipcode: () => this.division.region(2).county,
+    zipcode: () => this.division.getData(2).county,
     bodycard: () => {
       const sn =
-          this.division.division.county +
-          util.formatDate(this.getRndTime(), "yyyyMMdd") +
+          this.division.code.county +
+          util.formatDate(this.getRndTime, "yyyyMMdd") +
           rules.regexp(/\d{3}/),
         arr = sn.split(""),
         factor = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2],
@@ -147,7 +161,7 @@ export default class SpecificRules {
       return sn + parity[sum % 11];
     },
     autocard: () => {
-      let card = this.division.region(5).prefecture,
+      let card = this.division.getData(5).prefecture,
         ps: any = { 京: "[ACE-J]", 沪: "[A-E]", 津: "[A-DFG]" },
         pf =
           card.length === 1
@@ -159,30 +173,25 @@ export default class SpecificRules {
     road: (): string => {
       if (this.history[0]) return <string>this.history[0];
       else return (this.history[0] = rules.road());
+      //return rules.road();
     },
     build: () => {
       if (this.history[1]) return <string>this.history[1];
       else return (this.history[1] = rules.build());
+      //return rules.build();
     },
     address: () =>
-      this.division.region().county.replace("县", "县城") +
+      this.division.getData().county.replace("县", "县城") +
       this.maps.road() +
       this.maps.build() +
       rules.regexp(/[A-F](栋((一|二|三|四|五)单元)|座)?[1-8]0[1-6]室/),
-    company: () => this.division.region().prefecture + rules.company(),
-    lon: () => this.division.region(3).county + rules.regexp(/\d{8}/),
-    lat: () => this.division.region(4).county + rules.regexp(/\d{8}/),
+    company: () => this.division.getData().prefecture + rules.company(),
+    lon: () => this.division.getData(3).county + rules.regexp(/\d{8}/),
+    lat: () => this.division.getData(4).county + rules.regexp(/\d{8}/),
     custom: (key: string | RuleFunction, ...args: Array<any>) => {
       if (typeof key === "string" && this.methods[key])
         return this.methods[key](...args);
       else if (typeof key === "function") return key(...args);
     }
   };
-
-  constructor(option?: MakerSetting) {
-    if (option) (<any>Object).assign(this.config, option);
-
-    this.division = new Division(this.config.divisionCode, regions);
-    this.rules = (<any>Object).assign(Object.create(null), rules, this.maps);
-  }
 }

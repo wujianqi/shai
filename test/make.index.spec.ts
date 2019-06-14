@@ -3,12 +3,14 @@ import shai from '../src/index';
 
 describe('数据生成测试 shai maker', function () {
     var m = shai.maker;
-    m.setting.divisionCode = '440300';    
+    //m.setting.divisionCode = '110000';    
   
     it('maker 数据生成', function() {
-        var jsontpl = m.make(`{        
+        var jsontpl = m.make(`{
+        "makerOption": [15],
         "realname": "<% cnFemaleName %>",
-        "region":"<% county%>",
+        "region":"<% province%>",
+        "prefecture":"<% prefecture%>",
         "address": "<% address %>",
         "list": {
             "makerOption": [2],
@@ -24,8 +26,8 @@ describe('数据生成测试 shai maker', function () {
           }
         }`);
 
-        m.setting.divisionCode = '440200';
-        var tpl1 = m.make({
+        //m.setting.divisionCode = '440200';
+        /* var tpl1 = m.make({
           data:{
             makerOption:[10000],
             name: "<% cnName %>",
@@ -47,11 +49,11 @@ describe('数据生成测试 shai maker', function () {
           id: '<% increment %>',
           pase: '<% custom, testv, 10 %>',
           test: ['<% range, 1, 5 %>','<% range, 10, 12, 2 %>'] 
-        },'range');
+        },'range'); */
   
         console.log(jsontpl);
-        console.log(tpl1);
-        console.dir(tpl2);
+        //console.log(tpl1);
+        //console.dir(tpl2);
     });
   
   }); 

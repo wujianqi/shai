@@ -9,15 +9,17 @@ interface RegionData {
 export default class Division {
     private divisionCode;
     private regions;
+    private nocode;
     private level;
     private prefectures;
     private countys;
-    private prefectureHistoryMap;
-    private countyHistoryMap;
-    division: RegionInterface;
+    code: RegionInterface;
     constructor(code: string | number, datas: RegionData);
-    private extract;
-    private getRnddivision;
-    region(index?: number): RegionInterface;
+    private getCode;
+    private getPfCode;
+    private getCtCode;
+    private findRegion;
+    private rndCode;
+    getData(index?: number): RegionInterface;
 }
 export {};
