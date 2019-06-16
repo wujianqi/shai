@@ -1,4 +1,6 @@
 import SpecificRules, {
+  config,
+  add,
   MakerSetting,
   RuleFunction,
   rulesName
@@ -31,7 +33,6 @@ export interface IMaker {
 var optionPropKey = "makerOption";
 var parseTypes = ["int", "number", "increment", "bool"];
 var __specr:SpecificRules = new SpecificRules();
-var __repeat:string[] = [];
 
 /**
  * 批量数据--模版生成
@@ -159,12 +160,10 @@ function parseTPL(content: string): string {
       } else {
         text = maker.get(key);
       }
-      if(new RegExp('\{[^(<%)]*'+ $0).test(content)) {
-        if(__repeat.indexOf($1) > -1){ // 循环生成数据，变化取值对象
-          __repeat = [];
-          __specr = new SpecificRules();
-        } else __repeat.push($1);
-      }
+      // 块结束更新取值范围
+      if(new RegExp($0 + '[^(%>)]*\}').test(content))
+        __specr = new SpecificRules();
+
       return text;
     }
   );
@@ -175,33 +174,33 @@ function parseTPL(content: string): string {
  */
 export const maker: IMaker = {
   set setting(option: MakerSetting) {
-    __specr.setOption(option);
+    Object.assign(config, option)
   },
   get setting() {
     return {
       set divisionCode(code: string | number) {
-        __specr.setOption({
+        Object.assign(config, {
           divisionCode: code + ""
         });
       },
       set beginTime(time: Date) {
-        __specr.setOption({
+        Object.assign(config, {
           beginTime: time
         });
       },
       set endTime(time: Date) {
-        __specr.setOption({
+        Object.assign(config, {
           endTime: time
         });
       },
       set incrementBase(num: number) {
-        __specr.setOption({
+        Object.assign(config, {
           incrementBase: num
         });
       }
     };
   },
-  add: __specr.add.bind(__specr),
+  add: add,
 
   /**
    * 生成模拟数据

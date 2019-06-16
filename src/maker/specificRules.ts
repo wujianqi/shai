@@ -40,19 +40,27 @@ export interface SpecificRulesMap {
   ): string | number | boolean;
 }
 
-var config = {
+export var config = {
   divisionCode: "",
   beginTime: new Date("1970/01/01"),
   endTime: new Date(),
   incrementBase: 0
 };
 
+var methods: { [key: string]: RuleFunction } = {};
+/**
+   * 添加函数引用，在custom规则中作为参数调用
+   * @param makeFunc
+   */
+export function add(key: string, makeFunc: RuleFunction): void {
+  methods[key] = makeFunc;
+}
+
 /**
  * @class 特定范围设置的方法集合
  */
 export default class SpecificRules {  
   private history: string[] = new Array(2); // 缓存部分数据引用记录一次
-  private methods: { [key: string]: RuleFunction } = {};
   private __rules: RulesInterface & SpecificRulesMap;
   private division:Division;
   private get getRndTime() {
@@ -63,26 +71,14 @@ export default class SpecificRules {
     return new Date(util.getInt(bt.getTime(), et.getTime()));
   }
 
-  constructor() {
-    this.setOption();
-  }
-
-  /**
-   * 添加函数引用，在custom规则中作为参数调用
-   * @param makeFunc
-   */
-  add(key: string, makeFunc: RuleFunction): void {
-    this.methods[key] = makeFunc;
-  }
-
   get rules() {
+    if(!this.__rules) this.reload();
     return this.__rules;
   }
 
-  setOption(option?: MakerSetting) {
-    if(option) (<any>Object).assign(config, option);
-    this.__rules = (<any>Object).assign(Object.create(null), rules, this.maps);
+  reload() {
     this.division = new Division(config.divisionCode, regions);
+    this.__rules = (<any>Object).assign(Object.create(null), rules, this.maps);    
   }
 
   private maps: SpecificRulesMap = {
@@ -100,38 +96,12 @@ export default class SpecificRules {
     phone: () => {
       const is8b = [
         // 电话号码 8位
-        "010",
-        "021",
-        "022",
-        "023",
-        "024",
-        "025",
-        "027",
-        "028",
-        "029",
-        "020",
-        "0311",
-        "0371",
-        "0377",
-        "0379",
-        "0411",
-        "0431",
-        "0451",
-        "0512",
-        "0513",
-        "0516",
-        "0510",
-        "0531",
-        "0532",
-        "0571",
-        "0574",
-        "0577",
-        "0591",
-        "0595",
-        "0755",
-        "0757",
-        "0769",
-        "0898"
+        "010", "021", "022", "023", "024", "025",
+        "027", "028", "029", "020", "0311", "0371",
+        "0377", "0379", "0411", "0431", "0451", "0512",
+        "0513", "0516", "0510", "0531", "0532", "0571",
+        "0574", "0577", "0591", "0595", "0755", "0757",
+        "0769", "0898"
       ];
       let cd = this.division.getData(1).county,
         ps;
@@ -189,8 +159,8 @@ export default class SpecificRules {
     lon: () => this.division.getData(3).county + rules.regexp(/\d{8}/),
     lat: () => this.division.getData(4).county + rules.regexp(/\d{8}/),
     custom: (key: string | RuleFunction, ...args: Array<any>) => {
-      if (typeof key === "string" && this.methods[key])
-        return this.methods[key](...args);
+      if (typeof key === "string" && methods[key])
+        return methods[key](...args);
       else if (typeof key === "function") return key(...args);
     }
   };

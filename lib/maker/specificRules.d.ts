@@ -29,15 +29,19 @@ export interface SpecificRulesMap {
     lat(): string;
     custom(key: string | RuleFunction, ...args: Array<any>): string | number | boolean;
 }
+export declare var config: {
+    divisionCode: string;
+    beginTime: Date;
+    endTime: Date;
+    incrementBase: number;
+};
+export declare function add(key: string, makeFunc: RuleFunction): void;
 export default class SpecificRules {
     private history;
-    private methods;
     private __rules;
     private division;
     private readonly getRndTime;
-    constructor();
-    add(key: string, makeFunc: RuleFunction): void;
     readonly rules: RulesInterface & SpecificRulesMap;
-    setOption(option?: MakerSetting): void;
+    reload(): void;
     private maps;
 }

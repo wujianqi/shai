@@ -14,7 +14,7 @@
 - [x] 模拟生成（maker）：内置方法66项，让数据看起来更真实，规则简单 <br>
 - [x] 验证（validator）：内置方法85项，链式，结构即类型<br>
 - [x] 区划更新到 2019.4 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
-- [x] 前后台通用，0.2.x 支持ES5的版本，0.3.x后续版本为ES6 + 异步 <br>
+- [x] 前后台通用 <br>
 
 ------
 
@@ -86,6 +86,7 @@ maker.setting = {
 >> ***数组元素 1***，默认情况下为输出对象的个数，即数组长度，但有数组元素3的情况下，为嵌套的层数；必需项！<br>
 >> ***数组元素 2***，默认不设值，当设值后，无数组元素3的情况下，数组元素1变为随机数字的下限值，数组元素2为上限值；有数组元素3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
 >> ***数组元素 3***，默认不设值，当设值后，为嵌套对象的属性名，文本<br>
+> 数据量大请使用异步，参考示例  <br>
 
 > 模版示例：<br>
 
@@ -190,21 +191,24 @@ export default {
     let mock = new MockAdapter(axios);
     maker.setting.divisionCode = '440300';
 
-    let listData = maker.make({
-      makerOption: [50],
-      id: "<% uuid %>",
-      name: "<% chinese, 10 %>",
-      longitude: "<% lon %>",
-      latitude: "<% lat %>",
-      bytime: "<% datetime %>"
+    let getListData = () => new Promise((resolve, reject) => {
+      let project = {
+        makerOption: [50],
+        id: "<% uuid %>",
+        name: "<% chinese, 10 %>",
+        longitude: "<% lon %>",
+        latitude: "<% lat %>",
+        bytime: "<% datetime %>"
+      };
+
+      resolve(maker.make(project));
     });
 
-    mock.onGet('/project/list').reply(params => {
-      let { name } = params, mockList = listData.filter(d => 
-        (name && d.name.indexOf(name) == -1) ? false : true);
-    
-      return new Promise((resolve, reject) => 
-        setTimeout(() => resolve([200, { results: mockList }]), 1000));
+    mock.onGet('/project/list').reply(async params => {
+      let { name } = params, ld = await getListData();  
+
+      return [200, {results: ld.filter(d => 
+        (name && d.name.indexOf(name) == -1) ? false : true)}];
     });
   }
 }
