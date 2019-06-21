@@ -47,14 +47,7 @@ export var config = {
   incrementBase: 0
 };
 
-var methods: { [key: string]: RuleFunction } = {};
-/**
-   * 添加函数引用，在custom规则中作为参数调用
-   * @param makeFunc
-   */
-export function add(key: string, makeFunc: RuleFunction): void {
-  methods[key] = makeFunc;
-}
+export var customRule: { [key: string]: RuleFunction } = {};
 
 /**
  * @class 特定范围设置的方法集合
@@ -159,8 +152,8 @@ export default class SpecificRules {
     lon: () => this.division.getData(3).county + rules.regexp(/\d{8}/),
     lat: () => this.division.getData(4).county + rules.regexp(/\d{8}/),
     custom: (key: string | RuleFunction, ...args: Array<any>) => {
-      if (typeof key === "string" && methods[key])
-        return methods[key](...args);
+      if (typeof key === "string" && customRule[key])
+        return customRule[key](...args);
       else if (typeof key === "function") return key(...args);
     }
   };

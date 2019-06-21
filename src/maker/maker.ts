@@ -1,11 +1,11 @@
 import SpecificRules, {
   config,
-  add,
+  customRule,
   MakerSetting,
   RuleFunction,
   rulesName
 } from "./specificRules";
-import { util } from "./util";
+import { findBlock, parseTPL } from "./template"
 
 export {
   MakerSetting,
@@ -23,6 +23,11 @@ export interface IMaker {
     arg2: string,
     ...args: any[]
   ): string | number | boolean;
+  toJSON(
+    content: string | object,
+    parseValueType?: string | boolean,
+    optionKey?: string
+  ): string;
   make(
     content: string | object,
     parseValueType?: string | boolean,
@@ -33,141 +38,6 @@ export interface IMaker {
 var optionPropKey = "makerOption";
 var parseTypes = ["int", "number", "increment", "bool"];
 var __specr:SpecificRules = new SpecificRules();
-
-/**
- * 批量数据--模版生成
- * @param content
- * @param n1
- * @param n2
- */
-function bulk(content: string, n1?: number, n2?: number): string {
-  let num = 0;
-
-  if (typeof n1 === "number" && typeof n2 === "number")
-    num = util.getInt(n1, n2);
-  else if (typeof n1 === "number") num = n1;
-
-  if (num > 0) {
-    let list = [],
-      i;
-
-    for (i = 0; i < num; i++) list.push(content);
-    return "[" + list.join(",") + "]";
-  } else return content;
-}
-
-/**
- * 递归嵌套数据--模版生成
- * @param content
- * @param level
- * @param keyName
- * @param num
- */
-function nested(
-  content: string,
-  level: number,
-  keyName: string,
-  num?: number
-): string {
-  let newstr = content;
-  const makedata = (): void => {
-    level--;
-    if (level < 0) return void 0;
-    newstr = newstr.replace(
-      /(?<=@@).*(?=##)/,
-      ($0): any => {
-        return `${$0},${keyName}:${bulk(`@@${$0}##`, num)}`;
-      }
-    );
-    makedata();
-  };
-
-  makedata();
-  return newstr;
-}
-
-/**
- * 批量、嵌套数据模板，选项转换
- * @param content
- */
-function convertOption(content: string): string {
-  let objbody: string, n1: number, n2: number, itemsKey: string;
-  const reg = new RegExp(`"${optionPropKey}":\\[([^\\]]+)\\],?`);
-
-  objbody = content.replace(
-    reg,
-    (n, m): any => {
-      let args = m.split(",");
-
-      n1 = +args[0];
-      n2 = args.length > 1 ? +args[1] : void 0;
-      itemsKey = args.length > 2 ? args[2] : void 0;
-      return "";
-    }
-  );
-  if (typeof itemsKey === "string") objbody = nested(objbody, n1, itemsKey, n2);
-  else objbody = bulk(objbody, n1, n2);
-
-  return objbody;
-}
-
-/**
- * 含循环输出配置的模板内容转换
- * @param content
- */
-function findBlock(content: string): string {
-  let s1 = content;
-  const rpb = (str: string) => str.replace(/\{/g, "@@").replace(/\}/g, "##"); // 转换子对象标识，便于获取父对象
-  const unrpb = (str: string) => str.replace(/@@/g, "{").replace(/##/g, "}"); // 子对象标识转换回来
-
-  const callfn = (): void => {
-    // 递归获取子对象块
-    if (s1.indexOf(optionPropKey) === -1) return void 0;
-
-    s1 = s1.replace(
-      /\{(?=(?:(?!\{)[\s\S])*$)[\s\S]*?\}/,
-      ($0): any => {
-        if (new RegExp(optionPropKey).test($0)) return convertOption(rpb($0));
-        else return rpb($0);
-      }
-    );
-    callfn();
-  };
-  callfn();
-  return unrpb(s1);
-}
-
-/**
- * 模版输出项解析
- * @param content
- */
-function parseTPL(content: string): string {
-  return content.replace(
-    /<%([^(%>)\n\r]+)%>/g,
-    ($0, $1): any => {
-      let key = $1.replace(/\s+/g, ""),
-        text:any;
-
-      if (key.indexOf(",") > -1) {
-        let args = key.split(",");
-
-        args.forEach((item: any, i: number) => {
-          if (/^true$/.test(item)) args[i] = true;
-          else if (/^false$/.test(item)) args[i] = false;
-          else if (/^(\-|\+)?\d+(\.\d+)?$/.test(item)) args[i] = +item;
-        });
-        text = maker.get(args.shift(), ...args);
-      } else {
-        text = maker.get(key);
-      }
-      // 块结束更新取值范围
-      if(new RegExp($0 + '[^(%>)]*\}').test(content))
-        __specr = new SpecificRules();
-
-      return text;
-    }
-  );
-}
 
 /**
  * @class 数据生成、模拟
@@ -200,7 +70,14 @@ export const maker: IMaker = {
       }
     };
   },
-  add: add,
+  
+  /**
+   * 添加函数引用，在custom规则中作为参数调用
+   * @param makeFunc
+   */
+  add(key: string, makeFunc: RuleFunction): void {
+    customRule[key] = makeFunc;
+  },
 
   /**
    * 生成模拟数据
@@ -208,7 +85,7 @@ export const maker: IMaker = {
    * @returns {string | number | boolean} 返回模拟数据
    * @example
    * get('md5');
-   */
+   */  
   get(method: rulesName, ...args: any[]): string | number | boolean {
     let result = "", rule = __specr.rules[method];
 
@@ -228,11 +105,11 @@ export const maker: IMaker = {
    * @param {string} optionKey 自定义循环输出的对象属性名，默认为makerOption
    * @returns {object}
    */
-  make(
+  toJSON(
     content: string | object,
     parseValueType?: string | boolean,
     optionKey?: string
-  ): object {
+  ): string {
     try {
       let data: string, tpl: string;
       const hasParse =
@@ -257,12 +134,19 @@ export const maker: IMaker = {
           ns = (str: string) =>
             str.replace(reg, ($0): any => $0.replace(/"/g, ""));
 
-        data = parseTPL(findBlock(ns(tpl)));
-      } else data = parseTPL(findBlock(tpl));
-
-      return JSON.parse(data);
+        data = findBlock(ns(tpl), optionPropKey);
+      } else data = findBlock(tpl, optionPropKey);   
+      return parseTPL(data, maker.get, () => __specr = new SpecificRules());
     } catch (error) {
       throw new SyntaxError(`请检查模板格式！${error.message}`);
     }
+  },
+  make(
+    content: string | object,
+    parseValueType?: string | boolean,
+    optionKey?: string
+  ): object {
+    return JSON.parse(maker.toJSON(content, parseValueType, optionKey))
   }
+
 };

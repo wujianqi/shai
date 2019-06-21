@@ -3,10 +3,14 @@ import shai from '../src/index';
 
 describe('数据生成测试 shai maker', function () {
     var m = shai.maker;
-    //m.setting.divisionCode = '440300';    
+    //m.setting.divisionCode = '440300';
+    m.add('sope', ():string => {
+      m.setting.incrementBase = 0;
+      return '';
+    })
   
     it('maker 数据生成', function() {
-        m.setting.divisionCode = '440200';
+        m.setting.divisionCode = '440300';
         var tpl1 = m.make({
           data:{
             makerOption:[10],
@@ -21,6 +25,7 @@ describe('数据生成测试 shai maker', function () {
           }
         });
   
+        m.setting.incrementBase = 0;
         m.add('testv', (a) => {
            return m.get('increment', false) as number * a;
         });
@@ -41,9 +46,10 @@ describe('数据生成测试 shai maker', function () {
     it("test",function(done){
       this.timeout(6000);
       var m = shai.maker;
+      m.setting.divisionCode = '440300';
 
       var go = () => new Promise((resolve, reject) => {
-        let data = `{
+        let data = {
           "makerOption": [200],
           "realname": "<% cnFemaleName %>",
           "region":"<% province%>",
@@ -62,18 +68,20 @@ describe('数据生成测试 shai maker', function () {
                   "lat":"<% lat %>"
               }
             }
-          }`;
+          };
         resolve(m.make(data));
       })
 
       go().then(function(data){
-          try{
-         　　 console.log(data);    
-          　　done();
-          }catch(err){done(err);}
+        try{
+        　console.log(data);
+        　done();
+        }catch(err){
+          done(err);
+        }
       },function(err){
           done(err);
-      });        
+      });
     });
   
   });

@@ -72,11 +72,14 @@ maker.setting = {
 
 **.make(content:string|object, parseValueType:boolean|string, optionKey:string)** 根据对象或JSON文本模板，生成设值后的新对象
 
+**.toJSON(content:string|object, parseValueType:boolean|string, optionKey:string)** 同make，但输出为JSON文本
+
 ###### make 参数说明：
 
 > 参数1 ***content*** 为JSON模版；string或object，如果本参数是字符串则函数输出为字符串，如果是对象则输出也是对象，**必须**！<br>
 > 参数2 ***parseValueType*** 是否需要转换值的类型，默认为true，即转换，可选。注：模板静态数据内容不受此限制。适用范围：对象属性如设为"key": <% int %>则报错, 可改为"key": "<% int %>"，因此类型需要转换；parseValueType 设为false，为保留文本；设为string，则为指定的需转换的方法名，不同的方法名使用,号隔开。<br>
 > 参数3 ***optionKey*** 自定义循环输出的对象属性名，默认为makerOption，string，可选，可参考JSON模板说明。<br>
+> 数据量大，请使用异步Promise，参考示例  <br>
 
 ###### 对象或JSON模版 约束规则说明：
 
@@ -86,7 +89,6 @@ maker.setting = {
 >> ***数组元素 1***，默认情况下为输出对象的个数，即数组长度，但有数组元素3的情况下，为嵌套的层数；必需项！<br>
 >> ***数组元素 2***，默认不设值，当设值后，无数组元素3的情况下，数组元素1变为随机数字的下限值，数组元素2为上限值；有数组元素3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
 >> ***数组元素 3***，默认不设值，当设值后，为嵌套对象的属性名，文本<br>
-> 数据量大请使用异步，参考示例  <br>
 
 > 模版示例：<br>
 
@@ -425,7 +427,7 @@ validator.setting = {
   // 完整JSON数据或对象验证，可任意层级。
   var json = `{
     "name": "张航",
-    "age":30,      
+    "age":30,
     "hobby":["tour","sing"],
     "notes":[
       {
