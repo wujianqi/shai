@@ -1,23 +1,23 @@
-import { IChain } from "./chainResult";
-import { RuleFunction } from "./rules";
-import { MessageInfo } from "./message";
-export { RuleFunction, IChain };
+import { ChainConstructor } from './chainResult';
+import { MessageInfo } from './message';
+import { ValidFunction } from './rules';
+import { group } from './chainUtil';
+export { ValidFunction, ChainConstructor };
 export interface ValidSetting {
     isdev?: boolean;
     message?: MessageInfo;
 }
-export interface IValidator {
+declare function check(value: any): ChainConstructor;
+declare function check(value: object, path: string | number | (string | number)[]): ChainConstructor;
+export declare const validator: {
     setting: ValidSetting;
-    check(value: any): IChain;
-    check(value: object, path: string | number | Array<string | number>): IChain;
-    readonly string: IChain;
-    readonly number: IChain;
-    readonly boolean: IChain;
-    readonly array: IChain;
-    readonly object: IChain;
-    readonly null: IChain;
-    add(key: string, func: RuleFunction, msg?: string): void;
-    checkItems(chains: IChain[]): boolean;
-    verify(JSONData: string | object, struct: object, callback?: (faults: MessageInfo, path: (string | number)[]) => void): boolean;
-}
-export declare const validator: IValidator;
+    add(key: string, func: ValidFunction, msg?: string): void;
+    readonly string: ChainConstructor;
+    readonly number: ChainConstructor;
+    readonly object: ChainConstructor;
+    readonly array: ChainConstructor;
+    readonly boolean: ChainConstructor;
+    readonly null: ChainConstructor;
+    check: typeof check;
+    group: typeof group;
+};

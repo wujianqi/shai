@@ -12,10 +12,9 @@
 
 - [x] 针对国人国情定制、使用简单、易扩展 <br>
 - [x] 模拟生成（maker）：内置方法66项，让数据看起来更真实，规则简单 <br>
-- [x] 验证（validator）：内置方法85项，链式，结构即类型<br>
-- [x] 区划更新到 2019.4 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
-- [x] 前后台通用 <br>
-
+- [x] 验证（validator）：内置方法85项，链式，让多层嵌套数据验证更简单、简洁<br>
+- [x] 区划更新到 2019.5 [民政部公示](http://www.mca.gov.cn/article/sj/xzqh/2019/)  <br>
+- [x] 前后台通用，ES5，支持Typescript <br>
 ------
 
 安装：
@@ -72,7 +71,7 @@ maker.setting = {
 
 **.make(content:string|object, parseValueType:boolean|string, optionKey:string)** 根据对象或JSON文本模板，生成设值后的新对象
 
-**.toJSON(content:string|object, parseValueType:boolean|string, optionKey:string)** 同make，但输出为JSON文本
+**.toJSON(content:string|object, parseValueType:boolean|string, optionKey:string)** 同make，但输出为JSON文本类型
 
 ###### make 参数说明：
 
@@ -84,13 +83,14 @@ maker.setting = {
 ###### 对象或JSON模版 约束规则说明：
 
 > 方法名、参数，使用这种方式：<% int, 0, 2 %>  <br>
-> 数组或嵌套数据输出配置，在目标对象里加属性：makerOption（也可自定义，即make的optionKey参数）, 说明如下：<br>
->> 值为“参数”数组，例："makerOption": [2,3,'childrens']。<br>
->> ***数组元素 1***，默认情况下为输出对象的个数，即数组长度，但有数组元素3的情况下，为嵌套的层数；必需项！<br>
->> ***数组元素 2***，默认不设值，当设值后，无数组元素3的情况下，数组元素1变为随机数字的下限值，数组元素2为上限值；有数组元素3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
->> ***数组元素 3***，默认不设值，当设值后，为嵌套对象的属性名，文本<br>
+> 数组或嵌套数据输出配置，在目标对象里加属性：makerOption（也可自定义，即make的optionKey参数）, 见下面说明：<br>
+> 值为“参数”数组，例："makerOption": [2,3,'childrens']。数组元素说明如下：<br>
 
-> 模版示例：<br>
+* 元素1，默认情况下为输出对象的个数，即数组长度，但有元素3的情况下，为嵌套的层数；**必需**！<br>
+* 元素2，默认不设值，设值后，无元素3的情况下，元素1变为随机数字的下限值，数组元素2为上限值；有元素3的情况下，为嵌套对象的个数，及嵌套对象数组长度；<br>
+* 元素3，默认不设值，设值后，为嵌套对象的属性名，文本<br>
+
+模版示例：
 
 ```json
 {
@@ -351,22 +351,25 @@ validator.setting = {
 
 ###### 链式对象说明：
 
-> 1位参数的规则项：eq、not、gt、gte、lt、lte、length、minlength、maxlength、bitmax、in、has、regexp，例：v.string.eq('foo')<br>
+> 1位参数的规则项：eq、not、gt、gte、lt、lte、len、minlen、maxlen、charlen、in、has、regexp，例：v.string.eq('foo')<br>
 > 2位参数的规则项：between，例：v.number.between(10,20)<br>
 > 最少1位以上，可变参数的规则项：min、max、custom 例：v.number.min(2,19,10,20)<br>
 > 无参数的规则项，均为直接使用属性方式：例：v.string.english.upper <br>
-> 链式验证对象支持所有规则任意搭配，但不建议无意义的组合，例：v.null<del>.length(10)</del> <br>
-> **.on(rule:string|function, string|function)**，绑定未通过验证的回调函数，用法见示例。<br>
-> **.ok(rule:string|function, string|function)**，绑定已通过验证的回调函数，用法见示例。<br>
-> **.name(fieldname:string)**，指定数据项名称，用于格式化消息。<br>
-> **.target(...targetnames:string[])**，指定比较值的名称，用于1位及以上参数规则格式化消息，见示例。<br>
-> 链所有节点仅是索引，不会立即生效的，调用result属性方法才会生效。<br>
-> **.result**，获取验证结果，值为boolean。 <br>
-> **.rule** 获取async-validator兼容规则，用法见示例。<br>
+> 链式验证对象支持所有规则任意搭配，但不建议无意义的组合，例：v.null<del>.len(10)</del> <br>
+> 链节点仅是索引，不会立即生效，调用result/asyncResult属性才会生效。除规则设定以外的链的属性和方法：<br>
 
-**.checkItems(chain:array)** 多项数据验证，返回值为是否通过(boolean)，参数为链式对象chain数组。
+* .on(rule:string|function, string|function)，绑定未通过验证的回调函数，用法见示例。<br>
+* .ok(rule:string|function, string|function)，绑定已通过验证的回调函数，用法见示例。<br>
+* .alias(fieldname:string)，设定数据项名称，用于格式化消息。<br>
+* .target(...targetnames:string[])，设定比较值的名称，用于1位及以上参数规则的消息格式化，见示例。<br>
+* .each(struct:object)，当验证数据为对象或数组，按结构进行分拆及组合验证，见“数据深度验证”示例<br>
+* .isAsync，是否有异步验证方法，值为boolean。
+* .result，获取同步验证结果，值为boolean。但如有异步，所有on,ok事件调用仅在所有异步调用结束时生效<br>
+* .asyncResult，获取异步验证结果，组合了同步验证结果，值为Promise&lt;boolean&gt;。 <br>
+* .rule，获取async-validator兼容规则，用法见示例。<br>
+* .trigger(event)，仅适合获取rule兼容规则中使用，见示例<br>
 
-**.verify(json:string|object, struct:object, callback:function)**  JSON数据或对象验证，返回值为是否通过(boolean)
+**.group(chain:array)** 多项数据验证，返回值为是否通过(boolean或Promise&lt;boolean&gt;)，参数为链式对象chain数组。
 
 ###### verify 参数选项(json, struct, callback)说明：
 
@@ -374,58 +377,68 @@ validator.setting = {
 > 参数2为数据类型结构，为链式对象组合（不要调result，会改变对象类型），参考代码示例，**必须** <br>
 > 参数3为可选回调方法，含2参数，未通过项的组、数据层级路径组，此方法会覆盖链内有on的集中回调的方法。<br>
 
-**.add(key:string|function, fn:Function, message:string)** 添加验证数据的方法，便于复用，见custom示例与规则说明。
+**.add(key:string|function, fn:Function, message:string)** 添加验证数据的方法，同步异步均可，异步必须是Promise类型，见custom示例与规则说明。
 
 ##### 用法例子：
 
 ```javascript
   import v from 'shai/lib/validator.esm';
 
-  // 对指定的单项数据验证
+  // 对指定的数据验证
   v.check('password1').eq('password2').result; // 返回false
-  v.check('120101199901011693').bodycard.length(18).result; // 返回true
+  v.check('120101199901011693').bodycard.len(18).result; // 返回true
   
   // 获取对象路径的值进行验证，支持特殊属性名
   var obj = {notes:[{
       content: "testdsafsdf"
     }]};
-  var chain = v.check(obj, 'notes.0.content').string.maxlength(255);
+  var chain = v.check(obj, 'notes.0.content').string.maxlen(255);
   console.log(chain.result);
 
   var obj = [{
-      note.content: "testdsafsdf"
+      "note.content": "testdsafsdf"
     }];
-  var chain = v.check(obj, [0, 'notes.content']).string.maxlength(255);
+  var chain = v.check(obj, [0, 'notes.content']).string.maxlen(255);
   console.log(chain.result);
     
   // 自定义规则方法
-  v.add('foo', (val, val2) => val.length === val2.length, '示例格式') // 方式一，推荐
+  v.add('foo', (val, val2) => val.length === val2.length, '验证失败消息') // 方式一，推荐
   v.check('123').custom('foo', '456');
-  v.check('123').custom((val, val2) => val.length === val2.length, '456'); // 方式二，但回调中无法使用
+  v.check('123').custom((val, val2) => val.length === val2.length, '456'); // 方式二，但无法在on/ok中回调
+
+  // 异步验证，通过add来使用。
+  v.add('foo2', val => new Promise<boolean>((resolve,reject) => {
+      setTimeout(() => {
+        resolve(val < 30);
+      }, 500);
+    }), '必须大于30')
+
+  // 获取异步验证结果的方式
+  v.chek(200).custom('foo2').asyncResult.then(res => console.log(res))
 
   // 绑定回调
-  var chain = v.check('yrPqw2{O').password.eq('yr qw2{O').minlength(8)
+  var chain = v.check('yrPqw2{O').password.eq('yr qw2{O').minlen(8)
     .on('password', () => console.log(...)) // 未通过验证的回调，单项
     .on(fault => console.log(...)) // 集中回调, 回调函数可带一个参数，即未通过验证项的消息对象
     .ok('password', () => console.log(...)) // 已通过验证的回调，只能按单项。
     .ok(() => console.log(...),'foo') // 自定义函数的回调只要将参数调换个顺序即可，on同此。
   console.log(chain.result);
 
-  //自定义消息（只要写名称就行）
-  var chain = v.check('yrPqw2{O').password.name('重复密码') // 设置名称
+  //自定义消息（只要写名称就行，如果仍不能满足，就修改setting,或使用自定义函数）
+  var chain = v.check('yrPqw2{O').password.alias('重复密码') // 设置名称
     .eq('yr qw2{O').target('初始密码') // 设置比较对象名称，可多个，格式化时按顺序替换
-    .minlength(8) // 对于数字日期类型，无需写target
+    .minlen(8) // 对于数字日期类型，无需写target
   console.log(chain.result);
 
   // 链式对象组合验证
-  var result = v.checkItems([
-    v.check('admin').account.length(4),
-    v.check('O8g#F23gj').password.minlength(8)
+  var result = v.group([
+    v.check('admin').account.len(4),
+    v.check('O8g#F23gj').password.minlen(8)
   ]);
   console.log(result);
 
-  // 完整JSON数据或对象验证，可任意层级。
-  var json = `{
+  // 数据深度验证，可任意层级，与原数据属性、结构保持一致，丢掉那些繁琐的附加属性配置！
+  var json = {
     "name": "张航",
     "age":30,
     "hobby":["tour","sing"],
@@ -439,33 +452,36 @@ validator.setting = {
         }]
       }
     ]
-  }`;
+  };
 
-  var struct = { // 定义类型结构
+  // 定义类型结构，如果值需要多种条件组合，可使用each嵌套
+  var struct = { 
     name: v.string.chinese.address,
     age: v.number.int.eq(30),
     hobby: v.array,
     notes: [
       { content: v.number,
-        log: [
+        log: v.array.len(2).each([,
           {
             'local.time': v.string.date
           }
-        ]
+        ])
       }
     ]
   };
 
-  var result = v.verify(json, struct);
+  var result = v.check(json).each(struct).result;
   console.log(result);
 
 ```
 
 ##### 兼容 Element、Ant design 等UI框架的 async-validator 的处理
 
-* 作用：简化过多层次的配置、减少或不使用自定义验证，仅验证链有效；
+* 作用：简化过多的嵌套层次、类型转换等设置，减少或不使用自定义验证；
+* 由于设计不同，本库仅兼容同步验证，不支持兼容异步验证。如需使用异步，请酌情选择本库或av库；
+* required，true表示非空，false表示仅有值情况下才验证，间接替代whitespace；
 * message，参考name/target/setting设定，注：on的“集中回调”方式无效；
-* trigger，为UI库封装，如有需要，可将change、blur写在trigger参数中。
+* trigger，为UI库封装，如有需要，可将change、blur等写在trigger参数中。
 
 ```javascript
   // Element Vue：<el-form :rules="shaiRules"></el-form>
@@ -474,8 +490,8 @@ validator.setting = {
     this.setFieldValue...
   },
   shaiRules: {
-    pass: v.string.required.password.length(8).trigger('change').rule,
-    age: v.number.gt(23).name('年龄').ok('gt', setField).rule
+    pass: v.string.required.password.len(8).trigger('change').rule,
+    age: v.number.gt(23).alias('年龄').ok('gt', setField).rule
   }
 
 ```
@@ -529,7 +545,7 @@ validator.setting = {
 | telphone             | 电话手机混合 |
 | phone                | 固话，可带分机, +86、86可选 |
 | bodycard             | 身份证，含地区、生日、验证数等规则 |
-| address              | 住址 |
+| address              | 住址，必须含中文、县/区/旗/乡/镇/街道/州的某项名称 |
 | citycode             | 6位地区代码 |
 | autocard             | 车牌号码，支持新能源车牌号及港澳等 |
 | lon                  | 地理位置——经度，小数点1~15位 |
@@ -552,9 +568,9 @@ validator.setting = {
 | ascii                | ASCII码 |
 | base64               | BASE64码 |
 | md5                  | md5码 |
-| uuid                 | UUID码，连接线-号可选 |
-| hex                  | HEX码 |
-| color                | 颜色码，16进制 |
+| uuid                 | UUID码，连接线-非必须 |
+| hex                  | 十六进制字符串 |
+| color                | 颜色码，16进制，三位或六位，#非必须 |
 | jwt                  | JSON Web Token字符串|
 | tag                  | 闭合标签元素|
 | **文件扩展名**|  | 
@@ -571,10 +587,10 @@ validator.setting = {
 | between              | 之间，大于并小于 |
 | min                  | 最小 |
 | max                  | 最大 |
-| minlength            | 字符、数组最小长度 |
-| maxlength            | 字符、数组最大长度 |
-| length               | 字符、数组长度等于 |
-| bitmax               | 字节最大长度，一般汉字为2字节，英文1字节 |
+| minlen               | 字符、数组最小长度 |
+| maxlen               | 字符、数组最大长度 |
+| len                  | 字符、数组长度等于 |
+| charlen              | 字节最大长度，一般汉字为2字节，英文1字节 |
 | in                   | 是否为字符、数组元素、对象所包含 |
 | has                  | 是否包含字符、数组元素、对象属性，与in相反 |
 | empty                | 字符、对象、数组是否为空，数字则判断是否小于0 |

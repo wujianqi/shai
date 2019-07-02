@@ -1,18 +1,22 @@
-import { Chain, ChainBase } from "./chain";
-import { RulesMap } from "./rules";
-export declare type ruleNames = keyof RulesMap;
-export interface IChain extends ChainBase {
+import Chain, { ChainBase } from './chainNode';
+import { AsyncValidatorRule } from './asyncValidatorRule';
+export interface ChainConstructor extends ChainBase {
     readonly result: boolean;
-    trigger(type: string): this;
+    readonly asyncResult: Promise<boolean>;
+    readonly isAsync: boolean;
     readonly rule: any[];
+    trigger(type: string): this;
 }
-export default class ChainResult extends Chain implements IChain {
-    private faults;
-    private eventType;
-    private __chk;
-    private format;
-    private __chkItem;
+export default class ChainResult extends Chain implements ChainConstructor {
     readonly result: boolean;
+    readonly asyncResult: Promise<boolean>;
+    readonly rule: AsyncValidatorRule[];
+    readonly isAsync: boolean;
+    private asyncFns;
+    private asyncParams;
+    private sync;
+    private eventType;
     trigger(type: string): this;
-    readonly rule: any[];
+    private together;
+    private eachValid;
 }

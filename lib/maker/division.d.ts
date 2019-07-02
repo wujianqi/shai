@@ -7,19 +7,19 @@ interface RegionData {
     [key: string]: (string | number | null)[];
 }
 export default class Division {
+    code: RegionInterface;
     private divisionCode;
     private regions;
     private nocode;
     private level;
     private prefectures;
     private countys;
-    code: RegionInterface;
     constructor(code: string | number, datas: RegionData);
+    getData(index?: number): RegionInterface;
     private getCode;
     private getPfCode;
     private getCtCode;
     private findRegion;
     private rndCode;
-    getData(index?: number): RegionInterface;
 }
 export {};

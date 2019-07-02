@@ -1,10 +1,10 @@
 import {
-  validator,
-  IValidator,
-  ValidSetting,
-  RuleFunction,
-  IChain
-} from "./validator";
+    ChainConstructor,
+    ValidFunction,
+    validator,
+    ValidSetting,
+} from './validator';
+import { Struct } from './chain';
 
-export { IValidator, ValidSetting, RuleFunction, IChain };
+export { ValidSetting, ValidFunction, ChainConstructor, Struct };
 export default validator;

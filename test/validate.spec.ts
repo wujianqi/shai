@@ -400,30 +400,30 @@ describe('单项数据，各规则方法测试 validator test', function () {
     assert(v.check('3').max(1, 2, 3).result);
   });
   it('length no passed test', function () {
-    assert(!v.check('test').length(3).result);
+    assert(!v.check('test').len(3).result);
   });
   it('length passed test', function () {
-    assert(v.check('test').length(4).result);
+    assert(v.check('test').len(4).result);
   });
   it('minlength no passed test', function () {
-    assert(!v.check('test').minlength(6).result);
+    assert(!v.check('test').minlen(6).result);
   });
   it('minlength passed test', function () {
-    assert(v.check('test').minlength(4).result);
-    assert(v.check('test').minlength(3).result);
+    assert(v.check('test').minlen(4).result);
+    assert(v.check('test').minlen(3).result);
   });
   it('maxlength no passed test', function () {
-    assert(!v.check('test').maxlength(3).result);
+    assert(!v.check('test').maxlen(3).result);
   });
   it('maxlength passed test', function () {
-    assert(v.check('test').maxlength(6).result);
-    assert(v.check('test').maxlength(4).result);
+    assert(v.check('test').maxlen(6).result);
+    assert(v.check('test').maxlen(4).result);
   });
-  it('bitmax no passed test', function () {
-    assert(!v.check('汉字12').bitmax(4).result);
+  it('charlen no passed test', function () {
+    assert(!v.check('汉字12').charlen(4).result);
   });
-  it('bitmax passed test', function () {
-    assert(v.check('汉字12').bitmax(8).result);
+  it('charlen passed test', function () {
+    assert(v.check('汉字12').charlen(8).result);
   });
   it('in no passed test', function () {
     assert(!v.check('abcd').in('abc').result);

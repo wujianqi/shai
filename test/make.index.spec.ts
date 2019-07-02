@@ -48,9 +48,9 @@ describe('数据生成测试 shai maker', function () {
       var m = shai.maker;
       m.setting.divisionCode = '440300';
 
-      var go = () => new Promise((resolve, reject) => {
+      new Promise((resolve, reject) => {
         let data = {
-          "makerOption": [200],
+          "makerOption": [50],
           "realname": "<% cnFemaleName %>",
           "region":"<% province%>",
           "prefecture":"<% prefecture%>",
@@ -70,17 +70,13 @@ describe('数据生成测试 shai maker', function () {
             }
           };
         resolve(m.make(data));
-      })
-
-      go().then(function(data){
+      }).then(data => {
         try{
         　console.log(data);
         　done();
         }catch(err){
           done(err);
         }
-      },function(err){
-          done(err);
       });
     });
   

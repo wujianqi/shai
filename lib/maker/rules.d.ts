@@ -1,22 +1,20 @@
-export interface RuleFunction {
+export interface MakeFunction {
     (...values: any[]): boolean | string | number;
 }
-export interface RulesMap {
-    md5(arg2?: boolean, arg?: string): string;
-    uuid(arg?: string): string;
-    now(arg?: string): string;
-    regexp(arg?: string | RegExp): string;
-    enum<T extends boolean | string | number>(...args: T[]): T;
-    range(n1?: number, n2?: number, n3?: number): string;
-    int(arg1?: number, arg2?: number): number;
-    number(arg1?: number, arg2?: number, arg3?: number): number;
-    bool(): boolean;
-    month(): number;
-    day(): number;
-    hour(): number;
-    minute(): number;
-    rgb(arg?: boolean): string;
-    hsl(arg?: boolean): string;
+export declare const rules: {
+    md5: (is16b?: boolean, arg?: string) => string;
+    uuid: (arg?: string) => string;
+    now: (arg?: string) => string;
+    regexp: (arg?: string | RegExp) => string;
+    enum: <T extends string | number | boolean>(...args: T[]) => T;
+    range: (low?: number, high?: number, step?: number) => string;
+    int: (low?: number, high?: number) => number;
+    number: (low?: number, high?: number, dec?: number) => number;
+    bool: () => boolean;
+    month: () => number;
+    day: () => number;
+    hour: () => number;
+    minute: () => number;
     mid: RegExp;
     account: RegExp;
     password: RegExp;
@@ -28,32 +26,30 @@ export interface RulesMap {
     bizcode: RegExp;
     bankcard: RegExp;
     qq: RegExp;
-    alphanum(arg?: number): string;
-    english(num?: number, arg?: string): string;
-    upper(arg?: string): string;
-    lower(arg?: string): string;
-    chinese(num?: number, arg?: string): string;
-    ip(local?: boolean): string;
-    text(n1?: number, arg?: string, n2?: number): string;
-    price(arg1?: number, arg2?: number, arg3?: boolean): string;
-    esurname(): string;
-    enName(): string;
-    enMaleName(): string;
-    enFemaleName(): string;
-    surname(): string;
-    cnName(): string;
-    cnMaleName(): string;
-    cnFemaleName(): string;
-    enState(): string;
-    cnState(): string;
-    company(): string;
-    road(): string;
-    build(): string;
-    job(): string;
-    file(...exts: string[]): string;
-    fieldType(str?: "mysql" | "sqlserver" | "oracle" | "sqlite"): string;
-}
-export interface RulesInterface extends RulesMap {
-    [key: string]: RegExp | RuleFunction;
-}
-export declare const rules: RulesInterface;
+    alphanum: (arg?: number) => string;
+    rgb: (arg?: boolean) => string;
+    hsl: (arg?: boolean) => string;
+    english: (num?: number, arg?: string) => string;
+    upper: (arg?: string) => string;
+    lower: (arg?: string) => string;
+    chinese: (num?: number, arg?: string) => string;
+    ip: (local?: boolean) => string;
+    text: (n1?: number, arg?: string, n2?: number) => string;
+    price: (low?: number, high?: number, arg3?: boolean) => string;
+    esurname: () => string;
+    enName: () => string;
+    enMaleName: () => string;
+    enFemaleName: () => string;
+    surname: () => string;
+    cnName: () => string;
+    cnMaleName: () => string;
+    cnFemaleName: () => string;
+    enState: () => string;
+    cnState: () => string;
+    company: () => string;
+    road: () => string;
+    build: () => string;
+    job: () => string;
+    file: (...exts: string[]) => string;
+    fieldType: (str?: "mysql" | "sqlserver" | "oracle" | "sqlite") => string;
+};

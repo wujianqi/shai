@@ -1,24 +1,22 @@
-import validator, {
-  IValidator,
-  ValidSetting,
-  RuleFunction,
-  IChain
-} from "./validator";
 import maker, {
-  MakerSetting,
-  IMaker,
-  MethodFuction,
-  MethodNames
-} from "./maker";
+    MakerSetting,
+    MakeFunction,
+    MethodNames,
+} from './maker';
+import validator, {
+    ChainConstructor,
+    ValidFunction,
+    ValidSetting,
+    Struct,
+} from './validator';
 
 export {
-  IValidator,
-  ValidSetting,
-  RuleFunction,
-  IChain,
-  MakerSetting,
-  IMaker,
-  MethodFuction,
-  MethodNames
+    ValidSetting,
+    ValidFunction,
+    ChainConstructor,
+    Struct,
+    MakerSetting,
+    MakeFunction,
+    MethodNames,
 };
 export default { validator, maker };

@@ -1,21 +1,18 @@
-import { RulesMap, RuleFunction } from "./rules";
-import { MessageInfo } from "./message";
+import { MessageInfo } from './message';
+import { ValidFunction, rules } from './rules';
+declare type RulesMap = typeof rules;
 interface CallBackFunction {
     [key: string]: Function;
 }
-export interface OnFaultsFunction {
-    (faultMessage?: MessageInfo): void;
+interface StructObject<T> {
+    [key: string]: StructArray<T> | Struct<T> | T[] | T;
 }
+interface StructArray<T> extends Array<StructObject<T>> {
+    [key: number]: StructObject<T>;
+}
+export declare type Struct<T> = StructArray<T> | StructObject<T>;
+export declare type OnFaultsFunction = (faultMessage?: MessageInfo) => void;
 export interface ChainBase {
-    check(value: any): this;
-    check(value: object, path: string | number | Array<string | number>): this;
-    on(str: Function, fnc: string): this;
-    on(str: keyof RulesMap, fnc: Function): this;
-    on(str: OnFaultsFunction): this;
-    ok(str: Function, fnc: string): this;
-    ok(str: keyof RulesMap, fnc: Function): this;
-    name(fieldName: string, override?: boolean): this;
-    target(...targetNames: string[]): this;
     readonly string?: this;
     readonly number?: this;
     readonly boolean?: this;
@@ -83,8 +80,17 @@ export interface ChainBase {
     readonly isbn?: this;
     readonly tag?: this;
     readonly jwt?: this;
-    readonly objectid?: this;
     readonly empty?: this;
+    each(struct: Struct<this>): this;
+    check(value: any): this;
+    check(value: object, path: string | number | (string | number)[]): this;
+    on(str: Function, fnc: string): this;
+    on(str: keyof RulesMap, fnc: Function): this;
+    on(str: OnFaultsFunction): this;
+    ok(str: Function, fnc: string): this;
+    ok(str: keyof RulesMap, fnc: Function): this;
+    alias(fieldName: string, override?: boolean): this;
+    target(...targetNames: string[]): this;
     not?(arg: any): this;
     eq?(arg: any): this;
     gt?(arg: string | number | Date): this;
@@ -94,35 +100,33 @@ export interface ChainBase {
     between?<T extends string | number | Date>(arg1: T, arg2: T): this;
     min?<T extends string | number | Date>(arg1: T, ...args: T[]): this;
     max?<T extends string | number | Date>(arg1: T, ...args: T[]): this;
-    length?(arg: string | number): this;
-    minlength?(arg: string | number): this;
-    maxlength?(arg: string | number): this;
-    bitmax?(arg: string | number): this;
+    len?(arg: string | number): this;
+    minlen?(arg: string | number): this;
+    maxlen?(arg: string | number): this;
+    charlen?(arg: string | number): this;
     in?(arg: string | number | any[] | object): this;
     has?(arg: string | number | any[] | object): this;
     regexp?(arg: RegExp | string): this;
-    custom?(arg: RuleFunction): this;
-    custom?(arg: string, ...args: Array<any>): this;
+    custom?(arg: ValidFunction): this;
+    custom?(arg: string, ...args: any[]): this;
 }
 interface InnerChain extends ChainBase {
     $set(key: string, value?: any[]): this;
 }
 declare class Chain implements InnerChain {
-    protected map: Array<string | Array<string | any[]>>;
+    protected map: (string | (string | any[])[])[];
     protected value: any;
     protected failed: CallBackFunction;
     protected passed: CallBackFunction;
-    protected names: {
-        [0]: string;
-        [1]: string[];
-        [2]: string[];
-    };
+    protected names: [string, string[], string[]];
+    protected substruct: Struct<this>;
     constructor();
     $set(key: string, value?: any[]): this;
-    check(data: any, path?: string | number | Array<string | number>): this;
-    name(fieldName: string, override?: boolean): this;
+    check(data: any, path?: string | number | (string | number)[]): this;
+    alias(fieldName: string, override?: boolean): this;
     target(...targetNames: string[]): this;
+    each(struct: Struct<this>): this;
     on(arg1: keyof RulesMap | OnFaultsFunction | Function, arg2?: string | Function): this;
     ok(arg1: keyof RulesMap | Function, arg2?: string | Function): this;
 }
-export { Chain };
+export default Chain;

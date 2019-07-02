@@ -18,12 +18,18 @@
     "test:m": "mocha --require espower-typescript/guess ./test/make.spec.ts",
     "test:v": "mocha --require espower-typescript/guess ./test/validate.spec.ts",
     "test:av": "mocha ./test/async.validate.spec.js",
-    "test:lib": "mocha ./test/lib.spec.js"
+    "test:lib": "mocha ./test/lib.spec.js",
+    "fix": "eslint --fix ./src/**/*.ts",
+    "eslint": "eslint ./src/**/*.ts"
   },
   "devDependencies": {
     "@types/mocha": "^5.2.6",
     "@types/power-assert": "^1.5.0",
+    "@typescript-eslint/eslint-plugin": "^1.11.0",
+    "@typescript-eslint/parser": "^1.11.0",
     "async-validator": "^1.11.2",
+    "eslint": "^6.0.1",
+    "eslint-config-prettier": "^5.0.0",
     "espower-typescript": "^9.0.2",
     "mocha": "^6.0.2",
     "power-assert": "^1.6.1",
