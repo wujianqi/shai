@@ -76,7 +76,7 @@ gen({
 
 ##### 批量对象生成设定规则
 * **length** 生产的数组长度，值为数字，为指定长度，值为2个数字的数组，则为2个数字之间的随机值。  
-* **children** 生成自嵌套的子对象组，值为字符串，为指定属性名，length则成为子对象组长度。  
+* **child** 生成自嵌套的子对象组，值为字符串，为指定属性名，length则成为子对象组长度。  
 * **level** 嵌套生成层组，值为数字，为指定层数，值为2个数字的数组，则为2个数字之间的随机值。  
 
 > 配置简写方式：  
@@ -161,8 +161,8 @@ shuffle | 随机打乱字符位置 | 必选参数1为指定字符内容
 
 方法名 | 用途 | 参数说明
 -|-|- 
-time | 随机时间| 可选前2个参数为限定时间范围，参数1，开始时间，参数2，结束时间。可选参数3为格式化样式yyyyMMdd hh:mm:ss，输出为string，无此参数则为Date类型。
-now | 当前时间 | 可选参数1为格式化样式yyyyMMdd hh:mm:ss，输出为string，无此参数则为Date类型。
+time | 随机时间| 可选前2个参数为限定时间范围，参数1，开始时间，参数2，结束时间。<br>可选参数3为格式化样式yyyyMMdd hh:mm:ss，输出为string，<br>无参数3则为Date类型。  
+now | 当前时间 | 可选参数1为格式化样式yyyyMMdd hh:mm:ss，输出为string，<br>无参数则为Date类型。  
 year | 年，数字 | 
 month | 月，数字 | 
 day | 天，数字 | 
@@ -174,8 +174,8 @@ minute | 分，数字 |
 
 方法名 | 用途 | 参数说明
 -|-|- 
-incre | 自增数 | 可选参数1为自增步长，可选参数2为基数，返回对象为Increment的实例，获取值的方式：util.incre().val()
-range | 区间数 | 必选参数1为下限数字，必选参数2为上限数字，可选参数3位步长
+incre | 自增数 | 可选参数1为自增步长，<br>可选参数2为基数，返回对象为Increment的实例，<br>获取值的方式：util.incre().val()
+range | 区间数 | 必选参数1为下限数字，必选参数2为上限数字，<br> 可选参数3位步长
 uuid | GUID / UUID | 以时间为因子生成的UUID，可选参数1位连接符，默认为-， 也可以空白
 
 ###### text 文本块
@@ -245,7 +245,7 @@ import Region from 'shai/es/region';
 // ES5 引用 const region = require("shai/lib/region");
 let region = new Region(440300);  // 实例化的参数可选，没有指定则随机全国
 
-console.log(region.lon());
+console.log(region.longitude());
 console.log(region.prefecture());
 console.log(region.idcard());
 
@@ -254,8 +254,8 @@ console.log(region.idcard());
 方法名 | 用途 | 参数说明
 -|-|- 
 province | 省直辖市 名称 | 
-prefecture | 市州盟 名称 | 可选参数1，是否更新为下一个同级市，默认false不更新。实例参数已指定为市、县级区划则无效
-county | 县区 名称 | 可选参数1，是否更新为下一个同级县，默认false不更新。实例参数已指定为县级区划则无效
+prefecture | 市州盟 名称 | 可选参数1，是否更新为下一个同级市，默认false不更新。<br>实例参数已指定为市、县级区划则无效
+county | 县区 名称 | 可选参数1，是否更新为下一个同级县，默认false不更新。<br>实例参数已指定为县级区划则无效
 longitude | 地理坐标，经度 | 
 latitude | 地理坐标，纬度 | 
 citycode | 县区级6位行政区划代码 | 
@@ -303,7 +303,7 @@ export default {
         id: use(id.val),
         name: use(cn.fullName),
         build: use(cn.build),
-        company: user(company)
+        company: use(company)
       };
 
       resolve(gen(project));

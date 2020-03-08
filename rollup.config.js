@@ -19,11 +19,11 @@ var config = [
     input: './src/shai.ts',
     output: [{
       format: 'es',
-      name: 'shai',
+      name: 'Shai',
       file: 'es/shai.js'
     },{
       format: 'umd',
-      name: 'shai',
+      name: 'Shai',
       file: 'lib/shai.js'
     }],
     plugins: commonPlugins
@@ -43,11 +43,11 @@ var config = [
     input: './src/region.ts',
     output: [{
       format: 'es',
-      name: 'region',
+      name: 'Region',
       file: 'es/region.js'
     },{
       format: 'umd',
-      name: 'region',
+      name: 'Region',
       file: 'lib/region.js'
     }],
     plugins: commonPlugins
