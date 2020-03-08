@@ -1,0 +1,23 @@
+{
+   "compilerOptions": {
+        "target": "es5",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "strict": true,
+        "esModuleInterop": true,
+        "strictNullChecks": true,
+        "baseUrl": ".",
+        "typeRoots" : [
+            "node_modules/@types"
+        ],
+        "declaration": true,
+        "declarationMap": true
+   },
+   "include": [
+        "src/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}

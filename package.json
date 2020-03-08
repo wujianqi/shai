@@ -1,0 +1,50 @@
+{
+  "name": "shai",
+  "version": "0.3.0",
+  "description": "数据模拟库",
+  "main": "lib/shai.js",
+  "module": "es/shai.js",
+  "types": "es/shai.d.ts",
+  "files": [
+    "es",
+    "lib"
+  ],
+  "scripts": {
+    "build": "set NODE_ENV=production && rollup -c -m",
+    "dev": "rollup -c",
+    "test": "ts-node ./test/gen.spec.ts",
+    "test:r": "ts-node ./test/region.spec.ts",
+    "test:m": "ts-node ./test/mock.spec.ts",
+    "fix": "eslint --fix ./src/**/*.ts",
+    "eslint": "eslint ./src/**/*.ts"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "@typescript-eslint/eslint-plugin": "^2.19.0",
+    "@typescript-eslint/parser": "^2.19.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "rollup": "^1.31.0",
+    "rollup-plugin-terser": "^5.2.0",
+    "rollup-plugin-typescript2": "^0.25.3",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.7.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wujianqi/shai.git"
+  },
+  "keywords": [
+    "data utils",
+    "mock",
+    "faker",
+    "generator"
+  ],
+  "author": "wujianqi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wujianqi/shai/issues"
+  },
+  "homepage": "https://github.com/wujianqi/shai"
+}
