@@ -15,7 +15,7 @@ export class Increment {
  * 区间数
  */
 export const range = (min: number, max: number, step = 1) => {
-  const num = parseInt(((max-min)/step).toString()) + 1,
+  const num = ~~((max-min)/step) + 1,
     arr = new Array(num);
 
   for (let i = 0; i <= num; i++) arr[i] = min + step*i;

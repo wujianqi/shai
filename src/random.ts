@@ -3,7 +3,7 @@ const LETS = 'abcdefghijklmnopqrstuvwxyz',
 
 function getInt(a = 1, b = 10): number {
   //return Math.round(Math.random()*(b- a + 1 ) + a);
-  return parseInt((Math.random()*(b- a + 1 ) + a).toString());
+  return ~~(Math.random()*(b- a + 1 ) + a);
 }
 
 function bool(): boolean {
@@ -18,12 +18,12 @@ function pick<T>(arr: T[]): T;
 function pick<T>(arr: T[], num: number): T[];
 function pick<T>(arr: T[], num?: number): T | T[] { 
   const getItem = () => (arr.length > 0 ? 
-    arr[parseInt(((Math.random()*arr.length)).toString())] : void 0) as T;
+    arr[~~((Math.random()*arr.length))] : void 0) as T;
   
   if (typeof num === 'number') {
     const na = new Array(num);
 
-    for (let i = num; i > 0; i--) na[i] = getItem();
+    for (let i = 0; i < num; i++) na[i] = getItem();
     return na;
   } else {
     return getItem();
@@ -34,8 +34,8 @@ function getStr(num = 10, strs?: string) {
   strs = strs || LETS + LETS.toUpperCase() + NUMS;
   const s: string[] = new Array(num);
 
-  for (let i = num; i > 0; i--)
-    s[i] = strs.charAt(parseInt((Math.random()*strs.length).toString()));    
+  for (let i = 0; i < num; i++)
+    s[i] = strs.charAt(~~(Math.random()*strs.length));    
   return s.join('');
 }
 

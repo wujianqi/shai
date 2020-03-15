@@ -2,7 +2,7 @@ interface MethodFunc {
   (...args: any[]): any;
 }
 
-const KEY = '~~~';
+const KEY = '\u2592';
 interface Labels {
   0: typeof KEY;
   1: number;
@@ -17,6 +17,8 @@ export interface SettingOption {
   length?: number | [number, number];
   child?: string;
   level?: number | [number, number];
+  renew?: object;
+  remove?: (string| number)[];
 }
 
 function clone (obj: TypeValue): TypeValue {
@@ -34,6 +36,12 @@ function clone (obj: TypeValue): TypeValue {
   return newObj;
 }
 
+function extObj(target: TypeValue, source: TypeValue): TypeValue { 
+  for (const key in source) { 
+    if (Object.prototype.hasOwnProperty.call(source, key)) target[key] = source[key];
+  }
+  return target; 
+}
 
 export default class {
   private __funcs: [MethodFunc, any[]][] = [];
@@ -45,8 +53,8 @@ export default class {
    */
   private setv(path: (string|number) [], value: TypeValue){
     const len = path.length -1;
-  
-    path.reduce((obj, key, index) => { // 设值          
+ 
+    path.reduce((obj, key, index) => { // 设值
       if (index === len) obj[key] = value;
       return obj[key];
     }, this.__data);
@@ -77,19 +85,26 @@ export default class {
    */
   private settingToArr (data: TypeValue, opt: SettingOption): TypeValue {
     if (opt) {
-      const ds = [],
-        init = (prop: 'length'|'level'): number => {
+      const init = (prop: 'length'|'level'): number => {
           const p = opt[prop], 
             num = typeof p === 'number' ? p : 
             (Array.isArray(p) && p.length === 2 ? 
               Math.floor(Math.random() * (p[1] - p[0]) + p[0]) : 1);
 
           return (!num || num < 1) ? 1 : num;
-        };
+        }, 
+        len = init('length'), 
+        ds = new Array(len);
 
       delete data[this.__propKey];
-      for(let i = init('length'); i > 0; i--) // 生成列表
-        ds.push(clone(data));
+      if (opt.remove) opt.remove.forEach(n => {
+        if (data.hasOwnProperty(n)) delete data[n];
+      });
+      if (opt.renew) data = Object.assign ? 
+        Object.assign(data, opt.renew): extObj(data, opt.renew) ;
+
+      for(let i = 0; i < len; i++) // 生成列表
+        ds[i] = clone(data);
 
       if (typeof opt.child === 'string' && opt.child ) {
         const nk = opt.child;
@@ -112,14 +127,15 @@ export default class {
         opt = {length : opt};
       else if (Array.isArray(opt) && opt.length >= 2 && typeof opt[0] === 'number' && opt[1] === true)
         opt = {length : opt[0], child: 'children', level: typeof opt[2] === 'number' ? opt[2]: 1};
-      
       d = this.settingToArr(d, opt);
       return d;
     };
     const find = (dt: TypeValue, path?: (string | number)[]) => {      
-      if (!Array.isArray(dt) && dt.hasOwnProperty(this.__propKey)) 
-        this.setv((path ? path : []), dt = getArr(dt));
-
+      if (!Array.isArray(dt) && dt.hasOwnProperty(this.__propKey)){
+        dt = getArr(dt);
+        if (path) this.setv(path, dt);
+        else this.setv([], this.__data = dt);
+      }
       for (const k in dt) {
         if(dt.hasOwnProperty(k)) {
           const v = dt[k];
@@ -153,10 +169,9 @@ export default class {
         }          
       } else data.forEach((d,i) => 
         this.setValues(d, path ? path.concat([i]) : [i]));
-    } else if(typeof data === 'object'){
+    } else if(typeof data === 'object')
       Object.keys(data).forEach(k => 
         this.setValues(data[k], path ? path.concat([k]) : [k]));
-    }
   }
 
   /**

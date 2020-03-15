@@ -11,7 +11,7 @@ var im1 =  util.incre();
 
     var setting = {
         length: 3,
-        child: 'children',
+        //child: 'children',        
     };
 
     var data = {
@@ -19,12 +19,18 @@ var im1 =  util.incre();
         id : use(im1.val),
         username : use(web.account),
         works: {
-            setting: [2, true],
+            //setting: [2, true],
+            t: 45,
             logs: [
                 use(im2.val),
                 use(date.time, '', '', 'yyyy-MM-dd'),
                 {
-                    setting: 2,
+                    /* setting: {
+                        renew: {
+                            c: use(rand.int)
+                        },
+                        remove: ['a']
+                    }, */
                     a:{
                         setting: 3,
                         b: use(company)

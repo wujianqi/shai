@@ -1,7 +1,7 @@
 interface MethodFunc {
     (...args: any[]): any;
 }
-declare const KEY = "~~~";
+declare const KEY = "\u2592";
 interface Labels {
     0: typeof KEY;
     1: number;
@@ -14,6 +14,8 @@ export interface SettingOption {
     length?: number | [number, number];
     child?: string;
     level?: number | [number, number];
+    renew?: object;
+    remove?: (string | number)[];
 }
 export default class {
     private __funcs;

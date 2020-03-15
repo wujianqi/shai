@@ -9,7 +9,7 @@
 ![npm type definitions](https://img.shields.io/npm/types/shai)
 ![npm](https://img.shields.io/npm/v/shai)  
 
-本库介绍 ：  
+本库介绍 ： &nbsp; &nbsp; [在线体验1](https://175.io/demo/demo2.html) &nbsp; &nbsp; [在线体验2（含区划）](https://175.io/demo/demo3.html)  
 
 - [x] 本库含3个子项，均可独立使用。见各子项引用示例及说明。  
 - [x] 子项1，数组生成器，支持**多级自嵌套**、指定数量、随机数量生成。
@@ -19,10 +19,10 @@
 
 ------
 
-##### 安装：
+##### 安装： 
 
 ```npm
-npm i shai
+npm install shai -D
 ```
 
 -------
@@ -78,11 +78,13 @@ gen({
 * **length** 生产的数组长度，值为数字，为指定长度，值为2个数字的数组，则为2个数字之间的随机值。  
 * **child** 生成自嵌套的子对象组，值为字符串，为指定属性名，length则成为子对象组长度。  
 * **level** 嵌套生成层组，值为数字，为指定层数，值为2个数字的数组，则为2个数字之间的随机值。  
+* **renew** 循环过程中变更属性，增加或修改属性，值为对象。  
+* **remove** 循环过程中删除属性，值为键名数组。  
 
 > 配置简写方式：  
 > setting: 2 等同 setting: {length: 2}  
 > setting: [2, 6] 等同 setting: {length: [2, 6]}  
-> setting: [2, true, 1] 等同 setting: {length: 2, child: 'children', level: 1}  
+> setting: [2, true, 1] 等同 setting: {length: 2, child: 'children', level: 1}  level为可选
 
 ##### 更多用法示例：
 
@@ -115,10 +117,7 @@ let data = gen({
 console.log(data);
 
 // 若setting键名有冲突，可自定义选项键
-let data = gen({
-  genOption: 20,
-  num: use(rand.int)
-}, 'myOptionKey')
+let data = gen({ myKey: 20, num: use(rand.int) }, 'myKey')
 console.log(data);
 
 ```
@@ -242,7 +241,7 @@ color | 颜色值 |
 
 ```javascript
 import Region from 'shai/es/region'; 
-// ES5 引用 const region = require("shai/lib/region");
+// ES5 引用 const Region = require("shai/lib/region");
 let region = new Region(440300);  // 实例化的参数可选，没有指定则随机全国
 
 console.log(region.longitude());
@@ -319,10 +318,3 @@ export default {
 }
 
 ```
-
--------
-
-友情连接  
-
-* 数据验证库： [qi-validator](https://github.com/wujianqi/qi-validator)  
-
