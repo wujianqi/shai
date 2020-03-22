@@ -11,20 +11,21 @@ interface TypeValue {
     [key: number]: any;
 }
 export interface SettingOption {
+    key?: string;
     length?: number | [number, number];
-    child?: string;
     level?: number | [number, number];
     renew?: object;
     remove?: (string | number)[];
+    at?: number;
 }
 export default class {
     private __funcs;
     private __data;
     private __propKey;
     private setv;
-    private nested;
-    private settingToArr;
-    private bulk;
+    private addChild;
+    private transform;
+    private parseBlock;
     private setValues;
     use(fnc: MethodFunc, ...args: any[]): Labels;
     gen(data: object, propKey?: string): TypeValue | undefined;

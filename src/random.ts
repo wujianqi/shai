@@ -2,8 +2,7 @@ const LETS = 'abcdefghijklmnopqrstuvwxyz',
   NUMS = '0123456789';  
 
 function getInt(a = 1, b = 10): number {
-  //return Math.round(Math.random()*(b- a + 1 ) + a);
-  return ~~(Math.random()*(b- a + 1 ) + a);
+  return Math.floor(Math.random() * (1 + b - a)) + a;
 }
 
 function bool(): boolean {
@@ -11,14 +10,14 @@ function bool(): boolean {
 }
 
 function getNumber(a = 1, b = 100, c?: number): number {  
-  return c && c >=1 ? +(Math.random()*(b - a + 1) + a).toFixed(c) : getInt(a, b);
+  return c && c >=1 ? +(Math.random() * (1 + b - a) + a).toFixed(c) : getInt(a, b);
 }
 
 function pick<T>(arr: T[]): T;
 function pick<T>(arr: T[], num: number): T[];
 function pick<T>(arr: T[], num?: number): T | T[] { 
   const getItem = () => (arr.length > 0 ? 
-    arr[~~((Math.random()*arr.length))] : void 0) as T;
+    arr[~~(Math.random()*arr.length)] : void 0) as T;
   
   if (typeof num === 'number') {
     const na = new Array(num);
@@ -27,11 +26,21 @@ function pick<T>(arr: T[], num?: number): T | T[] {
     return na;
   } else {
     return getItem();
-  }  
+  }
 }
 
-function getStr(num = 10, strs?: string) {
-  strs = strs || LETS + LETS.toUpperCase() + NUMS;
+function getAny(num: number, fix: number){
+  let s = '';
+  const n = Math.ceil(num/11);
+
+  for (let i = 0; i < n; i++)
+    s += Math.random().toString(fix).slice(2);
+  return s.slice(0, num);
+}
+
+function getStr(num = 10, strs?: string) { 
+  if (num > 55 && !strs) return getAny(num, 36);
+  strs = strs || LETS + NUMS;
   const s: string[] = new Array(num);
 
   for (let i = 0; i < num; i++)
@@ -67,12 +76,14 @@ export default {
   str: getStr,
 
   /**
-   * 字符位置打乱
+   * 字符或数组位置打乱
    */
-  shuffle: (str: string) => {
-    const arr = Array.from ? Array.from(str) : Array.prototype.slice.call(str);
-  
-    return arr.sort(() => bool() ? -1 : 1 ).join('');
+  shuffle: (ct: string | any[]) => {
+    const f = () => bool() ? -1 : 1;
+
+    if (Array.isArray(ct)) return ct.sort(f);
+    else if(typeof ct === 'string') 
+      return (Array.from? Array.from(ct): Array.prototype.slice.call(ct)).sort(f).join('');
   }, 
 
   /**
@@ -89,28 +100,28 @@ export default {
   /**
    * 随机字母
    */ 
-  letter: (num = 10, isLower = false) =>
-    getStr(num, isLower? LETS : LETS + LETS.toUpperCase()),
+  letter: (num = 10, isUpper = false, isBlend = true) =>
+    getStr(num, isUpper? (isBlend ? LETS + LETS.toUpperCase(): LETS.toUpperCase()) : LETS),
 
   /**
    * 数字（字符类型）
    */
-  numstr: (num = 10) => getStr(num, NUMS),
+  numstr: (num = 10) => getAny(num, 10),
 
   /**
    * 随机字母数字
    */
-  alphanum: (num = 10, isLower = false) => 
-    getStr(num, isLower? LETS : LETS + LETS.toUpperCase() + NUMS),
+  alphanum: (num = 10, isUpper = false) => 
+    isUpper ? getStr(num, LETS + LETS.toUpperCase() + NUMS) : getStr(num),
   
   /**
-   * 随机字母数字 + 指定字符
+   * 随机字母数字 + 指定字符（特殊字符）
    */
-  ext: (num: number, str: string) => 
+  plus: (num: number, str: string) => 
     getStr(num, LETS + LETS.toUpperCase() + NUMS + str),
 
   /**
    * 16进制字符
    */
-  hex: (num = 6) => getStr(num, 'abcdef' + NUMS),
+  hex: (num = 6) => getAny(num, 16),
 }

@@ -7,9 +7,12 @@ console.log('uuid----', util.uuid());
 console.log('enum----', rand.pick(['aa','bb','cc']));
 console.log('range----', util.range(10, 15));
 console.log('int ----', rand.int());
+console.log('int2 ----', rand.int(-288, 15088000));
+console.log('int3 ----', rand.int(-28800000, 1584830722508));
 console.log('number ----', rand.number(100000,200000,1));
 console.log('bool ----', rand.bool());
 console.log('datetime ----', date.time());
+console.log('datetime2 ----', date.time('2000/10/01', new Date(), 'yyyy-MM-dd hh:mm:ss'));
 console.log('alphanum ----', rand.alphanum());
 console.log('account ----', web.account()); 
 console.log('password ----', web.password());
@@ -33,9 +36,13 @@ console.log('idcard----', cn.idcard());
 console.log('autocard----', cn.autocard());
 console.log('company----', cn.company());
 console.log('year----', date.year());
+console.log('repeat----', text.repeat());
 console.log('chinese----', text.chinese());
-console.log('english----', text.english());
 console.log('road----', cn.road());
 console.log('build----', cn.build());
 
 console.timeEnd('test');
+
+
+
+

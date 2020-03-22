@@ -7,9 +7,8 @@ export declare const util: {
     uuid: (arg?: string) => string;
 };
 export declare const text: {
-    repeat: (n?: number | undefined, arg?: string | undefined) => string;
-    english: (num?: number | undefined, arg?: string | undefined) => string;
-    chinese: (num?: number | undefined, arg?: string | undefined) => string;
+    repeat: (n?: number, arg?: string) => string;
+    chinese: (num?: number | undefined) => string;
 };
 export declare const date: {
     time(bt?: string | number | Date | undefined, et?: string | number | Date | undefined, fmt?: string | undefined): string | Date;

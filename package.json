@@ -1,6 +1,6 @@
 {
   "name": "shai",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "数据模拟库",
   "main": "lib/shai.js",
   "module": "es/shai.js",

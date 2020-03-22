@@ -14,11 +14,12 @@ interface TypeValue {
 }
 
 export interface SettingOption {
-  length?: number | [number, number];
-  child?: string;
+  key?: string;
+  length?: number | [number, number];  
   level?: number | [number, number];
   renew?: object;
   remove?: (string| number)[];
+  at?: number;
 }
 
 function clone (obj: TypeValue): TypeValue {
@@ -28,6 +29,7 @@ function clone (obj: TypeValue): TypeValue {
   for (const k in obj) {
     if(obj.hasOwnProperty(k)) {
       const item = obj[k];
+
       if (typeof item == 'object') 
         newObj[k] = clone(item);
       else newObj[k] = item;
@@ -61,19 +63,25 @@ export default class {
   }
 
   /**
-   * 多层嵌套
+   * 添加嵌套子属性
    */
-  private nested(items: TypeValue[], key: string, num: number) {
-    if(num > 1) {
-      const na = clone(items);
+  private addChild(items: TypeValue[], key: string, level: number, opt: SettingOption) {
+    const index = opt.at || 0;
 
-      num--;
-      items.forEach(d => {
-        if(!d.hasOwnProperty(key)) {
-          d[key] = na;
-          this.nested(d[key], key, num);
-        }
+    level--;
+    for (let i = 0, len = items.length; i < len; i++) {
+      let item = items[i];
+
+      if (opt.renew && index === level) 
+        item = Object.assign ? Object.assign(item, opt.renew): extObj(item, opt.renew); // 变更属性
+      if (opt.remove && index === level) opt.remove.forEach(d => { // 移除属性
+        if (item.hasOwnProperty(d)) delete item[d];
       });
+      
+      if(level > 0 && !item.hasOwnProperty(key)) {          
+        item[key] = clone(items);
+        this.addChild(item[key], key, level, opt);
+      }
     }
     return items;
   }
@@ -83,33 +91,31 @@ export default class {
    * @param data
    * @param opt
    */
-  private settingToArr (data: TypeValue, opt: SettingOption): TypeValue {
+  private transform (data: TypeValue, opt: SettingOption | number | [number, number]): TypeValue {
     if (opt) {
-      const init = (prop: 'length'|'level'): number => {
-          const p = opt[prop], 
-            num = typeof p === 'number' ? p : 
-            (Array.isArray(p) && p.length === 2 ? 
-              Math.floor(Math.random() * (p[1] - p[0]) + p[0]) : 1);
+      const getN = (val: number | [number, number]) => {
+          let nl = 1;
 
-          return (!num || num < 1) ? 1 : num;
-        }, 
-        len = init('length'), 
+          if(typeof val === 'number') nl = val;
+          else if(Array.isArray(val) && typeof val[0] === 'number' && typeof val[1] === 'number') 
+            nl = ~~(Math.random() * (val[1] - val[0]) + val[0]);
+          return nl;
+        },
+        len = (typeof opt === 'number' || 
+        (Array.isArray(opt) && typeof opt[0] === 'number' && typeof opt[1] === 'number') ?
+          getN(opt): (typeof opt === 'object' && opt.length) ? getN(opt.length) : 1),
         ds = new Array(len);
 
       delete data[this.__propKey];
-      if (opt.remove) opt.remove.forEach(n => {
-        if (data.hasOwnProperty(n)) delete data[n];
-      });
-      if (opt.renew) data = Object.assign ? 
-        Object.assign(data, opt.renew): extObj(data, opt.renew) ;
-
       for(let i = 0; i < len; i++) // 生成列表
         ds[i] = clone(data);
+        
+      if(typeof opt === 'object' && typeof opt !== 'number' && !Array.isArray(opt)) {
+        const lev = (typeof opt.level === 'number') ? opt.level : 1,
+          k = opt.key || 'children';
 
-      if (typeof opt.child === 'string' && opt.child ) {
-        const nk = opt.child;
-
-        data[nk] = this.nested(ds, nk, init('level'));
+        if (opt.at && opt.at >= lev) throw new Error('setting "at" out of range!');
+        if (k) data[k] = this.addChild(ds, k, lev, opt); // 生成子对象
       } else data = ds;
     }
     return data;
@@ -118,16 +124,11 @@ export default class {
   /**
    * 转换批量设置的块
    */
-  private bulk (): void {
+  private parseBlock (): void {
     const getArr = (d: TypeValue) => {
-      let opt = d[this.__propKey];
+      const opt = d[this.__propKey];
   
-      if (typeof opt === 'number' || (Array.isArray(opt) && opt.length === 2 // 简写配置转换
-        && typeof opt[0] === 'number' && typeof opt[1] === 'number'))
-        opt = {length : opt};
-      else if (Array.isArray(opt) && opt.length >= 2 && typeof opt[0] === 'number' && opt[1] === true)
-        opt = {length : opt[0], child: 'children', level: typeof opt[2] === 'number' ? opt[2]: 1};
-      d = this.settingToArr(d, opt);
+      d = this.transform(d, opt);
       return d;
     };
     const find = (dt: TypeValue, path?: (string | number)[]) => {      
@@ -163,12 +164,11 @@ export default class {
           fnc: any[] = this.__funcs[data[1]].concat();
 
         try {
-          this.setv(p, fnc.length > 0 ? fnc[0](...fnc[1]) : data);
+          this.setv(p, fnc.length > 0 ? fnc[0](...fnc[1]) : data);          
         } catch (err) {
           throw new Error(`${p.length > 0  ? p.join('.') : data}: error, ${err}`);
         }          
-      } else data.forEach((d,i) => 
-        this.setValues(d, path ? path.concat([i]) : [i]));
+      } else data.forEach((d, i) => this.setValues(d, path ? path.concat([i]) : [i]));
     } else if(typeof data === 'object')
       Object.keys(data).forEach(k => 
         this.setValues(data[k], path ? path.concat([k]) : [k]));
@@ -192,19 +192,13 @@ export default class {
     if(typeof data !== 'object') return void 0;
     if(propKey) this.__propKey = propKey;
     this.__data = data;
-    this.bulk();
+    this.parseBlock();
     this.setValues(this.__data);
     return this.__data;
   }
 
   constructor() {
-    this.setv = this.setv.bind(this);
-    this.nested = this.nested.bind(this);
-    this.settingToArr = this.settingToArr.bind(this);
-    this.bulk = this.bulk.bind(this);
-    this.setValues = this.setValues.bind(this);
     this.use =  this.use.bind(this);
     this.gen = this.gen.bind(this);
-  }
-  
+  }  
 }

@@ -9,13 +9,13 @@ declare const _default: {
     number: typeof getNumber;
     pick: typeof pick;
     str: typeof getStr;
-    shuffle: (str: string) => string;
+    shuffle: (ct: string | any[]) => string | any[] | undefined;
     bool: typeof bool;
     once: (ct: string | number) => string;
-    letter: (num?: number, isLower?: boolean) => string;
+    letter: (num?: number, isUpper?: boolean, isBlend?: boolean) => string;
     numstr: (num?: number) => string;
-    alphanum: (num?: number, isLower?: boolean) => string;
-    ext: (num: number, str: string) => string;
+    alphanum: (num?: number, isUpper?: boolean) => string;
+    plus: (num: number, str: string) => string;
     hex: (num?: number) => string;
 };
 export default _default;

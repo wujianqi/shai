@@ -28,21 +28,25 @@ export const util = {
 }
 
 export const text = {
-  repeat: (n?: number, arg?: string): string => 
-    new Array((n || 10) + 1).join(arg || '填充文本样式'),
-  english: (num?: number, arg?: string) => 
-    arg ? rand.str(num ? num : rand.int(5, 10), arg) : rand.letter(num ? num : rand.int(5, 10), true),
-  chinese: (num?: number, arg?: string) => {
-    num = num ? num :rand.int(5, 10);
-    return arg ? rand.str(num, arg): rand.str(num, COMMON);
-  } 
+  repeat: (n: number = 1, arg = '填充文本样式') => 
+    arg.repeat ? arg.repeat(n) : new Array((n || 10) + 1).join(arg),
+  chinese: (num?: number) => {
+    const len = num ? num : rand.int(5, 10),
+      s = new Array(len);
+
+    for (let i = 0; i < len; i++)
+      s[i] = String.fromCharCode(rand.int(19968, 40869));
+    return s.join('');
+  }
+    
 }
 
 export const date = {
   time(bt?: string | number | Date, et?: string | number| Date, fmt?: string) {
-    const date = new Date(rand.int(bt ? new Date(bt).getTime(): -28800000, 
-      et? new Date(et).getTime(): new Date().getTime()));
-  
+    const b = bt ? new Date(bt).getTime(): -28800000,
+      e = et? new Date(et).getTime(): new Date().getTime(),
+      date = new Date(rand.int(b, e));
+
     return fmt ? formatDate(date, fmt) : date;
   },
   now: (fmt?: string) => fmt ? formatDate(new Date(), fmt) : new Date(),
@@ -98,16 +102,16 @@ export const en = {
 }
 
 export const web = {
-  account: () => rand.letter(1) + rand.ext(rand.int(5, 6),'-') + rand.letter(1),
-  password: () => rand.letter(1) + rand.ext(rand.int(5, 7), '`~!@#$%^&*'),
+  account: () => rand.letter(1, true) + rand.plus(rand.int(5, 6),'-') + rand.letter(1),
+  password: () => rand.letter(1, true) + rand.plus(rand.int(5, 7), '`~!@#$%^&*'),
   qq: () => String(rand.int(1,2)) + rand.numstr(10),
-  domain: () => rand.bool() ? rand.alphanum(rand.int(3, 8), true) + '.' : '' + 
-    rand.alphanum(rand.int(3, 8), true) + '.' + rand.pick(DOMAIN),
+  domain: () => rand.bool() ? rand.alphanum(rand.int(3, 8)) + '.' : '' + 
+    rand.alphanum(rand.int(3, 8)) + '.' + rand.pick(DOMAIN),
   url: () => ['http'+ rand.once('s') + '://www',
-    rand.alphanum(rand.int(3, 8), true), rand.pick(DOMAIN) + 
-    rand.once('/' + rand.letter(rand.int(3, 8), true))].join('.'), 
-  email: () => [rand.letter(rand.int(3, 8), true) + '@' +
-    rand.alphanum(rand.int(3, 8), true), rand.pick(DOMAIN)].join('.'),
+    rand.alphanum(rand.int(3, 8)), rand.pick(DOMAIN) + 
+    rand.once('/' + rand.letter(rand.int(3, 8)))].join('.'), 
+  email: () => [rand.letter(rand.int(3, 8)) + '@' +
+    rand.alphanum(rand.int(3, 8)), rand.pick(DOMAIN)].join('.'),
   ip: (local = false) => [local ? rand.pick(['198','172','10']) : rand.int(0, 255),
     rand.int(0, 255), rand.int(0, 255), rand.int(0, 255)].join('.'),
   color: () => '#'+ rand.hex(6),

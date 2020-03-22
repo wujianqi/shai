@@ -9,30 +9,27 @@ var im1 =  util.incre();
     const region = new Region();
     const company = ()=> region.prefecture(true) + cn.company();
 
-    var setting = {
-        length: 3,
-        //child: 'children',        
-    };
-
     var data = {
-        setting,
+        setting: 3,
         id : use(im1.val),
         username : use(web.account),
         works: {
-            //setting: [2, true],
+            setting: {
+                length: 2, 
+                level: 2, 
+                renew: {
+                    c: use(rand.int)
+                },
+                remove: ['t'],
+                at: 1
+            },
             t: 45,
             logs: [
                 use(im2.val),
                 use(date.time, '', '', 'yyyy-MM-dd'),
                 {
-                    /* setting: {
-                        renew: {
-                            c: use(rand.int)
-                        },
-                        remove: ['a']
-                    }, */
                     a:{
-                        setting: 3,
+                        //setting: 3,
                         b: use(company)
                     }
                 }
@@ -40,7 +37,17 @@ var im1 =  util.incre();
         }
     }
 
-//console.dir(gen(data));
+    /* var data = {
+        setting: {length:2, level: 2},
+        id: use(im1.val),
+        account:use(web.account),
+        name: use(cn.fullName),
+        idcard: use(cn.idcard),
+        autocard: use(cn.autocard),
+        logintime: use(date.time)
+      } */
+
+//gen(data);
 console.log(JSON.stringify(gen(data)));
 
 console.timeEnd('test');
