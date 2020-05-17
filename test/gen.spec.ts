@@ -3,7 +3,7 @@ import Shai from '../src/shai';
 import Region from '../src/region';
 
 console.time('test');
-var im1 =  util.incre();
+    var im1 =  util.incre();
     var im2 =  util.incre(2);
     const { use, gen } = new Shai();
     const region = new Region();

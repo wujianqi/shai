@@ -1,3 +1,7 @@
+import Access, { extObj, AccessConfig, PageParam} from './access';
+
+export { AccessConfig, PageParam };
+
 interface MethodFunc {
   (...args: any[]): any;
 }
@@ -8,7 +12,7 @@ interface Labels {
   1: number;
 }
 
-interface TypeValue {
+export interface PlainObject {
   [key: string]: any;
   [key: number]: any;
 }
@@ -22,9 +26,9 @@ export interface SettingOption {
   at?: number;
 }
 
-function clone (obj: TypeValue): TypeValue {
+function clone (obj: PlainObject): PlainObject {
   const isArr = Array.isArray(obj),
-    newObj: TypeValue = isArr ? [] : {};
+    newObj: PlainObject = isArr ? [] : {};
 
   for (const k in obj) {
     if(obj.hasOwnProperty(k)) {
@@ -38,22 +42,16 @@ function clone (obj: TypeValue): TypeValue {
   return newObj;
 }
 
-function extObj(target: TypeValue, source: TypeValue): TypeValue { 
-  for (const key in source) { 
-    if (Object.prototype.hasOwnProperty.call(source, key)) target[key] = source[key];
-  }
-  return target; 
-}
-
 export default class {
   private __funcs: [MethodFunc, any[]][] = [];
-  private __data: TypeValue = [];
+  private __data: PlainObject = [];
   private __propKey = 'setting';
+  private __access: Access = new Access();
 
   /**
    * 设值
    */
-  private setv(path: (string|number) [], value: TypeValue){
+  private setv(path: (string|number) [], value: PlainObject){
     const len = path.length -1;
  
     path.reduce((obj, key, index) => { // 设值
@@ -65,7 +63,7 @@ export default class {
   /**
    * 添加嵌套子属性
    */
-  private addChild(items: TypeValue[], key: string, level: number, opt: SettingOption) {
+  private addChild(items: PlainObject[], key: string, level: number, opt: SettingOption) {
     const index = opt.at || 0;
 
     level--;
@@ -91,7 +89,7 @@ export default class {
    * @param data
    * @param opt
    */
-  private transform (data: TypeValue, opt: SettingOption | number | [number, number]): TypeValue {
+  private transform (data: PlainObject, opt: SettingOption | number | [number, number]): PlainObject {
     if (opt) {
       const getN = (val: number | [number, number]) => {
           let nl = 1;
@@ -125,13 +123,13 @@ export default class {
    * 转换批量设置的块
    */
   private parseBlock (): void {
-    const getArr = (d: TypeValue) => {
+    const getArr = (d: PlainObject) => {
       const opt = d[this.__propKey];
   
       d = this.transform(d, opt);
       return d;
     };
-    const find = (dt: TypeValue, path?: (string | number)[]) => {      
+    const find = (dt: PlainObject, path?: (string | number)[]) => {      
       if (!Array.isArray(dt) && dt.hasOwnProperty(this.__propKey)){
         dt = getArr(dt);
         if (path) this.setv(path, dt);
@@ -157,7 +155,7 @@ export default class {
    * @param data
    * @param path
    */
-  private setValues (data: TypeValue, path?: (string | number)[]): void { 
+  private setValues (data: PlainObject, path?: (string | number)[]): void { 
     if (Array.isArray(data)) {
       if (data[0] === KEY) {
         const p = path ? path : [],
@@ -194,11 +192,20 @@ export default class {
     this.__data = data;
     this.parseBlock();
     this.setValues(this.__data);
+    this.__access.data = this.__data;
     return this.__data;
+  }
+
+  /**
+   * 仿数据CRUDE操作
+   */
+  get access() {
+    return this.__access;
   }
 
   constructor() {
     this.use =  this.use.bind(this);
     this.gen = this.gen.bind(this);
-  }  
+  }
+  
 }

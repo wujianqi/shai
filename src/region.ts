@@ -71,7 +71,7 @@ export default class {
       ps: any = { 京: 'ACEFGHJ', 沪: 'ABCDE', 津: 'ABCDFG' },
       pf = card.length === 1 ? rand.str(ps.hasOwnProperty(card) ? ps[card] : 'ABC'): card;
 
-    return pf + rand.shuffle(rand.str(1, 'ABCDEFGHJKLMNPQRSTUWYZ') + rand.numstr(4));
+    return pf + (rand.shuffle(rand.str(1, 'ABCDEFGHJKLMNPQRSTUWYZ') + rand.numstr(4)) as string);
   }
   longitude = () => this.__county.longitude + rand.numstr(8);
   latitude = () => this.__county.latitude + rand.numstr(8);

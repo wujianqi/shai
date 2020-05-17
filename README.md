@@ -11,10 +11,11 @@
 
 本库介绍 ：  
 - [x] 本库含3个子项，均可独立使用。见各子项引用示例及说明。  
-- [x] 子项1，数组生成器，支持**多级自嵌套**、指定数量、随机数量生成。
-- [x] 子项2，常用模拟数据工具库，含44项方法，**轻量级**，文件小。 
-- [x] 子项3，区域数据模拟，可到区县级，生成**对应地区范围**的经纬度、电话等信息。  
-- [x] 库最低支持ES5，前后端通用，无依赖包。
+- [x] 子项1，数组生成及CRUD模仿器，支持**多级自嵌套**、指定数量、随机数量生成。  
+- [x] 支持**仿数据记录集CRUD**，快速模拟数据的增、删、改、查等Restful API功能。  
+- [x] 子项2，常用模拟数据工具库，含44项方法，**轻量级**，文件小。  
+- [x] 子项3，区域数据模拟，可到区县级，生成**对应地区范围的经纬度、电话**等信息。  
+- [x] 库最低支持ES5，前后端通用，无其它依赖包。  
 
 ------
 
@@ -27,7 +28,7 @@ npm install shai -D
 
 -------
 
-### 数组生成器
+### 数组生成及CRUD模仿器
 
 ##### 引用库模块及基本用法示例：
 
@@ -69,10 +70,11 @@ gen({
 
 ------
 
-##### 方法说明
+##### 数组数据生成方法说明
 
 * **use**(func, ...args)  第1个参数为所使用生成数据的方法函数，第2到n个参数为函数的实参设值。  
-* **gen**(data, propKey?) 第1个参数为设定了相关规则的数据对象，第2个为自定义选项的键名（默认为setting）。  
+* **gen**(data, propKey?) 第1个参数为设定了相关规则的数据对象，第2个为自定义选项的键名（默认为setting）。 
+* **access** 对gen生成的数据，进行仿数据记录集CRUD操作，见下面“仿数据记录集CRUD操作方法说明”相关内容
 
 ##### 批量对象生成设定规则
 * **setting: number** 设定生成普通数组的长度，值为指定数目。  
@@ -85,7 +87,7 @@ gen({
 > remove 循环过程中子对象属性删除，值为键名数组，可选。  
 > at 指定变更属性、删除属性的所在层级，可选，默认0，即最顶层。  
 
-##### 更多用法示例：
+##### 更多数据生成用法示例：
 
 ```javascript
 // 可多级配置节点项
@@ -121,6 +123,80 @@ console.log(data);
 
 ```
 
+##### 仿数据记录集CRUD操作方法说明  
+
+> 对数组数据，进行仿数据记录集CRUD操作，快速模拟Restful API； 
+
+> 同步方法，参数1为查询对象, 可选参数2为成功消息, 可选参数3为失败消息，read,exist的可选参数4为合并属性输出
+
+* **create**  新增单条或多条记录  
+* **read**    查询单条记录  
+* **update**  修改单条记录，并返回修改后记录  
+* **delete**  删除单条或多条记录，返回删除后数据  
+* **exist**   查询记录是否存在，并返回该记录  
+* **list**    普通列表，可选过滤数据的查询条件  
+* **pagelist** 分页列表，可选过滤数据的查询条件  
+
+> 异步方法，返回Promise对象。参数同上，仅多一个timeout 延时可选参数，返回值多包裹了一层http状态码。
+
+* **asyncCreate**  
+* **asyncRead**  
+* **asyncUpdate**  
+* **asyncDelete**  
+* **asyncExist**  
+* **asyncList**   
+* **asyncPagelist**  
+
+> access.config 全局属性配置说明：  
+
+* **uniqueKey**?: string 不重复索引属性名称，默认: id  
+* **httpStatus**?: number 异步返回http状态码，默认: 200  
+* **failureCode**?: number 失败处理状态码，默认: 0  
+* **successCode**?: number 成功处理状态码，默认: 100  
+* **codeField**?: string 状态码域名称，默认: code  
+* **msgField**?: string 消息域名称，默认: message  
+* **dataField**?: string 数据域名称，默认: data  
+
+##### 仿数据记录集CRUD方法使用示例：
+
+> 使用es6、异步，及axios-mock-adapter，见本文最后的综合示例。  
+> webpack-dev-server 模拟用法如下，注：仅适合用es5、同步方法
+
+```javascript
+const Shai = require('shai');
+const { util, web } = require('shai/lib/mock');
+
+var shai = new Shai();
+var access = shai.access;
+var im1 =  util.incre();
+
+// 模拟数据
+shai.gen({
+  setting: 20,
+  id: shai.use(im1.val),
+  username: shai.use(web.account),
+  password: shai.use(web.password)
+});
+
+// 可选配置
+access.config = {
+  msgField: 'msgs'
+}
+
+// 增加固定值
+access.create({ username: 'admin', password: '111111'});
+
+// devServer配置项
+before(app) {
+  app.post('/api/user/login', (req, res) => {
+    res.json(access.exist(JSON.parse(req.data)) // 模拟用户登录
+  })
+  app.get('/api/user/list', (req, res) => {
+    res.json(access.pageList(req.params))  // 模拟用户列表分页
+  })
+}
+
+```
 -------
 
 ### 常用数据模拟
@@ -270,9 +346,9 @@ autocard | 车牌号 |
 * 正则模拟： [randexp](https://github.com/fent/randexp.js)  
 * 颜色随机： [random color](https://github.com/davidmerfield/randomColor)  
 * 图片数据：[holder](https://github.com/imsky/holder)  
-* faker.js: [faker](https://github.com/Marak/faker.js)  
-* Http请求拦截: [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter)  
-* API服务模拟: [json-server](https://github.com/typicode/json-server)  
+* faker：[faker](https://github.com/Marak/faker.js)  
+* axios请求拦截： [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter)  
+* API服务模拟： [json-server](https://github.com/typicode/json-server)  
 
 -------
 
@@ -289,29 +365,20 @@ import Region from 'shai/es/region';
 export default {
   init() {
     const mock = new MockAdapter(axios);
-    const { gen, use} = new Shai();
+    const { gen, use, access} = new Shai();
     const region = new Region();
     const id = util.incre();
     const company = ()=> region.prefecture() + cn.company();
-
-    const getListData = () => new Promise((resolve, reject) => {
-      const project = {
+    const project = {
         setting: 50,
         id: use(id.val),
         name: use(cn.fullName),
         build: use(cn.build),
         company: use(company)
-      };
+    };
 
-      resolve(gen(project));
-    });
-
-    mock.onGet('/project/list').reply(async params => {
-      let { name } = params, ld = await getListData();  
-
-      return [200, {results: ld.filter(d => 
-        (name && d.name.indexOf(name) == -1) ? false : true)}];
-    });
+    gen(project);
+    mock.onGet('/project/list').reply(async params => access.asyncList(params);
   }
 }
 

@@ -28,7 +28,7 @@ export const util = {
 }
 
 export const text = {
-  repeat: (n: number = 1, arg = '填充文本样式') => 
+  repeat: (n = 1, arg = '填充文本样式') => 
     arg.repeat ? arg.repeat(n) : new Array((n || 10) + 1).join(arg),
   chinese: (num?: number) => {
     const len = num ? num : rand.int(5, 10),
@@ -81,7 +81,7 @@ export const cn = {
     return sn + String(parity[sum % 11]);
   },
   autocard: () =>  rand.str(1, DI_SHORT) + rand.str(1, 'ABCD') + 
-    rand.shuffle(rand.str(1, 'ABCDEFGHJKLMNPQRSTUWYZ') + rand.numstr(4)),
+    (rand.shuffle(rand.str(1, 'ABCDEFGHJKLMNPQRSTUWYZ') + rand.numstr(4)) as string),
   company: () => rand.str(rand.int(2, 3), COMMON) + rand.pick(COMPANY) + '有限公司',
   country: () => rand.pick(COUNTRY_CN),
   road: () => [rand.pick(ROAD), rand.pick(AVENUE),

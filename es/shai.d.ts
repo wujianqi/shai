@@ -1,3 +1,5 @@
+import Access, { AccessConfig, PageParam } from './access';
+export { AccessConfig, PageParam };
 interface MethodFunc {
     (...args: any[]): any;
 }
@@ -6,7 +8,7 @@ interface Labels {
     0: typeof KEY;
     1: number;
 }
-interface TypeValue {
+export interface PlainObject {
     [key: string]: any;
     [key: number]: any;
 }
@@ -22,14 +24,15 @@ export default class {
     private __funcs;
     private __data;
     private __propKey;
+    private __access;
     private setv;
     private addChild;
     private transform;
     private parseBlock;
     private setValues;
     use(fnc: MethodFunc, ...args: any[]): Labels;
-    gen(data: object, propKey?: string): TypeValue | undefined;
+    gen(data: object, propKey?: string): PlainObject | undefined;
+    get access(): Access;
     constructor();
 }
-export {};
 //# sourceMappingURL=shai.d.ts.map
