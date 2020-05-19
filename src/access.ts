@@ -5,19 +5,28 @@ interface PlainObject {
   [key: number]: any;
 }
 
+export enum UniqueType {
+  'increment',
+  'uuid'
+}
+
+enum FilterType {
+  'some',
+  'every',
+  'unique'
+}
+
 export interface AccessConfig {
   uniqueKey?: string;
-  httpStatus?: number;  
-  failureCode?: number;
-  successCode?: number;
-  codeField?: string;
-  msgField?: string;
-  dataField?: string;
+  uniqueType?: UniqueType;
+  asyncResult?: (result: object) => PlainObject;
+  success?: (vo: any, msg?: string) => object;
+  failure?: (err: number, msg?: string) => object;
 }
 
 export interface PageParam {
-  pageSize: number;
-  pageIndex: number;
+  pageSize: number | string;
+  pageIndex: number | string;
   [key: string]: any;
 }
 
@@ -29,75 +38,71 @@ export function extObj(target: any, source: PlainObject): any {
   return target; 
 }
 
+const msgs = ['操作失败！', '查询参数错误！', '没有请求参数', '操作成功！'];
+
 export default class {
   private __datas: PlainObject = [];
   private __opt: Required<AccessConfig> = {
     uniqueKey: 'id',
-    httpStatus: 200,
-    failureCode: 0,
-    successCode: 100,
-    codeField: 'code',
-    msgField: 'message',
-    dataField: 'data'
-  }
-  
-  // 操作数据失败处理
-  private __f(err: number, msg?: string | string[]) {
-    const msgs = ['操作数据失败！', '没有找到记录！', '查询条件错误！'];
-
-    if(Array.isArray(msg) && msg.length) msgs.map((m, i) =>  msg[i] ? msg[i] : m);
-    else if(typeof msg === 'string') msgs[0] = msg;
-    return {
-      [this.__opt.codeField]: this.__opt.failureCode,
-      [this.__opt.msgField]: msgs[err]
-    };
-  }
-  // 操作成功处理
-  private __s(vo: object, msg?: string) {
-    return { 
-      [this.__opt.codeField]: this.__opt.failureCode,
-      [this.__opt.msgField]: msg !== undefined  ? msg : '操作成功！',
-      [this.__opt.dataField]: vo
-    };
-  }
+    uniqueType: UniqueType.increment,
+    asyncResult: (result: object) => {
+      return [ 200, result];
+    },
+    success: (vo: any, msg?: string) => {
+      return {
+        code: 0,
+        message: typeof msg !== 'string' ? msgs[3]: msg,
+        data: vo
+      };
+    },
+    failure: (err: number, msg?: string) => {
+      return { 
+        code: 500,
+        message: typeof msg !== 'string' ? msgs[0] : msg,
+      };
+    },
+  } 
 
   // 数据过滤
-  private __filter(params: PlainObject, cb: (val: PlainObject) => PlainObject,
-    type: 'some' | 'every' | 'unique', failMsg?: string | string[]) {
-    if(type=== 'unique' && params && !params[this.__opt.uniqueKey]) 
-      return this.__f(2, failMsg);
+  private __filter(params: PlainObject, cb: (val: PlainObject) => PlainObject, type: FilterType) {
+    if(type=== FilterType.unique && params && !params[this.__opt.uniqueKey]) 
+      return this.__opt.failure(1, msgs[1]);
     else {
       const key = params[this.__opt.uniqueKey];
       let item = [];
 
       if(key) { // 索引值格式化
-        const first = this.__datas[0][this.__opt.uniqueKey];
+        const isnum = this.__opt.uniqueType === UniqueType.increment;
 
-        if(!first) return this.__f(2, failMsg);
-        if(typeof key === 'string' &&  typeof first === 'number' && /\d+/.test(key)) 
+        if(typeof key === 'string' &&  isnum && /\d+/.test(key)) 
           params[this.__opt.uniqueKey] = parseInt(key);
       }
-      if(type === 'unique' && key) {  // 按不重复索引值查询
+      if(type === FilterType.unique && key) {  // 按不重复索引值查询
         item = this.__datas.filter((t: PlainObject) =>
           t[this.__opt.uniqueKey] === params[this.__opt.uniqueKey])
 
-      } else if (type === 'some' || type === 'every') { // 按匹配1项或多项查询
+      } else if (type === FilterType.some || type === FilterType.every) { // 按匹配1项或多项查询
         item = this.__datas.filter((item: PlainObject) => 
-          Object.keys(params)[type](f => item[f] === params[f]));
+          Object.keys(params)[type === FilterType.some? 'some':'every'](f => item[f] === params[f]));
       }
       return cb(item);
     }
   }
 
   // 异步返回
-  private __async(cb: (arg: any[]) => PlainObject, timeout = 200) {
-    if(!Promise) throw new Error('运行环境不支持异步！请升级为ES6，或使用Promise垫片。');
+  private __async(todo: () => PlainObject, timeout = 200) {
+    if(!Promise) throw new Error('运行环境不支持异步！');
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(cb([this.__opt.httpStatus]))
+        resolve(this.__opt.asyncResult(todo()))
       }, timeout);
     });
+  }
+
+  // 必要参数检测
+  private __noparam(): object {
+    return this.__opt.failure(2, msgs[2]);
   }
   
   // 值内容
@@ -117,31 +122,36 @@ export default class {
    * @param successMsg 执行成功的消息
    * @param failMsg 执行失败的回调
    */  
-  create(params: PlainObject, successMsg?: string, failMsg?: string | string[]) {
-    let lastindex = this.__datas[this.__datas.length-1][this.__opt.uniqueKey];
-    if(!lastindex) return this.__f(2, failMsg);
-    else {
-      const isnum = typeof lastindex === 'number';
+  create(params: PlainObject, successMsg?: string, failMsg?: string) {
+    if(!params) return this.__noparam();
+    const isarr = Array.isArray(params);
+    const item = this.__datas.length ? this.__datas[0]: ( isarr ? params[0] : params );    
+    const isnum = this.__opt.uniqueType === UniqueType.increment;
+    const keys = Object.keys(item);
+    let lastindex = this.__datas.length ? this.__datas[this.__datas.length-1][this.__opt.uniqueKey] : 0;
 
-      if(Array.isArray(params)) {
-        const np = params.map(item => {
+    if(isarr) {  // 检测新增内容属性一致，并格式化索引值
+      for (let index = 0; index < params.length; index++) {
+        const p = params[index];
+        const isok = Object.keys(p).every(k => ~keys.indexOf(k))
+        if(!isok)  return this.__opt.failure(0, failMsg);
+        else {
           if(isnum) lastindex++;
-          item[this.__opt.uniqueKey] = isnum ? lastindex : uuid();            
-          return item;
-        })
-
-        this.__datas.concat(np);
-      } else {
-        if(isnum) lastindex++;
-        params[this.__opt.uniqueKey] = isnum ? lastindex : uuid();
-        this.__datas.push(params);
-      }
-      if (this.__datas) return this.__s(params, successMsg);
-      else return this.__f(0, failMsg);
+          p[this.__opt.uniqueKey] = isnum ? lastindex : uuid();
+        }
+      }      
+    } else if(item !== params && !Object.keys(params).every(k => ~keys.indexOf(k))) 
+      return this.__opt.failure(0, failMsg);
+    else {
+      if(isnum) lastindex++;
+      params[this.__opt.uniqueKey] = isnum ? lastindex : uuid();
     }
+    this.__datas = this.__datas.concat(params);
+    return this.__opt.success(params, successMsg);
   }
-  asyncCreate(params: PlainObject, successMsg?: string, failMsg?: string | string[], timeout?: number) {
-    return this.__async(items => items.concat(this.create(params, successMsg, failMsg)), timeout) 
+
+  asyncCreate(params: PlainObject, successMsg?: string, failMsg?: string, timeout?: number) {    
+    return this.__async(() => this.create(params, successMsg, failMsg), timeout) 
   }
 
   /**
@@ -150,7 +160,8 @@ export default class {
    * @param successMsg 执行成功的消息
    * @param failMsg 执行失败的回调
    */  
-  update(params: PlainObject, successMsg?: string, failMsg?: string | string[]) {
+  update(params: PlainObject, successMsg?: string, failMsg?: string) {
+    if(!params) return this.__noparam();
     return this.__filter(params, (item: PlainObject) => {      
       if(item.length) {
         for (const key in params) {
@@ -158,30 +169,37 @@ export default class {
             if(item[0][key]) item[0][key] = params[key];
           }
         }
-        return this.__s(item[0], successMsg);
-      } else return this.__f(0, failMsg);
-    }, 'unique', failMsg);
+        return this.__opt.success(item[0], successMsg)
+      } else return this.__opt.failure(0, failMsg);
+    }, FilterType.unique);
   }
-  asyncUpdate(params: PlainObject, successMsg?: string, failMsg?: string | string[], timeout?: number) {
-    return this.__async(items => items.concat(this.update(params, successMsg, failMsg)), timeout) 
+  asyncUpdate(params: PlainObject, successMsg?: string, failMsg?: string, timeout?: number) {
+    return this.__async(() => this.update(params, successMsg, failMsg), timeout);
   }
 
   /**
    * 读取数据
    * @param params  请求参数
-   * @param plus 返回值拼合更多属性项，可选
    * @param successMsg 执行成功的消息
    * @param failMsg 执行失败的回调
-   */  
-  read(params: PlainObject, plus?: object, successMsg?: string, failMsg?: string | string[]) {
-    return this.__filter(params, (item: PlainObject) => {
-      console.log(item)
-      if(item.length) return this.__s(plus ? extObj(item[0], plus) : item[0], successMsg);
-      else return this.__f(1, failMsg)
-    }, 'every', failMsg);
+   * @param plus 返回值拼合更多属性项，可选
+   */
+  read(query: PlainObject, successMsg?: string, failMsg?: string, plus?: object) {
+    if(!query) return this.__noparam();
+    return this.__filter(query, (item: PlainObject) => {
+      if(item.length === 1) {
+        let obj = {};
+        
+        if(typeof plus === 'object'){
+          obj = extObj(obj, item[0])
+          obj = extObj(obj, plus)
+        }
+        return this.__opt.success(typeof plus === 'object' ? obj : item[0], successMsg);
+      } else return this.__opt.failure(0, failMsg);
+    }, FilterType.every);
   }
-  asyncRead(params: PlainObject, plus?: object, successMsg?: string, failMsg?: string | string[], timeout?: number) {
-    return this.__async(items => items.concat(this.read(params, plus, successMsg, failMsg)), timeout) 
+  asyncRead(query: PlainObject, successMsg?: string, failMsg?: string, plus?: object, timeout?: number) {
+    return this.__async(() => this.read(query, successMsg, failMsg, plus), timeout) 
   }
 
   /**
@@ -189,15 +207,17 @@ export default class {
    * @param params  请求参数，对象、值的集合均可
    * @param successMsg 执行成功的消息
    * @param failMsg 执行失败的回调
-   */  
-  delete(params: PlainObject, successMsg?: string, failMsg?: string | string[]) {
-    if(!Array.isArray(params)) params = [ params ];
+   */
+  delete(query: PlainObject, successMsg?: string, failMsg?: string) {
+    if(!query) return this.__noparam();
+    if(!Array.isArray(query)) query = [ query ];
     let j = 0;
-    params.forEach((d: any) => {
+    query.forEach((d: any) => {
       for (let i = 0; i < this.__datas.length; i++) { // 查询关联项，并删除
-        const item = this.__datas[i]
+        const item = this.__datas[i];
         const qi = typeof d === 'object' ? d[this.__opt.uniqueKey] : d;
-        const index = /\d+/.test(qi) ? parseInt(qi) : qi;
+        const isnum = this.__opt.uniqueType === UniqueType.increment;
+        const index = isnum && /\d+/.test(qi) ? parseInt(qi) : qi;
 
         if(index === item[this.__opt.uniqueKey]){
           this.__datas.splice(i, 1);
@@ -206,28 +226,36 @@ export default class {
         }
       }
     })
-    if(j > 0) return this.__s(this.__datas, successMsg);
-    else return this.__f(0, failMsg);
+    if(j > 0) return this.__opt.success(0, successMsg);
+    else return this.__opt.failure(0, failMsg);
   }
-  asyncDelete(params: PlainObject, successMsg?: string, failMsg?: string | string[], timeout?: number) {
-    return this.__async(items => items.concat(this.delete(params, successMsg, failMsg)), timeout) 
+  asyncDelete(query: PlainObject, successMsg?: string, failMsg?: string, timeout?: number) {
+    return this.__async(() => this.delete(query, successMsg, failMsg), timeout) 
   }
   
   /**
    * 数据是否存在
    * @param params  请求参数
-   * @param plus  返回值拼合更多属性项，可选
    * @param successMsg 执行成功的消息
    * @param failMsg 执行失败的回调
+   * @param plus  返回值拼合更多属性项，可选
    */
-  exist(params: PlainObject, plus?: object, successMsg?: string, failMsg?: string | string[]) {
-    return this.__filter(params, (item: PlainObject) => {      
-      if(item.length === 1) return this.__s(plus ? extObj(item[0], plus) : item[0], successMsg);
-      else return this.__f(1, failMsg);
-    }, 'every', failMsg);
+  exist(query: PlainObject, successMsg?: string, failMsg?: string, plus?: object) {
+    if(!query) return this.__noparam();
+    return this.__filter(query, (item: PlainObject) => {      
+      if(item.length === 1) {
+        let obj = {};
+        
+        if(typeof plus === 'object'){
+          obj = extObj(obj, item[0])
+          obj = extObj(obj, plus)
+        }
+        return this.__opt.success(typeof plus === 'object' ? obj : item[0], successMsg);
+      } else return this.__opt.failure(0, failMsg);
+    }, FilterType.every);
   }  
-  asyncExist(params: PlainObject, plus?: object, successMsg?: string, failMsg?: string | string[], timeout?: number) {
-    return this.__async(items => items.concat(this.exist(params, plus, successMsg, failMsg)), timeout) 
+  asyncExist(query: PlainObject, successMsg?: string, failMsg?: string, plus?: object, timeout?: number) {
+    return this.__async(() => this.exist(query, successMsg, failMsg, plus), timeout) 
   }
 
   /**
@@ -236,46 +264,43 @@ export default class {
    * @param successMsg 执行成功的消息
    * @param failMsg 执行失败的回调
    */
-  list(params?: PlainObject, successMsg?: string, failMsg?: string | string[]) {
-    if(params && Object.keys(params).length) {
-      return this.__filter(params, (item: PlainObject) => {
-        if(item.length) return this.__s(item, successMsg);
-        else if(this.__datas.length) return this.__s(this.__datas, successMsg);
-        else return this.__f(1, failMsg);
-      }, 'some', failMsg);
+  list(query?: PlainObject, successMsg?: string) {
+    if(query && Object.keys(query).length) {
+      return this.__filter(query, (item: PlainObject) => {
+        if(item.length) return this.__opt.success(item, successMsg);
+        else return this.__opt.success(this.__datas, successMsg);
+      }, FilterType.some);
     } else {
-      if(this.__datas.length) return this.__s(this.__datas, successMsg);
-      else return this.__f(1, failMsg);
+      return this.__opt.success(this.__datas, successMsg);
     }
   }
-  asyncList(params?: PlainObject, successMsg?: string, failMsg?: string | string[], timeout?: number) {
-    return this.__async(items => items.concat(this.list(params, successMsg, failMsg)), timeout) 
+  asyncList(query?: PlainObject, successMsg?: string, timeout?: number) {
+    return this.__async(() => this.list(query, successMsg), timeout) 
   }
 
-  pageList(params: PageParam, successMsg?: string, failMsg?: string | string[]) {    
-    const pageSize = params.pageSize;
-    const current = params.pageIndex;
-    delete params.pageIndex;
-    delete params.pageSize;
+  pageList(page: PageParam, query?: PlainObject,  successMsg?: string) {
+    let pageSize = page.pageSize;
+    let current = page.pageIndex;
+    if(!pageSize || !current) return this.__noparam();
+    if(typeof pageSize === 'string') pageSize = parseInt(pageSize);
+    if(typeof current === 'string') current = parseInt(current); 
     let dts = this.__datas;
 
-    if(Object.keys(params).length)
-      this.__filter(params, item => item.length ? (dts = item) : 
-        (this.__datas.length ? (dts = this.__datas) : item), 'some', failMsg);
+    if(query)
+      this.__filter(query, item => item.length ? (dts = item) : 
+        (this.__datas.length ? (dts = this.__datas) : item), FilterType.some);
 
-    if(dts.length) {
-      const total = dts.length;
-      const pageCount = Math.ceil(total/pageSize);
-      const pageIndex = current > pageCount ? pageCount : (current < 1 ? 1 :current);
-      const lastSize = total - (pageCount - 1)* pageSize + (pageCount-1)*pageSize;
-      const list = this.__datas.slice((current-1)*pageSize, 
-        current < pageCount ? current*pageSize : lastSize );
+    const total = dts.length;
+    const pageCount = Math.ceil(total/pageSize);
+    const pageIndex = current > pageCount ? pageCount : (current < 1 ? 1 :current);
+    const lastSize = total - (pageCount - 1)* pageSize + (pageCount-1)*pageSize;
+    const list = this.__datas.slice((current-1)*pageSize, 
+      current < pageCount ? current*pageSize : lastSize );
 
-      return this.__s({ total, pageIndex, pageSize, pageCount, list}, successMsg);
-    } else return this.__f(1, failMsg);
+    return this.__opt.success({ total, pageIndex, pageSize, pageCount, list}, successMsg);
   }
-  asyncPageList(params: PageParam, successMsg?: string, failMsg?: string | string[], timeout?: number) {
-    return this.__async(items => items.concat(this.pageList(params, successMsg, failMsg)), timeout) 
+  asyncPageList(page: PageParam, query?: PlainObject,  successMsg?: string, timeout?: number) {
+    return this.__async(() => this.pageList(page, query, successMsg), timeout) 
   }
 
   constructor() {

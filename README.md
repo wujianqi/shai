@@ -46,8 +46,8 @@ gen({
 })
 /* 生成结果（普通数组）：
 [
-  { username: Gdda-3ef, password: dje^ip&d }, 
-  { username: PjKL3m4Y, password: dje^ip&d }
+  { username: Gdda-3ef, password: dje^Ip&d }, 
+  { username: PjKL3m4Y, password: jeF2s@ko }
 ]
 */
 
@@ -74,7 +74,7 @@ gen({
 
 * **use**(func, ...args)  第1个参数为所使用生成数据的方法函数，第2到n个参数为函数的实参设值。  
 * **gen**(data, propKey?) 第1个参数为设定了相关规则的数据对象，第2个为自定义选项的键名（默认为setting）。 
-* **access** 对gen生成的数据，进行仿数据记录集CRUD操作，见下面“仿数据记录集CRUD操作方法说明”相关内容
+* **access** 对gen生成的数据，进行仿数据记录集CRUD操作对象，详见下面“仿数据记录集CRUD操作方法说明”相关内容
 
 ##### 批量对象生成设定规则
 * **setting: number** 设定生成普通数组的长度，值为指定数目。  
@@ -125,19 +125,23 @@ console.log(data);
 
 ##### 仿数据记录集CRUD操作方法说明  
 
-> 对数组数据，进行仿数据记录集CRUD操作，快速模拟Restful API； 
+> 对数组数据，进行仿数据记录集CRUD操作，快速模拟Restful API； 具体用法参考本文后述模拟示例。
 
-> 同步方法，参数1为查询对象, 可选参数2为成功消息, 可选参数3为失败消息，read,exist的可选参数4为合并属性输出
+> 同步方法  
+> create, update, delete 参数1为请求对象（必选）, 参数2为成功消息（可选）, 参数3为失败消息（可选）。  
+> read, exist 参数1、2、3同上，参数4为合并属性输出（可选）。  
+> list 参数1为请求对象（可选）, 参数2为成功消息（可选），没有失败，没数据返回空数组。 
+> pagelist 比list多一个page对象参数，需有2个属性：pageIndex, pageSize；返回值多包裹了属性：total, pageIndex, pageSize, pageCount, list。
 
-* **create**  新增单条或多条记录  
-* **read**    查询单条记录  
-* **update**  修改单条记录，并返回修改后记录  
-* **delete**  删除单条或多条记录，返回删除后数据  
-* **exist**   查询记录是否存在，并返回该记录  
-* **list**    普通列表，可选过滤数据的查询条件  
-* **pagelist** 分页列表，可选过滤数据的查询条件  
+* **create**(params, successMsg, errMsg)      新增单条或多条记录  
+* **read**(query, successMsg, errMsg, plus)  查询单条记录  
+* **update**(params, successMsg, errMsg)      修改单条记录，并返回修改后记录  
+* **delete**(query, successMsg, errMsg)      删除单条或多条记录，返回删除后数据  
+* **exist**(query, successMsg, errMsg, plus) 查询记录是否存在，并返回该记录  
+* **list**(query, successMsg)                普通列表，可选过滤数据的查询条件  
+* **pagelist**(page, query, successMsg)    分页列表，可选过滤数据的查询条件
 
-> 异步方法，返回Promise对象。参数同上，仅多一个timeout 延时可选参数，返回值多包裹了一层http状态码。
+> 异步方法，返回Promise对象。参数同上，仅多一个timeout 延时可选参数。返回内容按asyncResult处理
 
 * **asyncCreate**  
 * **asyncRead**  
@@ -150,53 +154,11 @@ console.log(data);
 > access.config 全局属性配置说明：  
 
 * **uniqueKey**?: string 不重复索引属性名称，默认: id  
-* **httpStatus**?: number 异步返回http状态码，默认: 200  
-* **failureCode**?: number 失败处理状态码，默认: 0  
-* **successCode**?: number 成功处理状态码，默认: 100  
-* **codeField**?: string 状态码域名称，默认: code  
-* **msgField**?: string 消息域名称，默认: message  
-* **dataField**?: string 数据域名称，默认: data  
+* **uniqueType**? number 索引键类型increment(0)或uuid(1)，默认: 0  
+* **asyncResult**?: function 自定义异步返回处理  
+* **success**?: function 自定义返回成功处理 
+* **failure**?: function 自定义返回失败处理
 
-##### 仿数据记录集CRUD方法使用示例：
-
-> 使用es6、异步，及axios-mock-adapter，见本文最后的综合示例。  
-> webpack-dev-server 模拟用法如下，注：仅适合用es5、同步方法
-
-```javascript
-const Shai = require('shai');
-const { util, web } = require('shai/lib/mock');
-
-var shai = new Shai();
-var access = shai.access;
-var im1 =  util.incre();
-
-// 模拟数据
-shai.gen({
-  setting: 20,
-  id: shai.use(im1.val),
-  username: shai.use(web.account),
-  password: shai.use(web.password)
-});
-
-// 可选配置
-access.config = {
-  msgField: 'msgs'
-}
-
-// 增加固定值
-access.create({ username: 'admin', password: '111111'});
-
-// devServer配置项
-before(app) {
-  app.post('/api/user/login', (req, res) => {
-    res.json(access.exist(JSON.parse(req.data)) // 模拟用户登录
-  })
-  app.get('/api/user/list', (req, res) => {
-    res.json(access.pageList(req.params))  // 模拟用户列表分页
-  })
-}
-
-```
 -------
 
 ### 常用数据模拟
@@ -352,7 +314,60 @@ autocard | 车牌号 |
 
 -------
 
-##### 本地API模拟综合示例
+##### webpack-dev-server 模拟示例
+
+```javascript
+
+/* ---用户数据模拟 mock/user.js----*/
+//注：需用es5模块化、同步方法
+
+const Shai = require('shai');
+const { util, web } = require('shai/lib/mock');
+
+const shai = new Shai();
+const access = shai.access;
+const im1 =  util.incre();
+
+// 模拟数据
+shai.gen({
+  setting: 20,
+  id: shai.use(im1.val),
+  username: shai.use(web.account),
+  password: shai.use(web.password)
+});
+
+// 可选配置
+/* access.config = {
+  success: (value: any, msg?: string) => { code: 0, message: msg || '操作成功！', data: value }
+} */
+
+// 增加静态值便于测试
+access.create({ username: 'admin', password: '111111'});
+
+module.exports = function(app) {
+  app.post('/api/user/login', function(req, res){
+    res.json(access.exist(req.body, '登录成功！', '账号错误!') // 模拟用户登录
+  });
+  
+  app.get('/api/user/getlist', function(req, res) {
+    const { pageSize, pageIndex, user } = req.query;
+    res.json(access.pageList({pageSize, pageIndex}, user, '')); //模拟用户列表分页
+  })
+}
+
+/* ----devServer 配置项----*/
+const bodyParser = require("body-parser");
+const user = require("./mock/user")
+
+before(app) {
+  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.json());  
+  user(app);
+}
+
+```
+
+##### axios-mock-adapter 模拟示例
 
 ```javascript
 // 与 Vue React 等框架结合使用

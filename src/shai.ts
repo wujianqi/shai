@@ -1,5 +1,6 @@
-import Access, { extObj, AccessConfig, PageParam} from './access';
+import Access, { extObj, AccessConfig, PageParam, UniqueType} from './access';
 
+export type TUnique = typeof UniqueType; 
 export { AccessConfig, PageParam };
 
 interface MethodFunc {

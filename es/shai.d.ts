@@ -1,4 +1,5 @@
-import Access, { AccessConfig, PageParam } from './access';
+import Access, { AccessConfig, PageParam, UniqueType } from './access';
+export declare type TUnique = typeof UniqueType;
 export { AccessConfig, PageParam };
 interface MethodFunc {
     (...args: any[]): any;
