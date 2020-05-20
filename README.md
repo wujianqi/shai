@@ -320,6 +320,7 @@ autocard | 车牌号 |
 
 /* ---用户数据模拟 mock/user.js----*/
 //注：需用es5模块化、同步方法
+//亦可用在 express
 
 const Shai = require('shai');
 const { util, web } = require('shai/lib/mock');
@@ -353,6 +354,19 @@ module.exports = function(app) {
     const { pageSize, pageIndex, user } = req.query;
     res.json(access.pageList({pageSize, pageIndex}, user, '')); //模拟用户列表分页
   })
+
+  app.post('/api/user/add', function(req, res) {
+    res.json(access.create(req.body)); // 新增用户
+  })
+
+  app.put('/api/user/update', function(req, res) {
+    res.json(access.create(req.body)); // 修改用户
+  })
+
+  app.delete('/api/user/delete', function(req, res) {
+    res.json(access.delete(Object.values(req.query))); // 删除用户
+  })
+
 }
 
 /* ----devServer 配置项----*/
