@@ -30,13 +30,19 @@ export interface PageParam {
   [key: string]: any;
 }
 
-export function extObj(target: any, source: PlainObject): any { 
+export function haskey(obj: PlainObject, k: string){
+  return Object.prototype.hasOwnProperty.call(obj, k)
+}
+
+// ES5兼容处理
+function extObj(target: any, source: PlainObject): any { 
   if(Object['assign']) return Object.assign(target, source);
   for (const key in source) { 
-    if (Object.prototype.hasOwnProperty.call(source, key)) target[key] = source[key];
+    if (haskey(source, key)) target[key] = source[key];
   }
   return target; 
 }
+
 
 const msgs = ['操作失败！', '查询参数错误！', '没有请求参数', '操作成功！'];
 
@@ -165,7 +171,7 @@ export default class {
     return this.__filter(params, (item: PlainObject) => {      
       if(item.length) {
         for (const key in params) {
-          if (params.hasOwnProperty(key)) {
+          if (haskey(params, key)) {
             if(item[0][key]) item[0][key] = params[key];
           }
         }

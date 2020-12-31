@@ -1,4 +1,4 @@
-import Access, { extObj, AccessConfig, PageParam, UniqueType} from './access';
+import Access, { haskey, AccessConfig, PageParam, UniqueType} from './access';
 
 export type TUnique = typeof UniqueType; 
 export { AccessConfig, PageParam };
@@ -7,7 +7,7 @@ interface MethodFunc {
   (...args: any[]): any;
 }
 
-const KEY = '\u2592';
+const KEY: symbol | string = Symbol ? Symbol() : '\u2592';
 interface Labels {
   0: typeof KEY;
   1: number;
@@ -27,12 +27,13 @@ export interface SettingOption {
   at?: number;
 }
 
+// 深度拷贝
 function clone (obj: PlainObject): PlainObject {
   const isArr = Array.isArray(obj),
     newObj: PlainObject = isArr ? [] : {};
 
   for (const k in obj) {
-    if(obj.hasOwnProperty(k)) {
+    if(haskey(obj, k)) {
       const item = obj[k];
 
       if (typeof item == 'object') 
@@ -64,25 +65,21 @@ export default class {
   /**
    * 添加嵌套子属性
    */
-  private addChild(items: PlainObject[], key: string, level: number, opt: SettingOption) {
-    const index = opt.at || 0;
+  private addChild(data: PlainObject, level: number, opt: SettingOption) {
+    const key = opt.key || 'children',
+      tempArr = this.getList(data, opt);
 
-    level--;
-    for (let i = 0, len = items.length; i < len; i++) {
-      let item = items[i];
+    if(level < 1) return tempArr
+    else {
+      const newArr = clone(tempArr);
 
-      if (opt.renew && index === level) 
-        item = Object.assign ? Object.assign(item, opt.renew): extObj(item, opt.renew); // 变更属性
-      if (opt.remove && index === level) opt.remove.forEach(d => { // 移除属性
-        if (item.hasOwnProperty(d)) delete item[d];
-      });
-      
-      if(level > 0 && !item.hasOwnProperty(key)) {          
-        item[key] = clone(items);
-        this.addChild(item[key], key, level, opt);
+      level--;
+      for (let i = 0, len = newArr.length; i < len; i++) {
+        if(level === 1) newArr[i][key] = clone(tempArr)
+        else newArr[i][key] = this.addChild(tempArr[i], level, opt)
       }
+      return newArr;
     }
-    return items;
   }
 
   /**
@@ -90,7 +87,7 @@ export default class {
    * @param data
    * @param opt
    */
-  private transform (data: PlainObject, opt: SettingOption | number | [number, number]): PlainObject {
+  private getList (data: PlainObject, opt: SettingOption | number | [number, number]): PlainObject {
     if (opt) {
       const getN = (val: number | [number, number]) => {
           let nl = 1;
@@ -103,19 +100,13 @@ export default class {
         len = (typeof opt === 'number' || 
         (Array.isArray(opt) && typeof opt[0] === 'number' && typeof opt[1] === 'number') ?
           getN(opt): (typeof opt === 'object' && opt.length) ? getN(opt.length) : 1),
-        ds = new Array(len);
+        ds = new Array(len); // 指定长度或随机长度
 
       delete data[this.__propKey];
       for(let i = 0; i < len; i++) // 生成列表
         ds[i] = clone(data);
-        
-      if(typeof opt === 'object' && typeof opt !== 'number' && !Array.isArray(opt)) {
-        const lev = (typeof opt.level === 'number') ? opt.level : 1,
-          k = opt.key || 'children';
 
-        if (opt.at && opt.at >= lev) throw new Error('setting "at" out of range!');
-        if (k) data[k] = this.addChild(ds, k, lev, opt); // 生成子对象
-      } else data = ds;
+      data = ds;
     }
     return data;
   }
@@ -126,18 +117,24 @@ export default class {
   private parseBlock (): void {
     const getArr = (d: PlainObject) => {
       const opt = d[this.__propKey];
-  
-      d = this.transform(d, opt);
+
+      // 判断配置项是否为嵌套
+      if(!Array.isArray(opt) && typeof opt === 'object') {
+        const lev = (typeof opt.level === 'number') ? opt.level : 1;
+
+        d = this.addChild(d, lev, opt); // 生成子对象
+      } else d = this.getList(d, opt); // 生成数组
       return d;
     };
+    // 递归找带有配置的对象
     const find = (dt: PlainObject, path?: (string | number)[]) => {      
-      if (!Array.isArray(dt) && dt.hasOwnProperty(this.__propKey)){
+      if (!Array.isArray(dt) && haskey(dt, this.__propKey)){
         dt = getArr(dt);
         if (path) this.setv(path, dt);
         else this.setv([], this.__data = dt);
       }
       for (const k in dt) {
-        if(dt.hasOwnProperty(k)) {
+        if(haskey(dt, k)) {
           const v = dt[k];
 
           if (Array.isArray(v) && v[0] !== KEY) 
@@ -194,7 +191,7 @@ export default class {
     this.parseBlock();
     this.setValues(this.__data);
     this.__access.data = this.__data;
-    return this.__data;
+    return this.__data;   
   }
 
   /**

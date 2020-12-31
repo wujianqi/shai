@@ -82,10 +82,10 @@ gen({
 * **setting: object** 生成自嵌套数组。属性如下：  
 > length 子对象数组长度，值为数字，为指定长度，值为2个数字的数组，则为2个数字之间的随机值，不设定则默认1。  
 > key 子对象组的属性名，不设定则默认为children。  
-> level 子对象组的的层级数目，不设定则默认1。 
-> renew 循环过程中子对象属性变更，增加或修改属性，值为用来合并替换的规则对象，可选。  
-> remove 循环过程中子对象属性删除，值为键名数组，可选。  
-> at 指定变更属性、删除属性的所在层级，可选，默认0，即最顶层。  
+> level 子对象组的的层级数目，不设定则默认1。   
+> -------------------  
+> 提示：嵌套数据层数请谨慎设置，如：setting:{length: 15, level:5}，那么产生的记录是813615条！为**指数级**。  
+> 建议：使用多级数据模版组合，局部或少量采用嵌套。  
 
 ##### 更多数据生成用法示例：
 
@@ -271,7 +271,7 @@ color | 颜色值 |
 
 ### 区域数据模拟（仅限中国大陆地区）
 > 数据生成方式：同区划级别范围内循环。  
-> 更新于2020.3月 [民政部数据](http://www.mca.gov.cn/article/sj/xzqh/2020/)。  
+> 更新于2020.10月 [民政部数据](http://www.mca.gov.cn/article/sj/xzqh/2020/)。  
 
 ##### 用法示例：  
 
@@ -319,8 +319,8 @@ autocard | 车牌号 |
 ```javascript
 
 /* ---用户数据模拟 mock/user.js----*/
-//注：需用es5模块化、同步方法
-//亦可用在 express
+// 注：需用es5模块化、同步方法
+// 亦可用在 express
 
 const Shai = require('shai');
 const { util, web } = require('shai/lib/mock');
@@ -360,7 +360,7 @@ module.exports = function(app) {
   })
 
   app.put('/api/user/update', function(req, res) {
-    res.json(access.create(req.body)); // 修改用户
+    res.json(access.update(req.body)); // 修改用户
   })
 
   app.delete('/api/user/delete', function(req, res) {

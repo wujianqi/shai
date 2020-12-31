@@ -69,7 +69,7 @@ export default class {
   autocard = () => {
     const card = this.__county.short,
       ps: any = { 京: 'ACEFGHJ', 沪: 'ABCDE', 津: 'ABCDFG' },
-      pf = card.length === 1 ? rand.str(ps.hasOwnProperty(card) ? ps[card] : 'ABC'): card;
+      pf = card.length === 1 ? rand.str(Object.prototype.hasOwnProperty.call(ps, card)? ps[card] : 'ABC'): card;
 
     return pf + (rand.shuffle(rand.str(1, 'ABCDEFGHJKLMNPQRSTUWYZ') + rand.numstr(4)) as string);
   }

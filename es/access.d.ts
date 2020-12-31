@@ -18,7 +18,7 @@ export interface PageParam {
     pageIndex: number | string;
     [key: string]: any;
 }
-export declare function extObj(target: any, source: PlainObject): any;
+export declare function haskey(obj: PlainObject, k: string): boolean;
 export default class {
     private __datas;
     private __opt;

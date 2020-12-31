@@ -23,7 +23,7 @@ export default class {
 
   constructor(code: string | number) {
     this.code = typeof code === 'number' ? String(code) : code;
-    if (!data.hasOwnProperty(this.code)) throw new Error('行政区划代码不在支持范围内!');
+    if (!Object.prototype.hasOwnProperty.call(data, this.code)) throw new Error('行政区划代码不在支持范围内!');
     const pr2 = this.code.slice(0, 2);  
    
     if (/0{4}$/.test(this.code)) this.level = 0; // 省级

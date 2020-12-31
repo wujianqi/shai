@@ -4,7 +4,7 @@ export { AccessConfig, PageParam };
 interface MethodFunc {
     (...args: any[]): any;
 }
-declare const KEY = "\u2592";
+declare const KEY: symbol | string;
 interface Labels {
     0: typeof KEY;
     1: number;
@@ -28,7 +28,7 @@ export default class {
     private __access;
     private setv;
     private addChild;
-    private transform;
+    private getList;
     private parseBlock;
     private setValues;
     use(fnc: MethodFunc, ...args: any[]): Labels;

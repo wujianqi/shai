@@ -3,7 +3,7 @@ import Shai from '../src/shai';
 import Region from '../src/region';
 
 console.time('test');
-    var im1 =  util.incre();
+ var im1 =  util.incre();
     var im2 =  util.incre(2);
     const { use, gen } = new Shai();
     const region = new Region();
@@ -16,12 +16,7 @@ console.time('test');
         works: {
             setting: {
                 length: 2, 
-                level: 2, 
-                renew: {
-                    c: use(rand.int)
-                },
-                remove: ['t'],
-                at: 1
+                level: 2,                 
             },
             t: 45,
             logs: [
@@ -38,7 +33,7 @@ console.time('test');
     }
 
     /* var data = {
-        setting: {length:2, level: 2},
+        setting: {length:10, level:3},
         id: use(im1.val),
         account:use(web.account),
         name: use(cn.fullName),
