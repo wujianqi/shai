@@ -9,39 +9,46 @@ export declare enum UniqueType {
 export interface AccessConfig {
     uniqueKey?: string;
     uniqueType?: UniqueType;
-    asyncResult?: (result: object) => PlainObject;
-    success?: (vo: any, msg?: string) => object;
-    failure?: (err: number, msg?: string) => object;
-}
-export interface PageParam {
-    pageSize: number | string;
-    pageIndex: number | string;
-    [key: string]: any;
+    api?: {
+        statusField: string;
+        messageField: string;
+        resultsField: string;
+        successCode: number;
+        failureCode: number;
+    };
+    page?: {
+        sizeField: string;
+        currentField: string;
+        countField: string;
+        totalField: string;
+        resultsField: string;
+    };
 }
 export declare function haskey(obj: PlainObject, k: string): boolean;
 export default class {
     private __datas;
     private __opt;
+    private success;
+    private failure;
     private __filter;
-    private __async;
     private __noparam;
     set data(dt: PlainObject);
     get data(): PlainObject;
     set config(cfg: AccessConfig);
     create(params: PlainObject, successMsg?: string, failMsg?: string): object;
-    asyncCreate(params: PlainObject, successMsg?: string, failMsg?: string, timeout?: number): Promise<unknown>;
     update(params: PlainObject, successMsg?: string, failMsg?: string): object;
-    asyncUpdate(params: PlainObject, successMsg?: string, failMsg?: string, timeout?: number): Promise<unknown>;
-    read(query: PlainObject, successMsg?: string, failMsg?: string, plus?: object): object;
-    asyncRead(query: PlainObject, successMsg?: string, failMsg?: string, plus?: object, timeout?: number): Promise<unknown>;
+    read(query: PlainObject, successMsg?: string, failMsg?: string, mergeObj?: object): object;
     delete(query: PlainObject, successMsg?: string, failMsg?: string): object;
-    asyncDelete(query: PlainObject, successMsg?: string, failMsg?: string, timeout?: number): Promise<unknown>;
-    exist(query: PlainObject, successMsg?: string, failMsg?: string, plus?: object): object;
-    asyncExist(query: PlainObject, successMsg?: string, failMsg?: string, plus?: object, timeout?: number): Promise<unknown>;
-    list(query?: PlainObject, successMsg?: string): object;
-    asyncList(query?: PlainObject, successMsg?: string, timeout?: number): Promise<unknown>;
-    pageList(page: PageParam, query?: PlainObject, successMsg?: string): object;
-    asyncPageList(page: PageParam, query?: PlainObject, successMsg?: string, timeout?: number): Promise<unknown>;
+    exist(query: PlainObject, successMsg?: string, failMsg?: string, mergeObj?: object): object;
+    list(query?: PlainObject, successMsg?: string): PlainObject;
+    pageList(query: PlainObject, successMsg?: string): object;
+    async(method: 'create', params: PlainObject, successMsg?: string, failMsg?: string, timeout?: number): Promise<PlainObject>;
+    async(method: 'update', params: PlainObject, successMsg?: string, failMsg?: string, timeout?: number): Promise<PlainObject>;
+    async(method: 'read', query: PlainObject, successMsg?: string, failMsg?: string, mergeObj?: object, timeout?: number): Promise<PlainObject>;
+    async(method: 'delete', query: PlainObject, successMsg?: string, failMsg?: string, timeout?: number): Promise<PlainObject>;
+    async(method: 'exist', query: PlainObject, successMsg?: string, failMsg?: string, mergeObj?: object, timeout?: number): Promise<PlainObject>;
+    async(method: 'list', query?: PlainObject, successMsg?: string, timeout?: number): Promise<PlainObject>;
+    async(method: 'pageList', query: PlainObject, successMsg?: string, timeout?: number): Promise<PlainObject>;
     constructor();
 }
 export {};

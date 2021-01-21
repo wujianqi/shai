@@ -126,39 +126,27 @@ console.log(data);
 
 ##### 仿数据记录集CRUD操作方法说明  
 
-> 对数组数据，进行仿数据记录集CRUD操作，快速模拟Restful API； 具体用法参考本文后述模拟示例。
-
-> 同步方法  
+> 对数组数据，进行仿数据记录集CRUD操作，快速模拟Restful API； 具体用法参考本文后述模拟示例。  
 > create, update, delete 参数1为请求对象（必选）, 参数2为成功消息（可选）, 参数3为失败消息（可选）。  
 > read, exist 参数1、2、3同上，参数4为合并属性输出（可选）。  
 > list 参数1为请求对象（可选）, 参数2为成功消息（可选），没有失败，没数据返回空数组。 
-> pagelist 比list多一个page对象参数，需有2个属性：pageIndex, pageSize；返回值多包裹了属性：total, pageIndex, pageSize, pageCount, list。
+> pageList 同上，但查询参数需有2个属性：当前页码，每页条数；返回值除对象数组外，再包裹了层统计属性。  
 
 * **create**(params, successMsg, errMsg)      新增单条或多条记录  
-* **read**(query, successMsg, errMsg, plus)  查询单条记录  
+* **read**(query, successMsg, errMsg, mergeObj)  查询单条记录  
 * **update**(params, successMsg, errMsg)      修改单条记录，并返回修改后记录  
 * **delete**(query, successMsg, errMsg)      删除单条或多条记录，返回删除后数据  
-* **exist**(query, successMsg, errMsg, plus) 查询记录是否存在，并返回该记录  
+* **exist**(query, successMsg, errMsg, mergeObj) 查询记录是否存在，并返回该记录  
 * **list**(query, successMsg)                普通列表，可选过滤数据的查询条件  
-* **pagelist**(page, query, successMsg)    分页列表，可选过滤数据的查询条件
-
-> 异步方法，返回Promise对象。参数同上，仅多一个timeout 延时可选参数。返回内容按asyncResult处理
-
-* **asyncCreate**  
-* **asyncRead**  
-* **asyncUpdate**  
-* **asyncDelete**  
-* **asyncExist**  
-* **asyncList**   
-* **asyncPagelist**  
+* **pageList**(query, successMsg)    分页列表，可选过滤数据的查询条件  
+* **async** (methodName, ...args )  异步数据（本地模拟使用），参数一为上述方法名，参数二起同上，最后一个参数为延时时长。  
 
 > access.config 全局属性配置说明：  
 
 * **uniqueKey**?: string 不重复索引属性名称，默认: id  
 * **uniqueType**? number 索引键类型increment(0)或uuid(1)，默认: 0  
-* **asyncResult**?: function 自定义异步返回处理  
-* **success**?: function 自定义返回成功处理 
-* **failure**?: function 自定义返回失败处理
+* **api**?: object 自定义API接口属性项，参见后面示例  
+* **page**?: object 自定义分页属性项，参见后面示例  
 
 -------
 
@@ -340,7 +328,21 @@ shai.gen({
 
 // 可选配置
 /* access.config = {
-  success: (value: any, msg?: string) => { code: 0, message: msg || '操作成功！', data: value }
+    api: { // 接口属性设定
+      statusField: 'code',
+      messageField: 'message',
+      resultsField: 'data',
+      successCode: 0,
+      failureCode: 500
+    },
+    page: { // 分页属性设定
+      sizeField: 'pageSize',
+      currentField: 'pageIndex',
+      countField: 'pageCount',
+      totalField: 'total',
+      resultsField: 'list'
+    }
+
 } */
 
 // 增加静态值便于测试
@@ -352,8 +354,7 @@ module.exports = function(app) {
   });
   
   app.get('/api/user/getlist', function(req, res) {
-    const { pageSize, pageIndex, user } = req.query;
-    res.json(access.pageList({pageSize, pageIndex}, user, '')); //模拟用户列表分页
+    res.json(access.pageList(req.query)); //模拟用户列表分页
   })
 
   app.post('/api/user/add', function(req, res) {
@@ -408,7 +409,7 @@ export default {
     };
 
     gen(project);
-    mock.onGet('/project/list').reply(async params => access.asyncList(params);
+    mock.onGet('/project/list').reply(async params => access.async('list', params);
   }
 }
 

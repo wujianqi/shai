@@ -16,36 +16,37 @@ gen({
 
 access.create({ username: 'admin', password: '123456'});
 
-access.asyncExist({ username: 'admin', password: '111' }, '成功登录', '账号信息错误')
+access.async('exist',{ username: 'admin', password: '111' }, '成功登录', '账号信息错误')
 .then(res => {
   console.log('模拟用户认证', res)
 }) 
 
-access.asyncUpdate({id: 10, username: 'admin2', password: '222222'})
+access.async('update', {id: 10, username: 'admin2', password: '222222'})
 .then(res => {
   console.log('模拟修改', res)
   //console.log(access.data)
 })
 
-//access.asyncDelete([{id: 11, username: 'ddfasd'}, {id: 18}])
-access.asyncDelete(['11', '18'])
-//access.asyncDelete(['11', '18'])
+//access.async('delete', [{id: 11, username: 'ddfasd'}, {id: 18}])
+access.async('delete', ['11', '18'])
+//access.async('delete', ['11', '18'])
 .then(res => {
   console.log('模拟删除', res)
   //console.log(access.data)
 })
-/* 
-access.asyncRead({ id: 16 })
-.then(res => {
-  console.log('模拟数据读取', res)
-})
 
-access.asyncList({ username:'admin' })
+access.async('list')
 .then(res => {
   console.log('查询列表', res)
 })
 
-access.asyncPageList({ pageSize: '6', pageIndex: '1' }, undefined, '')
+/* 
+access.async('read', { id: 16 })
+.then(res => {
+  console.log('模拟数据读取', res)
+})
+
+access.async('pageList', { pageSize: '6', pageIndex: '1' }, '')
 .then(res => {
   console.log('查询列表', JSON.stringify(res))
 }) */

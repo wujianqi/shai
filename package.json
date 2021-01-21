@@ -1,13 +1,14 @@
 {
   "name": "shai",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "数据模拟库",
   "main": "lib/shai.js",
   "module": "es/shai.js",
   "types": "es/shai.d.ts",
   "files": [
     "es",
-    "lib"
+    "lib",
+    "src"
   ],
   "scripts": {
     "build": "set NODE_ENV=production && rollup -c -m",

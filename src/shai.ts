@@ -1,7 +1,7 @@
-import Access, { haskey, AccessConfig, PageParam, UniqueType} from './access';
+import Access, { haskey, AccessConfig, UniqueType} from './access';
 
 export type TUnique = typeof UniqueType; 
-export { AccessConfig, PageParam };
+export { AccessConfig };
 
 interface MethodFunc {
   (...args: any[]): any;
@@ -22,9 +22,6 @@ export interface SettingOption {
   key?: string;
   length?: number | [number, number];  
   level?: number | [number, number];
-  renew?: object;
-  remove?: (string| number)[];
-  at?: number;
 }
 
 // 深度拷贝
