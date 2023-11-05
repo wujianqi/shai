@@ -1,54 +1,40 @@
-import {rand, util, web} from '../src/mock';
-import Shai from '../src/shai';
+import {util, web} from '../src/mock';
+import Shai from '../src/generator';
+import Access from '../src/access';
 
 console.time('test');
 
-const { use, gen, access } = new Shai();
+const { use, gen } = new Shai();
+const access = new Access();
+
 var im1 =  util.incre();
 
 // 模拟数据
-gen({
+let data = gen({
   setting: 20,
   id : use(im1.val),
   username : use(web.account),
   password : use(web.password)
 });
 
-access.create({ username: 'admin', password: '123456'});
+access.data = data;
 
-access.async('exist',{ username: 'admin', password: '111' }, '成功登录', '账号信息错误')
-.then(res => {
-  console.log('模拟用户认证', res)
-}) 
+let dt = access.create({ username: 'admin', password: '123456'});
+console.log("新增数据是否成功", dt)
 
-access.async('update', {id: 10, username: 'admin2', password: '222222'})
-.then(res => {
-  console.log('模拟修改', res)
-  //console.log(access.data)
-})
+dt = access.read({ username: 'admin', password: '111' })
+console.log("是否存在", dt)
 
-//access.async('delete', [{id: 11, username: 'ddfasd'}, {id: 18}])
-access.async('delete', ['11', '18'])
-//access.async('delete', ['11', '18'])
-.then(res => {
-  console.log('模拟删除', res)
-  //console.log(access.data)
-})
+dt = access.update({id: 10, username: 'admin2', password: '222222'})
+console.log("更新是否成功", dt)
 
-access.async('list')
-.then(res => {
-  console.log('查询列表', res)
-})
+let dt2= access.delete(['11', '28'])
+console.log("删除是否成功", dt2)
 
-/* 
-access.async('read', { id: 16 })
-.then(res => {
-  console.log('模拟数据读取', res)
-})
+dt = access.list()
+console.log("获取数据列表", dt)
 
-access.async('pageList', { pageSize: '6', pageIndex: '1' }, '')
-.then(res => {
-  console.log('查询列表', JSON.stringify(res))
-}) */
+dt = access.pageList({ pageSize: 8, pageIndex: 1 })
+console.log("获取分页数据列表", dt)
 
 console.timeEnd('test');

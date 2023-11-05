@@ -3,23 +3,24 @@
 
 ------
 
-![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/es/shai.js?label=shai%20size)
-![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/es/mock.js?label=mock%20size)
-![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/es/region.js?label=region%20size)
+![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/shai.js?label=shai%20size)
+![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/access.js?label=access%20size)
+![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/mock.js?label=mock%20size)
+![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/region.js?label=region%20size)
 ![npm type definitions](https://img.shields.io/npm/types/shai)
 ![npm](https://img.shields.io/npm/v/shai)  
 
 本库介绍 ：  
-- [x] 本库含3个子项，均可独立使用。见各子项引用示例及说明。  
-- [x] 子项1，数组生成及CRUD模仿器，支持**多级自嵌套**、指定数量、随机数量生成。  
-- [x] 支持**仿数据记录集CRUD**，快速模拟数据的增、删、改、查等Restful API功能。  
-- [x] 子项2，常用模拟数据工具库，含44项方法，**轻量级**，文件小。  
-- [x] 子项3，区域数据模拟，可到区县级，生成**对应地区范围的经纬度、电话**等信息。  
-- [x] 库最低支持ES5，前后端通用，无其它依赖包。  
+- [x] 本库含4个子项，均可独立使用。见各子项引用示例及说明。   
+- [x] 子项1，JSON数组数据生成，支持**多级自嵌套**、指定数量、随机数量生成。   
+- [x] 子项2，快速模拟数据的增、删、改、查，**仿数据记录集CRUD**。    
+- [x] 子项3，常用模拟数据工具库，含44项方法，**轻量级**，文件小。  
+- [x] 子项4，区域数据模拟，可到区县级，生成**对应地区范围的经纬度、电话**等信息。  
+- [x] 库为 ES6，前后端通用，无其它依赖包。  
 
 ------
 
-##### 安装：&nbsp; &nbsp; [Demo1（简单模拟）](https://175.io/demo/demo2.html) &nbsp; &nbsp; [Demo2（区划）](https://175.io/demo/demo3.html)   
+##### 安装：&nbsp; &nbsp; [Demo](https://code.juejin.cn/pen/7297611369761734666)    
  
 
 ```npm
@@ -28,20 +29,20 @@ npm install shai -D
 
 -------
 
-### 数组生成及CRUD模仿器
+### JSON数组生成
 
 ##### 引用库模块及基本用法示例：
 
 ```javascript
 
 import Shai from 'shai';
-import { web, rand } from 'shai/es/mock'; // 也可以选用第三方库
+import { web, rand } from 'shai/mock';
 
 const { use, gen } = new Shai();
 
 gen({
   setting: 2,
-  username: use(web.account),
+  username: use(web.account), //use对象，为对应生成数据的函数方法，可以自定义
   password: use(web.password)
 })
 /* 生成结果（普通数组）：
@@ -74,7 +75,6 @@ gen({
 
 * **use**(func, ...args)  第1个参数为所使用生成数据的方法函数，第2到n个参数为函数的实参设值。  
 * **gen**(data, propKey?) 第1个参数为设定了相关规则的数据对象，第2个为自定义选项的键名（默认为setting）。 
-* **access** 对gen生成的数据，进行仿数据记录集CRUD操作对象，详见下面“仿数据记录集CRUD操作方法说明”相关内容
 
 ##### 批量对象生成设定规则
 * **setting: number** 设定生成普通数组的长度，值为指定数目。  
@@ -85,7 +85,7 @@ gen({
 > key 子对象组的属性名，不设定则默认为children。  
 > level 子对象组的的层级数目，不设定则默认1。   
 >  
-> 提示：嵌套数据层数请谨慎设置，如：setting:{length: 15, level:5}，那么产生的记录是813615条！为**指数级**。  
+> 提示：嵌套数据层数请谨慎设置，如：setting:{length: 15, level:5}，那么产生的记录是70多万条！为**指数级**。  
 > 建议：使用多级数据模版组合，局部或少量采用嵌套。  
 
 ##### 更多数据生成用法示例：
@@ -123,40 +123,77 @@ let data = gen({ myKey: 20, num: use(rand.int) }, 'myKey')
 console.log(data);
 
 ```
+-------
+
+### 仿数据集数组操作（access）
 
 ##### 仿数据记录集CRUD操作方法说明  
 
-> 对数组数据，进行仿数据记录集CRUD操作，快速模拟Restful API； 具体用法参考本文后述模拟示例。  
-> create, update, delete 参数1为请求对象（必选）, 参数2为成功消息（可选）, 参数3为失败消息（可选）。  
-> read, exist 参数1、2、3同上，参数4为合并属性输出（可选）。  
-> list 参数1为请求对象（可选）, 参数2为成功消息（可选），没有失败，没数据返回空数组。 
-> pageList 同上，但查询参数需有2个属性：当前页码，每页条数；返回值除对象数组外，再包裹了层统计属性。  
+> 对数组数据，快速仿数据记录集CRUD操作。用法见下面示例。
+> 数据操作不成功，一律返回undefined  
 
-* **create**(params, successMsg, errMsg)      新增单条或多条记录  
-* **read**(query, successMsg, errMsg, mergeObj)  查询单条记录  
-* **update**(params, successMsg, errMsg)      修改单条记录，并返回修改后记录  
-* **delete**(query, successMsg, errMsg)      删除单条或多条记录，返回删除后数据  
-* **exist**(query, successMsg, errMsg, mergeObj) 查询记录是否存在，并返回该记录  
-* **list**(query, successMsg)                普通列表，可选过滤数据的查询条件  
-* **pageList**(query, successMsg)    分页列表，可选过滤数据的查询条件  
-* **async** (methodName, ...args )  异步数据（本地模拟使用），参数一为上述方法名，参数二起同上，最后一个参数为延时时长。  
+* **create**(params)      新增单条或多条记录，返回该条新记录  
+* **read**(query, mergeObj)  查询单条记录，返回该条记录，可选合并到第二参数对象  
+* **update**(params)      修改单条记录，并返回修改后该行记录 
+* **delete**(query)      删除单条或多条记录，返回成功删除数据的索引值数组  
+* **list**(query?)        普通列表，可选过滤数据的查询条件  
+* **pageList**(query, queryKeys? returnKeys?)    分页列表，可选过滤数据的查询条件，查询对象分页属性必需有当前页码、数量，可选参数2为指定查询参数的页码、数量键名配置选项，可选参数3为指定输出对象的键名配置选项。  
 
-> access.config 全局属性配置说明：  
+> access.config 全局属性配置说明：
 
 * **uniqueKey**?: string 不重复索引属性名称，默认: id  
 * **uniqueType**? number 索引键类型increment(0)或uuid(1)，默认: 0  
-* **api**?: object 自定义API接口属性项，参见后面示例  
-* **page**?: object 自定义分页属性项，参见后面示例  
+
+> access.data 数据设值
+
+##### 更多数据生成用法示例：
+
+
+```javascript
+import Generator, { cn, text, util, rand } from 'shai'; 
+import Access from 'shai/access'; 
+
+const { use, gen } = new Generator();
+const access = new Access();
+var im1 =  util.incre();
+
+// 模拟数据
+access.data = gen({
+  setting: 20,
+  id : use(im1.val),
+  username : use(web.account),
+  password : use(web.password)
+});
+
+let dt = access.create({ username: 'admin', password: '123456'});
+console.log("新增数据是否成功", dt)
+
+dt = access.read({ username: 'admin', password: '111' })
+console.log("是否存在", dt)
+
+dt = access.update({id: 10, username: 'admin2', password: '222222'})
+console.log("更新是否成功", dt)
+
+dt = access.delete(['11', '28'])
+console.log("删除是否成功", dt)
+
+dt = access.list()
+console.log("获取数据列表", dt)
+
+dt = access.pageList({ pageSize: 8, pageIndex: 1 })
+console.log("获取分页数据列表", dt)
+
+```
 
 -------
+
 
 ### 常用数据模拟
 
 ##### 用法示例：
 
 ```javascript
-import { rand, util, cn, en, web, text, date } from 'shai/es/mock'; 
-// ES5 引用 const { rand, util, cn } = require("shai/lib/mock");
+import { rand, util, cn, en, web, text, date } from 'shai/mock'; 
 
 console.log(rand.str(2, '测试看看'));
 console.log(cn.fullName());
@@ -186,8 +223,8 @@ shuffle | 随机打乱字符或数组位置 | 必选参数1为指定内容
 
 方法名 | 用途 | 参数说明
 -|-|- 
-time | 随机时间| 可选前2个参数为限定时间范围，参数1，开始时间，参数2，结束时间。<br>可选参数3为格式化样式yyyyMMdd hh:mm:ss，输出为string，<br>无参数3则为Date类型。  
-now | 当前时间 | 可选参数1为格式化样式yyyyMMdd hh:mm:ss，输出为string，<br>无参数则为Date类型。  
+time | 随机时间| 可选前2个参数为限定时间范围，参数1，开始时间，参数2，结束时间。<br>可选参数3为格式化样式YYYY/MM/DD HH:mm:ss，输出为string。  
+now | 当前时间 | 可选参数1为格式化样式YYYY/MM/DD HH:mm:ss, 输出为string。  
 year | 年，数字 | 
 month | 月，数字 | 
 day | 天，数字 | 
@@ -251,9 +288,9 @@ account | 账号名 |
 password | 密码 | 
 qq | QQ号 | 
 domain | 域名 | 
-url | 网页地址 | 
+url | 网页地址 | 可选参数1，为协议名前缀，如https、ws
 email | 邮编 | 
-ip | IP地址 | 可选参数1，为局域网IP
+ip | IPV4地址 | 可选参数1，为局域网IP
 color | 颜色值 | 
 
 -------
@@ -265,8 +302,8 @@ color | 颜色值 |
 ##### 用法示例：  
 
 ```javascript
-import Region from 'shai/es/region'; 
-// ES5 引用 const Region = require("shai/lib/region");
+import Region from 'shai/region'; 
+
 let region = new Region(440300);  // 实例化的参数可选，没有指定则随机全国
 
 console.log(region.longitude());
@@ -290,127 +327,14 @@ autocard | 车牌号 |
 
 -------
 
-##### 第三方模拟库推荐
+##### 更多模拟库推荐
 
-如果本库不能满足需求，还可以结合以下库来组合开发。
+如果本库不能满足需求，可结合以下库来组合开发。
 
 * 正则模拟： [randexp](https://github.com/fent/randexp.js)  
 * 颜色随机： [random color](https://github.com/davidmerfield/randomColor)  
 * 图片数据：[holder](https://github.com/imsky/holder)  
-* faker：[faker](https://github.com/Marak/faker.js)  
 * axios请求拦截： [axios-mock-adapter](https://github.com/ctimmerm/axios-mock-adapter)  
-* API服务模拟： [json-server](https://github.com/typicode/json-server)  
+* API服务模拟： [msw](https://github.com/mswjs/msw)   
+* API服务模拟： [json-server](https://github.com/typicode/json-server)   
 
--------
-
-##### webpack-dev-server 模拟示例
-
-```javascript
-
-/* ---用户数据模拟 mock/user.js----*/
-// 注：需用es5模块化、同步方法
-// 亦可用在 express
-
-const Shai = require('shai');
-const { util, web } = require('shai/lib/mock');
-
-const shai = new Shai();
-const access = shai.access;
-const im1 =  util.incre();
-
-// 模拟数据
-shai.gen({
-  setting: 20,
-  id: shai.use(im1.val),
-  username: shai.use(web.account),
-  password: shai.use(web.password)
-});
-
-// 可选配置
-/* access.config = {
-    api: { // 接口属性设定
-      statusField: 'code',
-      messageField: 'message',
-      resultsField: 'data',
-      successCode: 0,
-      failureCode: 500
-    },
-    page: { // 分页属性设定
-      sizeField: 'pageSize',
-      currentField: 'pageIndex',
-      countField: 'pageCount',
-      totalField: 'total',
-      resultsField: 'list'
-    }
-
-} */
-
-// 增加静态值便于测试
-access.create({ username: 'admin', password: '111111'});
-
-module.exports = function(app) {
-  app.post('/api/user/login', function(req, res){
-    res.json(access.exist(req.body, '登录成功！', '账号错误!') // 模拟用户登录
-  });
-  
-  app.get('/api/user/getlist', function(req, res) {
-    res.json(access.pageList(req.query)); //模拟用户列表分页
-  })
-
-  app.post('/api/user/add', function(req, res) {
-    res.json(access.create(req.body)); // 新增用户
-  })
-
-  app.put('/api/user/update', function(req, res) {
-    res.json(access.update(req.body)); // 修改用户
-  })
-
-  app.delete('/api/user/delete', function(req, res) {
-    res.json(access.delete(Object.values(req.query))); // 删除用户
-  })
-
-}
-
-/* ----devServer 配置项----*/
-const bodyParser = require("body-parser");
-const user = require("./mock/user")
-
-before(app) {
-  app.use(bodyParser.urlencoded({ extended: false }));
-  app.use(bodyParser.json());  
-  user(app);
-}
-
-```
-
-##### axios-mock-adapter 模拟示例
-
-```javascript
-// 与 Vue React 等框架结合使用
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
-import Shai from 'shai';
-import {cn, util} from 'shai/es/mock';
-import Region from 'shai/es/region';
-
-export default {
-  init() {
-    const mock = new MockAdapter(axios);
-    const { gen, use, access} = new Shai();
-    const region = new Region();
-    const id = util.incre();
-    const company = ()=> region.prefecture() + cn.company();
-    const project = {
-        setting: 50,
-        id: use(id.val),
-        name: use(cn.fullName),
-        build: use(cn.build),
-        company: use(company)
-    };
-
-    gen(project);
-    mock.onGet('/project/list').reply(async params => access.async('list', params);
-  }
-}
-
-```

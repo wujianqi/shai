@@ -12,21 +12,30 @@ const COMMON = '云舟巨鹏飞捷华禄富瑞天隆益力发文化世新金润�
   COUNTRY_CN = ['美国', '中国', '日本', '德国', '英国', '法国', '印度', '意大利', '巴西', '加拿大', '韩国', '俄罗斯', '澳大利亚', '西班牙', '墨西哥', '印度尼西亚', '土耳其',  '荷兰', '瑞士'],
   COMPANY = ['股份', '科技', '电子', '实业', '商贸', '机械', '服装', '广告', '建材', '物流', '能源', '办公用品', '信贷', '培训', '酒店', '房地产', '食品', '汽车服务', '五金'],
   BUILD = ['新村','花园', '小区', '苑', '大厦', '公寓', '楼', '广场', '城'],
-  ROAD = ['建设', '人民', '文化', '迎宾', '朝阳', '育才', '振兴', '光明', '幸福', '解放', '团结', '公园', '和平', '新华', '西环', '胜利', '南环', '平安', '向阳', '滨河', '东环', '友谊', '富民', '前进'],
+  ROAD = ['建设', '人民', '文化', '迎宾', '朝阳', '育才', '振兴', '光明', '幸福', '解放', '团结', '和平', '新华', '西环', '胜利', '南环', '平安', '向阳', '滨河', '东环'],
   AVENUE = ['路','街','大道'],
   DOMAIN = ['com','cn','com.cn','net'],
   DI_CODE = [11, 12, 13, 14, 15, 21, 22, 23, 31, 32, 33, 34, 35, 36, 37, 41, 42, 43, 44, 45, 46, 50, 51, 52, 53, 54, 61, 62, 63, 64, 65],
   DI_NAME = ['北京市', '天津市', '河北省', '山西省', '内蒙古自治区', '辽宁省', '吉林省', '黑龙江省','上海市', '江苏省', '浙江省', '安徽省', '福建省', '江西省', '山东省', '河南省', '湖北省', '湖南省', '广东省', '广西壮族自治区', '海南省', '重庆市', '四川省', '贵州省', '云南省', '西藏自治区', '陕西省', '甘肃省', '青海省', '宁夏回族自治区', '新疆维吾尔自治区'],
   DI_SHORT = '京津冀晋蒙黑吉辽沪苏浙皖闽赣鲁湘鄂豫粤桂琼川云贵藏陕甘青宁新';
 
+/**
+ * 生成简单随机值
+ */
 export { rand };
 
+/**
+ * 生成自增数、UUID、区间数
+ */
 export const util = {
   incre: (a?: number, b?: number) => new Increment(a, b),
   range,
   uuid
 }
 
+/**
+ * 文本片段生成
+ */
 export const text = {
   repeat: (n = 1, arg = '填充文本样式') => 
     arg.repeat ? arg.repeat(n) : new Array((n || 10) + 1).join(arg),
@@ -35,37 +44,45 @@ export const text = {
       s = new Array(len);
 
     for (let i = 0; i < len; i++)
-      s[i] = String.fromCharCode(rand.int(19968, 40869));
+      //s[i] = String.fromCharCode(rand.int(19968, 40869));
+      s[i] = rand.str(1, COMMON)
+
     return s.join('');
   }
     
 }
 
+/**
+ * 时间值生成
+ */
 export const date = {
-  time(bt?: string | number | Date, et?: string | number| Date, fmt?: string) {
-    const b = bt ? new Date(bt).getTime(): -28800000,
-      e = et? new Date(et).getTime(): new Date().getTime(),
+  time(begin?: string | number | Date, end?: string | number| Date, fmt: string = 'YYYY/MM/DD HH:mm:ss') {
+    const b = begin ? new Date(begin).getTime(): -28800000,
+      e = end? new Date(end).getTime(): new Date().getTime(),
       date = new Date(rand.int(b, e));
 
-    return fmt ? formatDate(date, fmt) : date;
-  },
-  now: (fmt?: string) => fmt ? formatDate(new Date(), fmt) : new Date(),
-  year : () => rand.int(1949, 2020),
+    return formatDate(date, fmt);
+  },  
+  now: (fmt: string = 'YYYY/MM/DD HH:mm:ss') => formatDate(new Date(), fmt),
+  year : (begin = 1975) => rand.int(begin, (new Date()).getFullYear()),
   month: () => rand.int(1, 12),
   day: () => rand.int(1, 28),
   hour: () => rand.int(1, 24),
   minute: () => rand.int(0, 59),
 }
 
+/**
+ * 常用中文（地区）数据模拟
+ */
 export const cn = {
   firstName: () => rand.str(1, SURE_CN),
   maleName:  () => rand.str(1, SURE_CN) +  rand.str(rand.int(1,2), MALE_CN),
   femaleName:  () => rand.str(1, SURE_CN) +  rand.str(rand.int(1,2), FEM_CN),
   fullName:  () => rand.str(1, SURE_CN) +  
     (rand.bool() ?  rand.str(rand.int(1,2), MALE_CN) : rand.str(rand.int(1,2), FEM_CN)),
-  mobile: () => rand.pick(['13'+ String(rand.int(1, 9)),'15'+ rand.numstr(1),'17'+ rand.str(1, '018')]) + rand.numstr(8), 
+  mobile: () => rand.pick(['13'+ rand.int(1, 9),'15'+ rand.numstr(1),'17'+ rand.str(1, '018')]) + rand.numstr(8), 
   idcard: () => {
-    const pad = (num: number) => num < 10 ? '0' + String(num) : String(num),
+    const pad = (num: number) => num < 10 ? '0' + num : '' + num,
       sn = [rand.pick(DI_CODE), 0, rand.int(1, 5), 0, rand.int(1, 5), date.year(), 
         pad(rand.int(1, 12)), pad(rand.int(1, 28)), rand.numstr(3)].join(''),
       arr = sn.split(''),
@@ -93,6 +110,9 @@ export const cn = {
   province: () => rand.pick(DI_NAME)
 }
 
+/**
+ * 常用英文（地区）数据模拟
+ */
 export const en = {
   firstName: () => rand.pick(SURE_EN),
   maleName:  () => rand.pick(MALE_EN) + ' ' + rand.pick(SURE_EN),
@@ -101,18 +121,27 @@ export const en = {
   country: () => rand.pick(COUNTRY_EN),
 }
 
+/**
+ * 常用网页数据模拟
+ */
 export const web = {
-  account: () => rand.letter(1, true) + rand.plus(rand.int(5, 6),'-') + rand.letter(1),
-  password: () => rand.letter(1, true) + rand.plus(rand.int(5, 7), '`~!@#$%^&*'),
-  qq: () => String(rand.int(1,2)) + rand.numstr(10),
-  domain: () => rand.bool() ? rand.alphanum(rand.int(3, 8)) + '.' : '' + 
-    rand.alphanum(rand.int(3, 8)) + '.' + rand.pick(DOMAIN),
-  url: () => ['http'+ rand.once('s') + '://www',
-    rand.alphanum(rand.int(3, 8)), rand.pick(DOMAIN) + 
-    rand.once('/' + rand.letter(rand.int(3, 8)))].join('.'), 
+  account: () => rand.letter(1, true) + rand.plus(3,'-') + rand.alphanum(4),
+  password: () => {
+    const spe = '`~!@#$%^&*',
+      ns = rand.str(1, spe) + rand.letter(1, true, false) + rand.numstr(1) + rand.plus(4, spe )
+
+    return rand.letter(1, true) + rand.shuffle(ns);
+  },
+  qq: () => +(rand.int(1,2).toString() + rand.numstr(rand.int(5, 10))),
+  domain: () => rand.alphanum(rand.int(3, 8)) + '.' + rand.pick(DOMAIN),
+  url: (prefix = 'https') =>  (prefix + '://www.') + rand.alphanum(rand.int(3, 8)) + '.' + rand.pick(DOMAIN)
+      + rand.once('/' + rand.letter(rand.int(3, 8))),
   email: () => [rand.letter(rand.int(3, 8)) + '@' +
     rand.alphanum(rand.int(3, 8)), rand.pick(DOMAIN)].join('.'),
-  ip: (local = false) => [local ? rand.pick(['198','172','10']) : rand.int(0, 255),
-    rand.int(0, 255), rand.int(0, 255), rand.int(0, 255)].join('.'),
-  color: () => '#'+ rand.hex(6),
+  ip: (local = false) => {
+    const ips = local ? rand.pick(['192.168.','172.16.','10.0.']) : rand.int(10, 255)+'.'+rand.int(1, 255)+'.';
+
+    return ips + rand.int(0, 255)+'.'+rand.int(1, 255);
+  }, 
+  color: () => '#' + rand.hex(6),
 }

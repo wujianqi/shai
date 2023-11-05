@@ -16,14 +16,14 @@ export class Increment {
  */
 export const range = (min: number, max: number, step = 1) => {
   const num = ~~((max-min)/step) + 1,
-    arr = new Array(num);
+    arr:number[] = new Array(num);
 
   for (let i = 0; i <= num; i++) arr[i] = min + step*i;
   return arr;
 }
 
 /**
- * UUID/GUID
+ * UUID
  * @param arg 
  */
 export const uuid = (arg = '-'): string => {
@@ -41,37 +41,36 @@ export const uuid = (arg = '-'): string => {
 /**
  * 日期格式化
  * @param d 
- * @param fmt 
+ * @param fmt YYYY/MM/DD HH:mm:ss ,部分对齐Day.js格式化方式
  */
-export function formatDate(d: Date, fmt: string): string {
-  const o: { [key: string]: number } = {
+export function formatDate(d: Date, fmt: string) {
+  const opt:{ [key:string]: number } = {
+    'Y+': d.getFullYear(),
     'M+': d.getMonth() + 1,
-    'd+': d.getDate(),
-    'h+': d.getHours(),
+    'D+': d.getDate(),
+    'd+': d.getDay(),
+    'H+': d.getHours(),
+    'h+': d.getHours() % 12,
     'm+': d.getMinutes(),
     's+': d.getSeconds(),
-    'q+': parseInt(((d.getMonth() + 3) / 3).toString()),
-    'S': d.getMilliseconds(),
-  }, 
-    week: string[] = [
-      '/u65e5', '/u4e00', '/u4e8c', '/u4e09', '/u56db', '/u4e94', '/u516d',
-    ]
-  let t;
+    'S+': d.getMilliseconds(),
+    //'a+': (d.getHours() >= 12 
+    //'q+': Math.floor((d.getMonth() + 3) / 3)    
+  };
+  
+  for (const k in opt) {
+    const n = new RegExp('(' + k + ')').exec(fmt);
+    if(n){
+      const t = (n || []) [1] || '', l = t.length;
+      let v = opt[k], str;
 
-  if (/(y+)/.test(fmt)) {
-    t = RegExp.$1;
-    fmt = fmt.replace(t, String(d.getFullYear()).substr(4 - t.length));
-  }
-  if (/(E+)/.test(fmt)) {
-    t = RegExp.$1;
-    fmt = fmt.replace(t, (t.length > 1 ? (t.length > 2 ? '/u661f/u671f' : '/u5468') : '') + 
-            week[d.getDay()]);
-  }
-  for (const k in o) {
-    if (new RegExp('(' + k + ')').test(fmt)) {
-      t = RegExp.$1;
-      const num = String(o[k]);
-      fmt = fmt.replace(t, ((t.length === 1) ? num : ('00' + num).slice(-t.length)));
+      if(k === 'h+' && v === 0 ) v = 12;
+      if(k === 'd+'){
+        str = (l > 1 ? (l > 2 ? '星期' : '周') : '') + '日一二三四五六'.charAt(v);
+      } else {
+        str = ((l === 1 ? '': '00') + v).slice(-l);
+      }        
+      fmt = fmt.replace(t, str);
     }
   }
   return fmt;

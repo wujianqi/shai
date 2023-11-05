@@ -1,38 +1,61 @@
 {
   "name": "shai",
-  "version": "0.3.6",
+  "version": "0.4.0",
   "description": "数据模拟库",
-  "main": "lib/shai.js",
-  "module": "es/shai.js",
-  "types": "es/shai.d.ts",
+  "type": "module",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
-    "es",
-    "lib",
+    "dist",
     "src"
   ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./access": {
+      "types": "./dist/access.d.ts",
+      "import": "./dist/access.mjs"
+    },
+    "./mock": {
+      "types": "./dist/mock.d.ts",
+      "import": "./dist/mock.mjs"
+    },
+    "./region": {
+      "types": "./dist/region.d.ts",
+      "import": "./dist/region.mjs"
+    },
+    "./random": {
+      "types": "./dist/random.d.ts",
+      "import": "./dist/random.mjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*"
+      ]
+    }
+  },
   "scripts": {
-    "build": "set NODE_ENV=production && rollup -c -m",
-    "dev": "rollup -c",
-    "test": "ts-node ./test/gen.spec.ts",
-    "test:r": "ts-node ./test/region.spec.ts",
-    "test:m": "ts-node ./test/mock.spec.ts",
-    "test:a": "ts-node ./test/access.spec.ts",
-    "test:l": "node ./test/lib.spec.js",
+    "build": "rimraf -rf ./dist; && unbuild",
+    "dev": "unbuild --stub",
+    "test": "jiti ./test/gen.spec.ts",
+    "test:r": "jiti ./test/region.spec.ts",
+    "test:m": "jiti ./test/mock.spec.ts",
+    "test:a": "jiti ./test/access.spec.ts",
     "fix": "eslint --fix ./src/**/*.ts",
     "eslint": "eslint ./src/**/*.ts"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^11.0.2",
-    "@rollup/plugin-node-resolve": "^7.1.1",
-    "@typescript-eslint/eslint-plugin": "^2.19.0",
-    "@typescript-eslint/parser": "^2.19.0",
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.0",
-    "rollup": "^1.31.0",
-    "rollup-plugin-terser": "^5.2.0",
-    "rollup-plugin-typescript2": "^0.25.3",
-    "ts-node": "^8.6.2",
-    "typescript": "^3.7.3"
+    "@types/node": "^20.8.10",
+    "@typescript-eslint/eslint-plugin": "^6.9.1",
+    "@typescript-eslint/parser": "^6.9.1",
+    "eslint": "^8.53.0",
+    "eslint-config-prettier": "^9.0.0",
+    "typescript": "^5.2.2",
+    "unbuild": "^2.0.0"
   },
   "repository": {
     "type": "git",

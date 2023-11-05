@@ -1,5 +1,5 @@
 import {rand, date, util, web, cn} from '../src/mock';
-import Shai from '../src/shai';
+import Shai from '../src/index';
 import Region from '../src/region';
 
 console.time('test');

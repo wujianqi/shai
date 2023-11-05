@@ -12,7 +12,7 @@ console.log('int3 ----', rand.int(-28800000, 1584830722508));
 console.log('number ----', rand.number(100000,200000,1));
 console.log('bool ----', rand.bool());
 console.log('datetime ----', date.time());
-console.log('datetime2 ----', date.time('2000/10/01', new Date(), 'yyyy-MM-dd hh:mm:ss'));
+console.log('datetime2 ----', date.time('2000/10/01', new Date(), 'YYYY-MM-DD hh:mm:ss'));
 console.log('alphanum ----', rand.alphanum());
 console.log('account ----', web.account()); 
 console.log('password ----', web.password());

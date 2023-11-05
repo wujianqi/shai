@@ -1,6 +1,6 @@
 {
    "compilerOptions": {
-        "target": "es5",
+        "target": "ES6",
         "noImplicitAny": true,
         "removeComments": true,
         "strict": true,
@@ -11,7 +11,8 @@
             "node_modules/@types"
         ],
         "declaration": true,
-        "declarationMap": true
+        "declarationMap": true,
+        "declarationDir": "dist",
    },
    "include": [
         "src/**/*"

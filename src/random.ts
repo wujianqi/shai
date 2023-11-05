@@ -1,5 +1,5 @@
-const LETS = 'abcdefghijklmnopqrstuvwxyz',
-  NUMS = '0123456789';  
+const LETS = 'abcdefghijklmnopqrstuvwxyz', 
+  NUMS = '0123456789';
 
 function getInt(a = 1, b = 10): number {
   return Math.floor(Math.random() * (1 + b - a)) + a;
@@ -29,7 +29,13 @@ function pick<T>(arr: T[], num?: number): T | T[] {
   }
 }
 
-function getAny(num: number, fix: number){
+/**
+ * 按进制提取大段文本，减少随机次数
+ * @param num 
+ * @param fix 
+ * @returns 
+ */
+function extract(num: number, fix: number){
   let s = '';
   const n = Math.ceil(num/11);
 
@@ -39,13 +45,23 @@ function getAny(num: number, fix: number){
 }
 
 function getStr(num = 10, strs?: string) { 
-  if (num > 55 && !strs) return getAny(num, 36);
+  if (num > 55 && !strs) return extract(num, 36);
   strs = strs || LETS + NUMS;
   const s: string[] = new Array(num);
 
   for (let i = 0; i < num; i++)
     s[i] = strs.charAt(~~(Math.random()*strs.length));    
   return s.join('');
+}
+
+function shuffle(ct: string) : string;
+function shuffle<T>(ct: T[]) : T[];
+function shuffle<T> (ct: string | T[]) {
+  const f = () => bool() ? -1 : 1;
+
+  if (Array.isArray(ct)) return ct.sort(f);
+  else if(typeof ct === 'string') return Array.from(ct).sort(f).join('');
+  else return ct;
 }
 
 export default {
@@ -78,13 +94,7 @@ export default {
   /**
    * 字符或数组位置打乱
    */
-  shuffle: (ct: string | any[]) => {
-    const f = () => bool() ? -1 : 1;
-
-    if (Array.isArray(ct)) return ct.sort(f);
-    else if(typeof ct === 'string') 
-      return (Array.from? Array.from(ct): Array.prototype.slice.call(ct)).sort(f).join('');
-  }, 
+  shuffle, 
 
   /**
    * 随机是否
@@ -106,16 +116,16 @@ export default {
   /**
    * 数字（字符类型）
    */
-  numstr: (num = 10) => getAny(num, 10),
+  numstr: (num = 10) => extract(num, 10),
 
   /**
    * 随机字母数字
    */
-  alphanum: (num = 10, isUpper = false) => 
-    isUpper ? getStr(num, LETS + LETS.toUpperCase() + NUMS) : getStr(num),
+  alphanum: (num = 10, hasUpper = false) => 
+    hasUpper ? getStr(num, LETS + LETS.toUpperCase() + NUMS) : getStr(num),
   
   /**
-   * 随机字母数字 + 指定字符（特殊字符）
+   * 随机字母数字 + 扩展指定字符（默认特殊字符）
    */
   plus: (num: number, str: string) => 
     getStr(num, LETS + LETS.toUpperCase() + NUMS + str),
@@ -123,5 +133,5 @@ export default {
   /**
    * 16进制字符
    */
-  hex: (num = 6) => getAny(num, 16),
+  hex: (num = 6) => extract(num, 16),
 }
