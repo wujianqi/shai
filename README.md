@@ -3,10 +3,10 @@
 
 ------
 
-![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/shai.js?label=shai%20size)
-![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/access.js?label=access%20size)
-![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/mock.js?label=mock%20size)
-![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/region.js?label=region%20size)
+![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/index.mjs?label=generator)
+![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/access.mjs?label=access%20size)
+![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/mock.mjs?label=mock%20size)
+![GitHub file size in bytes](https://img.shields.io/github/size/wujianqi/shai/dist/region.mjs?label=region%20size)
 ![npm type definitions](https://img.shields.io/npm/types/shai)
 ![npm](https://img.shields.io/npm/v/shai)  
 
