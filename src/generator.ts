@@ -19,8 +19,8 @@ function haskey(obj: PlainObject, k: string){
 
 // 深度拷贝
 function clone<T extends JsonArrayOrObject>(obj: T): T {
-  if(typeof globalThis !== 'undefined' && globalThis['structuredClone'])  
-    return structuredClone(obj);
+  /* if(typeof globalThis !== 'undefined' && globalThis['structuredClone'])  
+    return structuredClone(obj); */
 
   const newObj = Array.isArray(obj) ? [] : {};
   for (const k in obj) {

@@ -13,10 +13,8 @@ interface PageQueryKeys {
     size?: string;
     index?: string;
 }
-interface PageReturnKeys {
+interface PageReturnKeys extends PageQueryKeys {
     total?: string;
-    size?: string;
-    index?: string;
     count?: string;
     list?: string;
 }

@@ -31,10 +31,8 @@ export interface PageQueryKeys{
   size?: string;
   index?: string;
 }
-export interface PageReturnKeys{
-  total?: string; 
-  size?: string;
-  index?: string;  
+export interface PageReturnKeys extends PageQueryKeys{
+  total?: string;  
   count?: string;
   list?:string; 
 }
@@ -212,20 +210,18 @@ export default class {
    * @param query  查询参数, 需含分页参数pageSize、pageCurrent
    */
   pageList(query: PlainObject, queryKeys?: PageQueryKeys, returnKeys?: PageReturnKeys) {
-    const qk: Required<PageQueryKeys> = {
+    const qk = {
       size: 'pageSize',
       index: 'pageIndex'
     };
-    const ckf:Required<PageReturnKeys>  = {
-      size: 'pageSize',
-      index: 'pageIndex',
+    const ckf = {
       total: 'pageTotal',
       count: 'pageCount',
       list: 'list'
     };
 
     if(queryKeys) Object.assign(queryKeys, qk);
-    if(returnKeys) Object.assign(returnKeys, ckf);
+    if(returnKeys) Object.assign(returnKeys, qk, ckf);
 
     let pageSize = query[qk.size];
     let pageCurrent = query[qk.index];
@@ -246,7 +242,7 @@ export default class {
     const c = result[ckf.count] = Math.ceil(t/<number>pageSize);
     const lastSize = t - (c - 1)* <number>pageSize + (c-1)*<number>pageSize;
 
-    result[ckf.index] = <number>pageCurrent > c ? c : (<number>pageCurrent < 1 ? 1 :pageCurrent);    
+    result[(ckf as Required<PageReturnKeys>).index] = <number>pageCurrent > c ? c : (<number>pageCurrent < 1 ? 1 :pageCurrent);    
     result[ckf.list]  = this.__datas.slice((<number>pageCurrent-1)*<number>pageSize, 
     <number>pageCurrent < c ? <number>pageCurrent*<number>pageSize : lastSize );
 
